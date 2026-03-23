@@ -34,6 +34,7 @@ interface CustomSelectProps<T extends object> extends Omit<SelectProps<T>, "chil
     options: SelectOption[];
     placeholder?: string;
     className?: string; // Để có thể ghi đè CSS wrapper từ bên ngoài
+    variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
 }
 
 interface MultiSelectProps {
@@ -43,12 +44,14 @@ interface MultiSelectProps {
     selectedKeys?: Key[];
     onChange?: (keys: Key[]) => void;
     className?: string;
+    variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
 }
 function CustomSelect<T extends object>({
     label,
     options,
     placeholder = "Vui lòng chọn...",
     className = "",
+    variant = 'primary',
     ...props
 }: CustomSelectProps<T>) {
     const [selectedKey, setSelectedKey] = useState<Key | null>(props.selectedKey || props.defaultSelectedKey || null);
@@ -82,7 +85,14 @@ function CustomSelect<T extends object>({
                     </Label>
                 )}
 
-                <Button className="flex items-center justify-between w-full px-4 py-2.5 text-sm bg-white border border-gray-300 rounded-lg shadow-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:bg-gray-50 data-pressed:bg-gray-100 data-disabled:opacity-50 data-disabled:cursor-not-allowed group">
+                <Button className={cn(
+                    "flex items-center justify-between w-full px-4 py-2.5 text-sm bg-white border border-gray-300 rounded-lg shadow-sm outline-none transition-all hover:bg-gray-50 data-pressed:bg-gray-100 data-disabled:opacity-50 data-disabled:cursor-not-allowed group",
+                    variant === 'primary' && "focus:border-primary focus:ring-2 focus:ring-primary/20",
+                    variant === 'secondary' && "focus:border-secondary focus:ring-2 focus:ring-secondary/20",
+                    variant === 'danger' && "focus:border-danger focus:ring-2 focus:ring-danger/20",
+                    variant === 'success' && "focus:border-success focus:ring-2 focus:ring-success/20",
+                    variant === 'warning' && "focus:border-warning focus:ring-2 focus:ring-warning/20"
+                )}>
                     <SelectValue className="text-gray-900 truncate data-placeholder:text-gray-500" />
                     <div className="flex items-center gap-1">
                         {selectedKey ? (
@@ -115,14 +125,28 @@ function CustomSelect<T extends object>({
                             <ListBoxItem
                                 key={option.value}
                                 id={option.value}
-                                textValue={option.label}
-                                className="group hover:bg-gray-100 flex items-center justify-between px-3 py-2 text-sm text-gray-500  rounded-md outline-none cursor-pointer transition-colors data-focused:bg-blue-50 data-focused:text-blue-700 data-selected:font-semibold data-selected:text-blue-900 data-selected:bg-blue-50"
+                                textValue={String(option.label)}
+                                className={cn(
+                                    "group flex items-center justify-between px-3 py-2 text-sm text-gray-500 rounded-md outline-none cursor-pointer transition-colors hover:bg-gray-100",
+                                    variant === 'primary' && "data-focused:bg-primary/10 data-focused:text-primary data-selected:bg-primary/10 data-selected:text-primary data-selected:font-semibold",
+                                    variant === 'secondary' && "data-focused:bg-secondary/10 data-focused:text-secondary data-selected:bg-secondary/10 data-selected:text-secondary data-selected:font-semibold",
+                                    variant === 'danger' && "data-focused:bg-danger/10 data-focused:text-danger data-selected:bg-danger/10 data-selected:text-danger data-selected:font-semibold",
+                                    variant === 'success' && "data-focused:bg-success/10 data-focused:text-success data-selected:bg-success/10 data-selected:text-success data-selected:font-semibold",
+                                    variant === 'warning' && "data-focused:bg-warning/10 data-focused:text-warning data-selected:bg-warning/10 data-selected:text-warning data-selected:font-semibold"
+                                )}
                             >
                                 {({ isSelected }) => (
                                     <>
                                         <span className="truncate">{option.label}</span>
                                         {isSelected && (
-                                            <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg className={cn(
+                                                "w-4 h-4",
+                                                variant === 'primary' && "text-primary",
+                                                variant === 'secondary' && "text-secondary",
+                                                variant === 'danger' && "text-danger",
+                                                variant === 'success' && "text-success",
+                                                variant === 'warning' && "text-warning"
+                                            )} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                             </svg>
                                         )}
@@ -144,7 +168,8 @@ function MultiSelect({
     placeholder = "Chọn nhiều mục...",
     selectedKeys: externalKeys,
     onChange,
-    className = ""
+    className = "",
+    variant = 'primary'
 }: MultiSelectProps) {
     const triggerRef = useRef<HTMLDivElement>(null);
     const [triggerWidth, setTriggerWidth] = useState<number>(0);
@@ -204,7 +229,14 @@ function MultiSelect({
             )}
 
             {/* 👈 Sửa ở đây: Thay <div className="group..."> thành <Group> */}
-            <Group ref={triggerRef} className="group relative flex flex-wrap items-center gap-2 p-1.5 bg-white border border-gray-300 rounded-lg shadow-sm focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+            <Group ref={triggerRef} className={cn(
+                "group relative flex flex-wrap items-center gap-2 p-1.5 bg-white border border-gray-300 rounded-lg shadow-sm transition-all focus-within:ring-2",
+                variant === 'primary' && "focus-within:border-primary focus-within:ring-primary/20",
+                variant === 'secondary' && "focus-within:border-secondary focus-within:ring-secondary/20",
+                variant === 'danger' && "focus-within:border-danger focus-within:ring-danger/20",
+                variant === 'success' && "focus-within:border-success focus-within:ring-success/20",
+                variant === 'warning' && "focus-within:border-warning focus-within:ring-warning/20"
+            )}>
 
                 {selectedArray.length > 0 && (
                     /* 👈 Sửa ở đây: Thêm className="contents" để TagGroup không phá layout flex */
@@ -214,13 +246,27 @@ function MultiSelect({
                                 <Tag
                                     key={item.value}
                                     id={item.value}
-                                    className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-md border border-blue-100 outline-none"
+                                    className={cn(
+                                        "flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-md border outline-none",
+                                        variant === 'primary' && "bg-primary/10 text-primary border-primary/20",
+                                        variant === 'secondary' && "bg-secondary/10 text-secondary border-secondary/20",
+                                        variant === 'danger' && "bg-danger/10 text-danger border-danger/20",
+                                        variant === 'success' && "bg-success/10 text-success border-success/20",
+                                        variant === 'warning' && "bg-warning/10 text-warning border-warning/20"
+                                    )}
                                 >
                                     {item.label}
                                     <Button
                                         slot="remove"
                                         onPress={() => removeKey(item.value)}
-                                        className="p-0.5 rounded-full hover:bg-blue-200 transition-colors outline-none"
+                                        className={cn(
+                                            "p-0.5 rounded-full transition-colors outline-none",
+                                            variant === 'primary' && "hover:bg-primary/20",
+                                            variant === 'secondary' && "hover:bg-secondary/20",
+                                            variant === 'danger' && "hover:bg-danger/20",
+                                            variant === 'success' && "hover:bg-success/20",
+                                            variant === 'warning' && "hover:bg-warning/20"
+                                        )}
                                     >
                                         <X className="w-3 h-3" />
                                     </Button>
@@ -252,7 +298,14 @@ function MultiSelect({
                     <div className="flex items-center justify-between p-2.5 border-b border-gray-100 bg-gray-50/50 shrink-0">
                         <span
                             onClick={handleSelectAll}
-                            className="text-xs font-semibold text-blue-600 hover:text-blue-700 cursor-pointer transition-colors"
+                            className={cn(
+                                "text-xs font-semibold cursor-pointer transition-colors",
+                                variant === 'primary' && "text-primary hover:opacity-80",
+                                variant === 'secondary' && "text-secondary hover:opacity-80",
+                                variant === 'danger' && "text-danger hover:opacity-80",
+                                variant === 'success' && "text-success hover:opacity-80",
+                                variant === 'warning' && "text-warning hover:opacity-80"
+                            )}
                         >
                             Chọn tất cả
                         </span>
@@ -275,16 +328,37 @@ function MultiSelect({
                                 key={option.value}
                                 id={option.value}
                                 textValue={String(option.label)}
-                                className="group flex items-center justify-between px-3 py-2 text-sm text-gray-700 rounded-md outline-none cursor-pointer data-focused:bg-blue-50 data-focused:text-blue-700 data-selected:bg-blue-50"
+                                className={cn(
+                                    "group flex items-center justify-between px-3 py-2 text-sm text-gray-700 rounded-md outline-none cursor-pointer",
+                                    variant === 'primary' && "data-focused:bg-primary/10 data-focused:text-primary data-selected:bg-primary/10",
+                                    variant === 'secondary' && "data-focused:bg-secondary/10 data-focused:text-secondary data-selected:bg-secondary/10",
+                                    variant === 'danger' && "data-focused:bg-danger/10 data-focused:text-danger data-selected:bg-danger/10",
+                                    variant === 'success' && "data-focused:bg-success/10 data-focused:text-success data-selected:bg-success/10",
+                                    variant === 'warning' && "data-focused:bg-warning/10 data-focused:text-warning data-selected:bg-warning/10"
+                                )}
                             >
                                 {({ isSelected }) => (
                                     <>
-                                        <span className={cn("truncate", isSelected && "font-semibold text-blue-700")}>
+                                        <span className={cn(
+                                            "truncate",
+                                            isSelected && "font-semibold",
+                                            isSelected && variant === 'primary' && "text-primary",
+                                            isSelected && variant === 'secondary' && "text-secondary",
+                                            isSelected && variant === 'danger' && "text-danger",
+                                            isSelected && variant === 'success' && "text-success",
+                                            isSelected && variant === 'warning' && "text-warning"
+                                        )}>
                                             {option.label}
                                         </span>
                                         <div className={cn(
                                             "w-4 h-4 border rounded flex items-center justify-center transition-colors shrink-0 ml-2",
-                                            isSelected ? "bg-blue-600 border-blue-600" : "border-gray-300 bg-white"
+                                            isSelected ? (
+                                                variant === 'primary' ? "bg-primary border-primary" :
+                                                variant === 'secondary' ? "bg-secondary border-secondary" :
+                                                variant === 'danger' ? "bg-danger border-danger" :
+                                                variant === 'success' ? "bg-success border-success" :
+                                                "bg-warning border-warning"
+                                            ) : "border-gray-300 bg-white"
                                         )}>
                                             {isSelected && (
                                                 <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -313,6 +387,7 @@ interface AutocompleteSelectProps {
     selectedKey?: Key | null;
     onChange?: (key: Key | null) => void;
     className?: string;
+    variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
 }
 
 function AutocompleteSelect({
@@ -322,7 +397,8 @@ function AutocompleteSelect({
     searchPlaceholder = "Search states",
     selectedKey: externalKey,
     onChange,
-    className = ""
+    className = "",
+    variant = 'primary'
 }: AutocompleteSelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -373,7 +449,14 @@ function AutocompleteSelect({
             <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
 
                 {/* 1. Nút Trigger TÔNG MÀU DÙNG THEO THEME CHUNG GIỐNG CÁC SELECT KIA */}
-                <Button className="flex items-center justify-between w-full px-3 py-2.5 bg-white border border-gray-300 hover:border-gray-400 rounded-lg shadow-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 data-focus-visible:border-primary data-focus-visible:ring-2 data-focus-visible:ring-primary/20 group">
+                <Button className={cn(
+                    "flex items-center justify-between w-full px-3 py-2.5 bg-white border border-gray-300 hover:border-gray-400 rounded-lg shadow-sm outline-none transition-all group",
+                    variant === 'primary' && "focus:border-primary focus:ring-2 focus:ring-primary/20",
+                    variant === 'secondary' && "focus:border-secondary focus:ring-2 focus:ring-secondary/20",
+                    variant === 'danger' && "focus:border-danger focus:ring-2 focus:ring-danger/20",
+                    variant === 'success' && "focus:border-success focus:ring-2 focus:ring-success/20",
+                    variant === 'warning' && "focus:border-warning focus:ring-2 focus:ring-warning/20"
+                )}>
                     <span className={cn(
                         "truncate text-sm",
                         selectedItem ? "text-gray-900" : "text-gray-500"
@@ -417,7 +500,14 @@ function AutocompleteSelect({
                                 autoFocus // Tự động focus ô search khi mở menu
                                 className="w-full"
                             >
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-full focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 focus-within:bg-white transition-all">
+                                <div className={cn(
+                                    "flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-full focus-within:ring-2 transition-all focus-within:bg-white",
+                                    variant === 'primary' && "focus-within:border-primary focus-within:ring-primary/10",
+                                    variant === 'secondary' && "focus-within:border-secondary focus-within:ring-secondary/10",
+                                    variant === 'danger' && "focus-within:border-danger focus-within:ring-danger/10",
+                                    variant === 'success' && "focus-within:border-success focus-within:ring-success/10",
+                                    variant === 'warning' && "focus-within:border-warning focus-within:ring-warning/10"
+                                )}>
                                     <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
@@ -446,14 +536,28 @@ function AutocompleteSelect({
                                 <ListBoxItem
                                     key={option.value}
                                     id={option.value}
-                                    textValue={option.label}
-                                    className="group flex items-center justify-between px-3 py-2 text-sm text-gray-700 rounded-lg outline-none cursor-pointer transition-colors hover:bg-gray-100 data-focused:bg-gray-100 data-selected:bg-primary/10 data-selected:text-primary data-selected:font-semibold"
+                                    textValue={String(option.label)}
+                                    className={cn(
+                                        "group flex items-center justify-between px-3 py-2 text-sm text-gray-700 rounded-lg outline-none cursor-pointer transition-colors hover:bg-gray-100 data-focused:bg-gray-100",
+                                        variant === 'primary' && "data-selected:bg-primary/10 data-selected:text-primary data-selected:font-semibold",
+                                        variant === 'secondary' && "data-selected:bg-secondary/10 data-selected:text-secondary data-selected:font-semibold",
+                                        variant === 'danger' && "data-selected:bg-danger/10 data-selected:text-danger data-selected:font-semibold",
+                                        variant === 'success' && "data-selected:bg-success/10 data-selected:text-success data-selected:font-semibold",
+                                        variant === 'warning' && "data-selected:bg-warning/10 data-selected:text-warning data-selected:font-semibold"
+                                    )}
                                 >
                                     {({ isSelected }) => (
                                         <>
                                             <span className="truncate">{option.label}</span>
                                             {isSelected && (
-                                                <svg className="w-4 h-4 text-primary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg className={cn(
+                                                    "w-4 h-4 shrink-0",
+                                                    variant === 'primary' && "text-primary",
+                                                    variant === 'secondary' && "text-secondary",
+                                                    variant === 'danger' && "text-danger",
+                                                    variant === 'success' && "text-success",
+                                                    variant === 'warning' && "text-warning"
+                                                )} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                                 </svg>
                                             )}
