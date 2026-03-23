@@ -123,14 +123,14 @@ type InputDateProps<T extends DateValue> = CustomInputDateProps<T> | CustomInput
 
 export default function InputDate<T extends DateValue>(props: InputDateProps<T>) {
     const { label, variant = "primary", size = "md", showTime = false, isRange = false, className, ...rest } = props;
-    
+
     // Sử dụng state để đồng bộ hóa giữa các thành phần
     const [value, setValue] = useState<any>(props.value || props.defaultValue || null);
     const [isOpen, setIsOpen] = useState(false);
 
     const handleValueChange = (newVal: any) => {
         let finalVal = newVal;
-        
+
         // Chuyển đổi CalendarDate sang CalendarDateTime nếu showTime=true để tránh lỗi granularity
         if (showTime && newVal) {
             if (isRange) {
@@ -151,7 +151,7 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
 
     const handleNow = () => {
         let current: any = showTime ? now(getLocalTimeZone()) : today(getLocalTimeZone());
-        
+
         // Chuyển sang CalendarDateTime để không hiện GMT+7
         if (showTime && 'timeZone' in current) {
             current = toCalendarDateTime(current);
@@ -187,17 +187,17 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
             )}
             <AriaButton className="p-1 rounded-md text-gray-400 hover:text-gray-600 outline-none transition-colors">
                 <Icons.Calendar className={cn(
-                    size === "xs" ? "w-3 h-3" : 
-                    size === "sm" ? "w-4 h-4" : 
-                    size === "md" ? "w-5 h-5" : "w-6 h-6"
+                    size === "xs" ? "w-3 h-3" :
+                        size === "sm" ? "w-4 h-4" :
+                            size === "md" ? "w-5 h-5" : "w-6 h-6"
                 )} />
             </AriaButton>
         </Group>
     );
 
     const renderCalendar = () => (
-        <Calendar 
-            value={value} 
+        <Calendar
+            value={value}
             onChange={handleValueChange}
             className="p-4 outline-none"
         >
@@ -224,8 +224,8 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
     );
 
     const renderRangeCalendar = () => (
-        <RangeCalendar 
-            value={value} 
+        <RangeCalendar
+            value={value}
             onChange={handleValueChange}
             className="p-4 outline-none"
         >
@@ -253,7 +253,7 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
 
     const renderTimeSection = () => {
         if (!showTime) return null;
-        
+
         return (
             <div className="p-4 border-t border-gray-100 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
@@ -261,7 +261,7 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
                         <Icons.Clock className="w-4 h-4" />
                         <span className="text-xs font-semibold uppercase tracking-wider">Thời gian</span>
                     </div>
-                    <AriaButton 
+                    <AriaButton
                         onPress={handleNow}
                         className="text-xs text-primary font-medium hover:underline underline-offset-2 flex items-center gap-1"
                     >
@@ -271,10 +271,10 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
                 <div className="flex items-center gap-2">
                     {isRange ? (
                         <>
-                            <TimeField 
-                                slot="start" 
-                                granularity="second" 
-                                value={value?.start} 
+                            <TimeField
+                                slot="start"
+                                granularity="second"
+                                value={value?.start}
                                 onChange={(val) => handleValueChange({ ...value, start: val })}
                                 className="flex-1"
                             >
@@ -285,10 +285,10 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
                                 </Group>
                             </TimeField>
                             <span className="text-gray-400 text-xs">—</span>
-                            <TimeField 
-                                slot="end" 
-                                granularity="second" 
-                                value={value?.end} 
+                            <TimeField
+                                slot="end"
+                                granularity="second"
+                                value={value?.end}
                                 onChange={(val) => handleValueChange({ ...value, end: val })}
                                 className="flex-1"
                             >
@@ -300,11 +300,12 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
                             </TimeField>
                         </>
                     ) : (
-                        <TimeField 
-                            granularity="second" 
-                            value={value} 
+                        <TimeField
+                            granularity="second"
+                            value={value}
                             onChange={handleValueChange}
                             className="w-full"
+                            isDisabled={!value}
                         >
                             <Group className={cn("flex items-center justify-center border border-gray-200 rounded-md bg-gray-50/50", size === 'xs' ? 'p-1' : 'p-2')}>
                                 <DateInput className="flex items-center">
@@ -323,8 +324,8 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
         return (
             <div className={cn("flex flex-col gap-1.5", className)}>
                 {label && <Label className="text-sm font-medium text-gray-700 cursor-default">{label}</Label>}
-                <DateRangePicker 
-                    {...rangeProps} 
+                <DateRangePicker
+                    {...rangeProps}
                     value={value}
                     onChange={handleValueChange}
                     isOpen={isOpen}
@@ -350,8 +351,8 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
     return (
         <div className={cn("flex flex-col gap-1.5", className)}>
             {label && <Label className="text-sm font-medium text-gray-700 cursor-default">{label}</Label>}
-            <DatePicker 
-                {...singleProps} 
+            <DatePicker
+                {...singleProps}
                 value={value}
                 onChange={handleValueChange}
                 isOpen={isOpen}
