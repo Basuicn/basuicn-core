@@ -27,7 +27,7 @@ export function ThemeSwitcher() {
                 >
                   <span
                     className="w-4 h-4 rounded-full border-2 border-white shadow shrink-0"
-                    style={{ background: theme.colors.primary }}
+                    style={{ background: theme.colors.primary}}
                   />
                   {theme.label}
                 </button>
