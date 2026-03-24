@@ -65,7 +65,14 @@ const segmentStyles = tv({
 });
 
 const popoverStyles = tv({
-    base: "bg-white border border-gray-200 rounded-xl shadow-lg entering:animate-in entering:fade-in entering:zoom-in-95 exiting:animate-out exiting:fade-out exiting:zoom-out-95 origin-top z-50 outline-none max-h-[85vh] sm:max-h-[calc(var(--visual-viewport-height)-20px)] overflow-y-auto",
+    base: [
+        "bg-white border border-gray-200 rounded-xl shadow-lg",
+        "entering:animate-in entering:fade-in entering:zoom-in-95",
+        "exiting:animate-out exiting:fade-out exiting:zoom-out-95",
+        "origin-top z-50 outline-none",
+        "max-h-[min(85dvh,480px)] overflow-y-auto",
+        "[-webkit-overflow-scrolling:touch] overscroll-contain"
+    ].join(' '),
 });
 
 const calendarCellStyles = tv({
@@ -347,7 +354,7 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
             >
                 {label && <Label className="text-sm font-medium text-gray-700 cursor-default">{label}</Label>}
                 {renderField(true)}
-                <Popover className={popoverStyles} offset={8} containerPadding={12}>
+                <Popover className={popoverStyles} offset={8} containerPadding={8}>
                     <Dialog className="outline-none">
                         <div className="flex flex-col">
                             {renderRangeCalendar()}
@@ -374,7 +381,7 @@ export default function InputDate<T extends DateValue>(props: InputDateProps<T>)
         >
             {label && <Label className="text-sm font-medium text-gray-700 cursor-default">{label}</Label>}
             {renderField(false)}
-            <Popover className={popoverStyles} offset={8} containerPadding={12}>
+            <Popover className={popoverStyles} offset={8} containerPadding={8}>
                 <Dialog className="outline-none">
                     <div className="flex flex-col">
                         {renderCalendar()}
