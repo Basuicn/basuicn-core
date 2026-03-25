@@ -32,7 +32,7 @@ export interface SelectOption {
 // Cấu hình tailwind-variants chung cho Select
 const selectStyles = {
     trigger: tv({
-        base: "flex items-center justify-between w-full bg-white border border-gray-300 rounded-lg  outline-none transition-all group",
+        base: "flex items-center justify-between w-full bg-white border border-gray-300 rounded-lg outline-none group",
         variants: {
             variant: {
                 primary: "focus:border-primary focus:ring-2 focus:ring-primary/20",
