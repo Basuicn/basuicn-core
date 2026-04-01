@@ -47,7 +47,10 @@ const Input = React.forwardRef<React.ElementRef<typeof BaseInput>, InputProps>(
           <BaseField.Control render={<BaseInput
             ref={ref}
             id={inputId}
-            className={inputVariants({ variant, className: icon ? 'pl-9 ' + (className || '') : (className || '') })}
+            className={inputVariants({ 
+              variant, 
+              className: `${icon ? 'pl-9 ' : ''}${className || ''} ${error ? 'border-danger focus:border-danger' : ''}`.trim() 
+            })}
             {...props}
           />} />
         </div>
@@ -57,9 +60,9 @@ const Input = React.forwardRef<React.ElementRef<typeof BaseInput>, InputProps>(
           </BaseField.Description>
         )}
         {error && (
-          <BaseField.Error className="text-[0.8rem] font-medium text-danger">
+          <p className="text-[0.8rem] font-medium text-danger">
             {error}
-          </BaseField.Error>
+          </p>
         )}
       </BaseField.Root>
     );

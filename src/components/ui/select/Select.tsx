@@ -19,14 +19,17 @@ const { trigger, content, viewport, item, label, separator, icon } = selectVaria
 
 export interface SelectProps extends React.ComponentPropsWithoutRef<typeof BaseSelect.Root> {
     label?: string;
+    description?: string;
+    error?: string;
     placeholder?: string;
     options: { label: string; value: string }[];
     id?: string;
     className?: string;
+    onChange?: (value: string) => void;
 }
 
 const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, SelectProps>(
-    ({ label, placeholder, options, id, className, ...props }, ref) => {
+    ({ label, description, error, placeholder, options, id, className, onChange, onValueChange, ...props }, ref) => {
         const triggerRef = React.useRef<HTMLButtonElement>(null);
 
         return (
@@ -36,14 +39,20 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
                         {label}
                     </label>
                 )}
-                <BaseSelect.Root {...props}>
+                <BaseSelect.Root 
+                    onValueChange={(val: any) => {
+                        if (onChange) onChange(val as string);
+                        if (onValueChange) onValueChange(val, {} as any);
+                    }} 
+                    {...props}
+                >
                     <BaseSelect.Trigger
                         ref={(node) => {
                             triggerRef.current = node;
                             if (typeof ref === 'function') ref(node);
                             else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node;
                         }}
-                        className={trigger({ className })}
+                        className={trigger({ className: `${className || ''} ${error ? 'border-danger focus:border-danger' : ''}` })}
                         id={id}
                     >
                         <BaseSelect.Value placeholder={placeholder} />
@@ -68,6 +77,12 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
                         </BaseSelect.Positioner>
                     </BaseSelect.Portal>
                 </BaseSelect.Root>
+                {description && !error && (
+                    <p className="text-[0.8rem] text-muted-foreground">{description}</p>
+                )}
+                {error && (
+                    <p className="text-[0.8rem] font-medium text-danger">{error}</p>
+                )}
             </div>
         )
     }

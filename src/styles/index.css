@@ -1,37 +1,60 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
+/*
+  View Transitions API: Tắt animation mặc định (fade cross-dissolve).
+  ThemeToggle sẽ tự định nghĩa clip-path ripple animation thay thế.
+*/
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+    z-index: 1;
+}
+
+::view-transition-new(root) {
+    z-index: 9999;
+}
+
+
 @theme {
-    --color-background: #ffffff;
-    --color-foreground: #1e1e24;
+  --animate-ping: ping 1.5s linear infinite; /* Chỉnh cho nó chạy chậm lại */
 
-    --color-primary: #2f27ce;
-    --color-primary-foreground: #ffffff;
 
-    --color-secondary: #dedcff;
-    --color-secondary-foreground: #2f27ce;
 
-    --color-muted: #f8fafc;
-    --color-muted-foreground: #94a3b8;
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
 
-    --color-switch-background: #d6d6d6;
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
 
-    --color-border: #e2e8f0;
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
 
-    --color-success: #10b981;
-    --color-success-foreground: #ffffff;
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
 
-    --color-warning: #f59e0b;
-    --color-warning-foreground: #ffffff;
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
 
-    --color-destructive: #ef4444;
-    --color-destructive-foreground: #ffffff;
+    --color-switch-background: var(--switch-background);
 
-    --color-danger: #ef4444;
-    --color-danger-foreground: #ffffff;
+    --color-border: var(--border);
 
-    --color-accent: #dedcff;
-    --color-accent-foreground: #2f27ce;
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+
+    --color-destructive: var(--danger);
+    --color-destructive-foreground: var(--danger-foreground);
+
+    --color-danger: var(--danger);
+    --color-danger-foreground: var(--danger-foreground);
 
     --radius-sm: 0.125rem;
     --radius-md: 0.375rem;
@@ -39,34 +62,78 @@
     --radius-xl: 1rem;
 
     --animate-spin-slow: spin 3s linear infinite;
-}
+    --animate-progress-stripes: progress-stripes 1s linear infinite;
 
-#root {
-    width: 100%;
+    @keyframes progress-stripes {
+        from { background-position: 1rem 0; }
+        to { background-position: 0 0; }
+    }
 }
 
 @layer base {
     :root {
+        /* Light Theme - Clean White */
         --background: #ffffff;
-        --foreground: #1e1e24;
+        --foreground: #0f172a;
+        
         --primary: #2f27ce;
         --primary-foreground: #ffffff;
-        --secondary: #dedcff;
+        
+        --secondary: #dedcff; /* Vẫn giữ nét màu Light cũ nhưng tinh chỉnh nhẹ */
         --secondary-foreground: #2f27ce;
-        --muted: #f1f5f9;
-        --muted-foreground: #94a3b8;
-        --switch-background: #d6d6d6;
-        --accent: #dedcff;
-
+        
+        --muted: #f8fafc;
+        --muted-foreground: #64748b;
+        
+        --accent: #f1f5f9;
+        --accent-foreground: #0f172a;
+        
+        --switch-background: #cbd5e1;
         --border: #e2e8f0;
+        
         --success: #10b981;
         --success-foreground: #ffffff;
+        
         --warning: #f59e0b;
         --warning-foreground: #ffffff;
+        
         --danger: #ef4444;
         --danger-foreground: #ffffff;
     }
 
+    .dark {
+        /* Dark Theme - Deep Space Slate (Chuyên nghiệp & Hiện đại) */
+        --background: #09090b; /* Very deep zinc/slate */
+        --foreground: #f8fafc;
+        
+        --primary: #6366f1; /* Bright Indigo for pop */
+        --primary-foreground: #ffffff;
+        
+        --secondary: #1e293b; /* Slate 800 */
+        --secondary-foreground: #f8fafc;
+        
+        --muted: #0f172a; /* Slate 900 for subdued bg */
+        --muted-foreground: #94a3b8; /* Slate 400 for text */
+        
+        --accent: #1e293b;
+        --accent-foreground: #f8fafc;
+        
+        --switch-background: #334155;
+        --border: #334155; /* Slate 700 */
+        
+        --success: #10b981;
+        --success-foreground: #ffffff;
+        
+        --warning: #f59e0b;
+        --warning-foreground: #ffffff;
+        
+        --danger: #ef4444;
+        --danger-foreground: #ffffff;
+    }
+}
+
+
+@layer base {
     * {
         border-color: var(--border);
     }
@@ -79,6 +146,12 @@
         font-family: 'Inter', system-ui, sans-serif;
         overflow: hidden; /* Khóa scroll tổng để dùng nội bộ */
         height: 100%;
+        color-scheme: light;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    html.dark {
+        color-scheme: dark;
     }
 
     /* Fix dải trắng khi mở modal/dialog trong các thư viện (Base UI, Radix) */
@@ -101,30 +174,15 @@
     }
 }
 
-/* Hard-fix for primary colors across all components */
-@layer utilities {
-    .bg-primary {
-        background-color: var(--primary) !important;
-    }
-
-    .text-primary-foreground {
-        color: var(--primary-foreground) !important;
-    }
-
-    .border-primary {
-        border-color: var(--primary) !important;
-    }
-}
-
 /* Ensure data-state="checked" always works for background */
 [data-state="checked"] {
     &.bg-primary {
-        background-color: var(--primary) !important;
+        background-color: var(--primary);
     }
 }
 
 [data-state="indeterminate"] {
     &.bg-primary {
-        background-color: var(--primary) !important;
+        background-color: var(--primary);
     }
 }

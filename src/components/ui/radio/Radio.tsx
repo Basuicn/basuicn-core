@@ -6,7 +6,7 @@ const radioVariants = tv({
   slots: {
     root: 'group flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border bg-background transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50  data-checked:border-primary',
     indicator: 'flex items-center justify-center',
-    dot: 'h-2 w-2 rounded-full dark:bg-primary-foreground bg-primary',
+    dot: 'h-2 w-2 rounded-full  bg-primary',
   },
   variants: {
     size: {

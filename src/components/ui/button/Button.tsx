@@ -6,13 +6,22 @@ const buttonVariants = tv({
   base: 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-open:bg-muted cursor-pointer',
   variants: {
     variant: {
-      solid: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm',
-      outline: 'border border-border bg-transparent hover:bg-muted hover:text-foreground',
-      ghost: 'hover:bg-muted hover:text-foreground',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm',
-      danger: 'bg-danger text-danger-foreground hover:bg-danger/90 shadow-sm',
-      glass: 'bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.1)]',
+      solid: 'bg-primary text-primary-foreground hover:bg-primary/70 shadow-sm',
+      outline: 'border border-border bg-transparent hover:bg-secondary/90 hover:text-foreground',
+      ghost: 'hover:bg-secondary/90 hover:text-foreground',
+      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/70 shadow-sm',
+      danger: 'bg-danger text-danger-foreground hover:bg-danger/70 shadow-sm',
       link: 'text-primary underline-offset-4 hover:underline h-auto px-0 py-0 font-normal',
+      // Kính mờ tối — trên nền tối
+      glass: 'bg-white/15 backdrop-blur-md border border-white/30 text-white hover:bg-white/25 hover:border-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_20px_rgba(0,0,0,0.2)] transition-all',
+      // ─── Glossy Bubble Variants ───────────────────────────────────────────────
+      // Gradient from white highlight (top-left) → tinted color (bottom-right)
+      // + inset top border = hiệu ứng gương bong bóng xà phòng
+     'glass-white': 'bg-gradient-to-br from-white/70 to-slate-100/60 backdrop-blur-md border border-black/5 text-slate-700 hover:from-white/85 hover:to-slate-100/70 shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.8)] transition-all',
+      'glass-amber': 'bg-gradient-to-br from-white/70 to-amber-300/40 backdrop-blur-sm border border-amber-100/80 text-amber-700 hover:from-white/85 hover:to-amber-300/60 shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.8)] transition-all',
+      'glass-green': 'bg-gradient-to-br from-white/70 to-emerald-300/40 backdrop-blur-sm border border-emerald-100/80 text-emerald-700 hover:from-white/85 hover:to-emerald-300/60 shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.8)] transition-all',
+      'glass-purple': 'bg-gradient-to-br from-white/70 to-violet-300/40 backdrop-blur-sm border border-violet-100/80 text-violet-700 hover:from-white/85 hover:to-violet-300/60 shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.8)] transition-all',
+      'glass-pink': 'bg-gradient-to-br from-white/70 to-pink-300/40 backdrop-blur-sm border border-pink-100/80 text-pink-700 hover:from-white/85 hover:to-pink-300/60 shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.8)] transition-all',
     },
     size: {
       sm: 'h-8 px-3 text-xs',

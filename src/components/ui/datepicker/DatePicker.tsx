@@ -26,6 +26,7 @@ export interface DatePickerProps {
     /** single → Date | range → DateRange | time-only → dùng timeValue */
     date?: Date | DateRange;
     onDateChange?: (date: Date | DateRange | undefined) => void;
+    onChange?: (date: Date | DateRange | undefined) => void;
     /** Chỉ dùng khi mode='time-only' */
     timeValue?: string;
     onTimeChange?: (time: string) => void;
@@ -37,6 +38,8 @@ export interface DatePickerProps {
     timePickerStyle?: TimePickerStyle;
     disabled?: boolean;
     className?: string;
+    description?: string;
+    error?: string;
 }
 
 // ---------- helpers ----------
@@ -94,7 +97,7 @@ const secondsOptions = padOptions(60);
 // ---------- styles ----------
 
 const popoverContent = tv({
-    base: 'z-50 min-w-[var(--anchor-width)] rounded-xl border border-border bg-background text-foreground shadow-xl outline-none data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-side-bottom:slide-in-from-top-2 data-side-left:slide-in-from-right-2 data-side-right:slide-in-from-left-2 data-side-top:slide-in-from-bottom-2',
+    base: 'z-50  rounded-xl border border-border bg-background text-foreground shadow-xl outline-none data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-side-bottom:slide-in-from-top-2 data-side-left:slide-in-from-right-2 data-side-right:slide-in-from-left-2 data-side-top:slide-in-from-bottom-2',
 });
 
 // ---------- sub-components ----------
@@ -199,6 +202,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     mode = 'single',
     date,
     onDateChange,
+    onChange,
     timeValue,
     onTimeChange,
     label,
@@ -209,6 +213,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     timePickerStyle = 'select',
     disabled = false,
     className,
+    description,
+    error,
 }) => {
     const [open, setOpen] = React.useState(false);
     const triggerRef = React.useRef<HTMLButtonElement>(null);
@@ -239,27 +245,25 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             return;
         }
         if (date instanceof Date) {
-            onDateChange?.(applyTimeToDate(date, newParts));
+            const newDate = applyTimeToDate(date, newParts);
+            onDateChange?.(newDate);
+            onChange?.(newDate);
         }
     };
 
     const handleDateSelect = (selectedDate: any) => {
         if (!selectedDate) {
             onDateChange?.(undefined);
+            onChange?.(undefined);
             return;
         }
         if (mode === 'single' && showTime) {
-            onDateChange?.(applyTimeToDate(selectedDate, timeParts));
-            // Không đóng → chờ người dùng bấm "Xác nhận"
+            const newDate = applyTimeToDate(selectedDate, timeParts);
+            onDateChange?.(newDate);
+            onChange?.(newDate);
         } else {
             onDateChange?.(selectedDate);
-            // if (mode === 'single') setOpen(false);
-            // if (mode === 'range') {
-            //     const range = selectedDate as DateRange;
-            //     if (range.from && range.to && range.from.getTime() !== range.to.getTime()) {
-            //         setOpen(false);
-            //     }
-            // }
+            onChange?.(selectedDate);
         }
     };
 
@@ -312,10 +316,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                             type="button"
                             disabled={disabled}
                             className={[
-                                'flex h-10 w-full items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm',
+                                'flex h-10 w-full items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm',
                                 'ring-offset-background transition-shadow',
                                 'hover:border-primary focus:border-primary focus:outline-none',
                                 'disabled:cursor-not-allowed disabled:opacity-50',
+                                error ? 'border-danger focus:border-danger' : 'border-border',
                                 'group',
                             ].join(' ')}
                         >
@@ -389,6 +394,12 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                     </BasePopover.Positioner>
                 </BasePopover.Portal>
             </BasePopover.Root>
+            {description && !error && (
+                <p className="text-[0.8rem] text-muted-foreground">{description}</p>
+            )}
+            {error && (
+                <p className="text-[0.8rem] font-medium text-danger">{error}</p>
+            )}
         </div>
     );
 };

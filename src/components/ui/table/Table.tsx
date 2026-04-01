@@ -60,7 +60,7 @@ export function Table<TData>({
     className,
     renderPaginationText = (from, to, total) => (
         <>
-            Show <span className="font-medium text-gray-900">{from}</span> to <span className="font-medium text-gray-900">{to}</span> of <span className="font-medium text-gray-900">{total}</span> results
+            Show <span className="font-medium text-foreground">{from}</span> to <span className="font-medium text-foreground">{to}</span> of <span className="font-medium text-foreground">{total}</span> results
         </>
     ),
     renderPageSizeText = (size) => `${size} / page`,
@@ -123,7 +123,7 @@ export function Table<TData>({
                                 variant="outline"
                                 size="sm"
                                 onClick={row.getToggleExpandedHandler()}
-                                className="p-0.5 hover:bg-gray-200 text-gray-500 transition-colors cursor-pointer outline-none focus:ring-2 focus:ring-primary/50"
+                                className="p-0.5 hover:bg-muted text-muted-foreground transition-colors cursor-pointer outline-none focus:ring-2 focus:ring-primary/50"
                             >
                                 {row.getIsExpanded() ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                             </Button>
@@ -166,7 +166,7 @@ export function Table<TData>({
     }, [rowSelection, onSelectionChange, table]);
 
     return (
-        <div className={cn("relative w-full rounded-md border border-gray-200 bg-white flex flex-col overflow-hidden", className)}>
+        <div className={cn("relative w-full rounded-md border border-border bg-background flex flex-col overflow-hidden", className)}>
 
             {/* Loading Overlay */}
             {isLoading && (
@@ -177,13 +177,13 @@ export function Table<TData>({
 
             <div className="overflow-x-auto w-full">
                 <table
-                    className="w-full text-sm text-left text-gray-700 whitespace-nowrap"
+                    className="w-full text-sm text-left text-foreground whitespace-nowrap"
                     style={{
                         width: enableColumnResizing ? table.getCenterTotalSize() : undefined,
                         tableLayout: enableColumnResizing ? 'fixed' : 'auto'
                     }}
                 >
-                    <thead className="text-xs text-gray-600 bg-gray-50/80 border-b border-gray-200">
+                    <thead className="text-xs text-muted-foreground bg-muted/50 border-b border-border">
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id} >
                                 {headerGroup.headers.map(header => {
@@ -201,8 +201,8 @@ export function Table<TData>({
                                             }}
                                             className={cn(
                                                 header.column.id === 'select' || header.column.id === 'expander' ? "px-1" : "px-2",
-                                                "py-3 font-semibold tracking-wide border border-gray-200 transition-colors group/header",
-                                                canSort ? "cursor-pointer select-none hover:bg-gray-100" : "",
+                                                "py-3 font-semibold tracking-wide border border-border transition-colors group/header",
+                                                canSort ? "cursor-pointer select-none hover:bg-muted" : "",
                                                 align === 'center' ? "text-center" : align === 'right' ? "text-right" : "text-left"
                                             )}
                                         >
@@ -255,9 +255,9 @@ export function Table<TData>({
                     <tbody className="">
                         {!isLoading && data.length === 0 ? (
                             <tr>
-                                <td colSpan={finalColumns.length} className=" px-4 py-16 text-center text-gray-500">
+                                <td colSpan={finalColumns.length} className=" px-4 py-16 text-center text-muted-foreground">
                                     <div className="flex flex-col items-center justify-center space-y-2">
-                                        <span className="text-gray-400">
+                                        <span className="text-muted-foreground/50">
                                             <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                             </svg>
@@ -271,7 +271,7 @@ export function Table<TData>({
                                 <React.Fragment key={row.id}>
                                     <tr
                                         className={cn(
-                                            "hover:bg-gray-50/80 transition-colors group",
+                                            "hover:bg-muted/50 transition-colors group",
                                             row.getIsSelected() ? "bg-primary/5 hover:bg-primary/10" : "",
                                             row.getIsExpanded() ? "bg-primary/5" : ""
                                         )}
@@ -285,7 +285,7 @@ export function Table<TData>({
                                                     style={{ width: enableColumnResizing ? cell.column.getSize() : cell.column.columnDef.size }}
                                                     className={cn(
                                                         cell.column.id === 'select' || cell.column.id === 'expander' ? "px-1" : "px-2",
-                                                        "py-3 border border-gray-200 align-middle",
+                                                        "py-3 border border-border align-middle",
                                                         align === 'center' ? "text-center" : align === 'right' ? "text-right" : "text-left"
                                                     )}
                                                 >
@@ -301,8 +301,8 @@ export function Table<TData>({
                                     </tr>
                                     {row.getIsExpanded() && renderSubComponent && (
                                         <tr>
-                                            <td colSpan={row.getVisibleCells().length} className="p-0 border-b border-gray-200 whitespace-normal">
-                                                <div className="bg-gray-50/50 px-4 py-5 shadow-inner w-full border-l-4 border-l-primary/40 wrap-break-word">
+                                            <td colSpan={row.getVisibleCells().length} className="p-0 border-b border-border whitespace-normal">
+                                                <div className="bg-muted/50 px-4 py-5 shadow-inner w-full border-l-4 border-l-primary/40 wrap-break-word">
                                                     {renderSubComponent({ row: row.original })}
                                                 </div>
                                             </td>
@@ -317,8 +317,8 @@ export function Table<TData>({
 
             {/* Pagination Controls */}
             {enablePagination && table.getPageCount() > 0 && (
-                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between px-2 py-3 border-t border-gray-200 bg-gray-50/50 gap-4">
-                    <div className="text-sm text-gray-500 w-full sm:w-auto text-center sm:text-left">
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between px-2 py-3 border-t border-border bg-muted/50 gap-4">
+                    <div className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-left">
                         {renderPaginationText !== false && (
                             typeof renderPaginationText === 'function' ? renderPaginationText(
                                 table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1,
@@ -334,7 +334,7 @@ export function Table<TData>({
                             onChange={e => {
                                 table.setPageSize(Number(e.target.value))
                             }}
-                            className="px-2 py-1.5 text-sm border border-gray-300 rounded-md bg-white text-gray-700 outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
+                            className="px-2 py-1.5 text-sm border border-border rounded-md bg-background text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                         >
                             {[5, 10, 20, 50, 100].map(pageSize => (
                                 <option key={pageSize} value={pageSize}>
@@ -345,7 +345,7 @@ export function Table<TData>({
 
                         <div className="flex items-center gap-1">
                             <button
-                                className="p-1.5 rounded-md border border-gray-300 text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="p-1.5 rounded-md border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => table.setPageIndex(0)}
                                 disabled={!table.getCanPreviousPage()}
                                 aria-label="First block"
@@ -353,7 +353,7 @@ export function Table<TData>({
                                 <ChevronsLeft className="w-4 h-4" />
                             </button>
                             <button
-                                className="p-1.5 rounded-md border border-gray-300 text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed  transition-colors"
+                                className="p-1.5 rounded-md border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed  transition-colors"
                                 onClick={() => table.previousPage()}
                                 disabled={!table.getCanPreviousPage()}
                                 aria-label="Previous block"
@@ -361,12 +361,12 @@ export function Table<TData>({
                                 <ChevronLeft className="w-4 h-4" />
                             </button>
 
-                            <span className="text-sm font-medium px-3 py-1 bg-white border border-gray-300 rounded-md  h-full flex items-center min-w-20 justify-center">
+                            <span className="text-sm font-medium px-3 py-1 bg-background border border-border rounded-md h-full flex items-center min-w-20 justify-center text-foreground">
                                 {table.getState().pagination.pageIndex + 1} / {table.getPageCount() || 1}
                             </span>
 
                             <button
-                                className="p-1.5 rounded-md border border-gray-300 text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="p-1.5 rounded-md border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => table.nextPage()}
                                 disabled={!table.getCanNextPage()}
                                 aria-label="Next block"
@@ -374,7 +374,7 @@ export function Table<TData>({
                                 <ChevronRight className="w-4 h-4" />
                             </button>
                             <button
-                                className="p-1.5 rounded-md border border-gray-300 text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="p-1.5 rounded-md border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                                 disabled={!table.getCanNextPage()}
                                 aria-label="Last block"
@@ -383,7 +383,7 @@ export function Table<TData>({
                             </button>
                         </div>
                         {goToPageText !== false && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600 border-l border-gray-300 pl-3 ml-1">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground border-l border-border pl-3 ml-1">
                                 {typeof goToPageText === 'string' && <span>{goToPageText}</span>}
                                 <input
                                     type="number"
@@ -402,7 +402,7 @@ export function Table<TData>({
                                     onBlur={() => {
                                         setInputValue(table.getState().pagination.pageIndex + 1);
                                     }}
-                                    className="w-12 px-1 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-700 text-center outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                                    className="w-12 px-1 py-1 text-sm border border-border rounded-md bg-background text-foreground text-center outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                                 />
                             </div>
                         )}
