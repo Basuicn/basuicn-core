@@ -6,8 +6,8 @@ import { execSync } from 'child_process';
 const REGISTRY_LOCAL = './registry.json';
 const REGISTRY_REMOTE = 'https://raw.githubusercontent.com/huy14032003/ui-component/main/registry.json';
 
-const log = (msg: string) => console.log(`[CUS-UI] ${msg}`);
-const error = (msg: string) => console.error(`[CUS-UI] ERROR: ${msg}`);
+const log = (msg: string) => console.log(`[BASE-CUS-UI] ${msg}`);
+const error = (msg: string) => console.error(`[BASE-CUS-UI] ERROR: ${msg}`);
 
 const getTargetProjectDir = () => process.cwd();
 
@@ -130,7 +130,7 @@ const main = async () => {
 
   if (command === 'add') {
     if (componentNames.length === 0) {
-      error('Sử dụng: npx cus-ui add <tên-component>');
+      error('Sử dụng: npx base-cus-ui add <tên-component>');
       return;
     }
     
@@ -149,7 +149,7 @@ const main = async () => {
       console.log('\n--- SAO CHÉP VÀO tailwind.config.ts / tailwind.config.js ---\n');
       console.log('// Xem trong README_CLI.md để biết chi tiết cấu hình');
   } else {
-    log('Chào mừng đến với CUS-UI. Các lệnh hỗ trợ: init, add, list, tailwind.');
+    log('Chào mừng đến với BASE-CUS-UI. Các lệnh hỗ trợ: init, add, list, tailwind.');
   }
 };
 

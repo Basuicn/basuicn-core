@@ -51,19 +51,28 @@ const parseDependencies = (content: string): string[] => {
   return [...new Set(dependencies)].filter(d => d !== 'react' && d !== 'react-dom');
 };
 
-const getInternalDeps = (content: string): string[] => {
+const getInternalDeps = (content: string, currentDirName: string): string[] => {
     const internalDeps: string[] = [];
-    const internalRegex = /from\s+['"](?:@\/components\/ui|@components\/ui)\/([^'"]+)['"]/g;
+    
+    // 1. Nhận diện alias: @/components/ui/xxx hoặc @components/ui/xxx
+    const aliasRegex = /from\s+['"](?:@\/components\/ui|@components\/ui)\/([^'"]+)['"]/g;
     let match;
-    while ((match = internalRegex.exec(content)) !== null) {
-        const depPath = match[1];
-        // If it's a UI component, just take the first part (folder name)
-        // e.g. toggle/Toggle -> toggle
-        const componentName = depPath.split('/')[0];
-        if (componentName !== 'icons') { // Ignore icons for now or handle them
-            internalDeps.push(componentName);
+    while ((match = aliasRegex.exec(content)) !== null) {
+        const depPath = match[1].split('/')[0];
+        if (depPath !== currentDirName && depPath !== 'icons') {
+            internalDeps.push(depPath);
         }
     }
+
+    // 2. Nhận diện đường dẫn tương đối: ../spinner/Spinner
+    const relativeRegex = /from\s+['"]\.\.\/([^'"]+)['"]/g;
+    while ((match = relativeRegex.exec(content)) !== null) {
+        const depPath = match[1].split('/')[0];
+        if (depPath !== currentDirName) {
+            internalDeps.push(depPath);
+        }
+    }
+
     return [...new Set(internalDeps)];
 };
 
@@ -71,7 +80,7 @@ const buildRegistry = () => {
   console.log('Building component registry...');
   const registry: any = {
     core: {
-        dependencies: ["clsx", "tailwind-merge"],
+        dependencies: ["@base-ui/react", "clsx", "tailwind-merge"],
         files: [
             {
                 path: "src/lib/utils/cn.ts",
@@ -89,13 +98,19 @@ const buildRegistry = () => {
     if (!fs.statSync(dirPath).isDirectory()) return;
 
     const files = getFiles(dirPath);
-    const mainFile = files.find(f => f.toLowerCase().includes(dirName.toLowerCase()) && f.endsWith('.tsx')) || files.find(f => f.endsWith('.tsx'));
+    // Ưu tiên file không phải test/story làm mainFile
+    const mainFile = files.find(f => 
+        !f.includes('.test.') && 
+        !f.includes('.stories.') && 
+        f.toLowerCase().includes(dirName.toLowerCase()) && 
+        f.endsWith('.tsx')
+    ) || files.find(f => !f.includes('.test.') && !f.includes('.stories.') && f.endsWith('.tsx'));
     
     if (!mainFile) return;
 
     const content = fs.readFileSync(mainFile, 'utf-8');
     const dependencies = parseDependencies(content);
-    const internalDependencies = getInternalDeps(content);
+    const internalDependencies = getInternalDeps(content, dirName);
 
     registry.components[dirName] = {
       name: dirName,

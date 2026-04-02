@@ -1,75 +1,51 @@
-# React + TypeScript + Vite
+# CUS-UI CLI (Remote/NPM Ready)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Bộ công cụ CLI giúp bạn cài đặt các components từ thư viện UI này vào bất kỳ dự án React nào khác thông qua `npx`.
 
-Currently, two official plugins are available:
+## 🚀 Cách sử dụng từ dự án khác
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Bạn không cần cài đặt gì cả, chỉ cần đứng tại thư mục dự án của bạn và gõ:
 
-## React Compiler
+### 1. Khởi tạo dự án (Lần đầu)
+```bash
+npx base-cus-ui init
+```
+Lệnh này sẽ tự động cài các gói cần thiết (`clsx`, `tailwind-merge`) và tạo file `src/lib/utils/cn.ts`.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+### 2. Thêm Component
+```bash
+npx base-cus-ui add button input switch
+```
+*Lưu ý: CLI sẽ tự động nhận diện và tải thêm các component phụ thuộc nếu cần.*
 
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 3. Cấu hình Tailwind
+Chạy lệnh sau để nhận hướng dẫn copy-paste cấu hình theme:
+```bash
+npx base-cus-ui tailwind
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠 Cách để tự bạn quản lý và phát hành
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 1. Cập nhật Registry (Khi thêm component mới)
+```bash
+npm run registry:build
 ```
+Sau đó hãy `git commit` và `git push` lên GitHub để CLI trên máy người dùng có thể thấy update mới.
+
+### 2. Biên dịch CLI
+```bash
+npm run build:cli
+```
+
+### 3. Phát hành lên NPM
+Để mọi người có thể gõ `npx base-cus-ui`, bạn cần đưa nó lên NPM:
+1. Đăng nhập: `npm login`
+2. Phát hành: `npm publish` (Nếu tên `base-cus-ui` đã bị trùng trên NPM, hãy đổi tên trong `package.json`).
+
+---
+
+## 📂 Cơ chế hoạt động
+- **Local Mode**: Nếu bạn chạy `npx cus-ui add --local`, nó sẽ tìm file `registry.json` ngay tại thư mục hiện tại.
+- **Remote Mode (Mặc định)**: CLI sẽ tải dữ liệu trực tiếp từ: `https://raw.githubusercontent.com/huy14032003/ui-component/main/registry.json`.

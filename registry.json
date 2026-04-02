@@ -1,6 +1,7 @@
 {
   "core": {
     "dependencies": [
+      "@base-ui/react",
       "clsx",
       "tailwind-merge"
     ],
@@ -84,10 +85,12 @@
     "button": {
       "name": "button",
       "dependencies": [
-        "@testing-library/react",
-        "vitest"
+        "@base-ui/react",
+        "tailwind-variants"
       ],
-      "internalDependencies": [],
+      "internalDependencies": [
+        "spinner"
+      ],
       "files": [
         {
           "path": "src/components/ui/button/Button.test.tsx",
@@ -178,7 +181,9 @@
         "lucide-react",
         "tailwind-variants"
       ],
-      "internalDependencies": [],
+      "internalDependencies": [
+        "button"
+      ],
       "files": [
         {
           "path": "src/components/ui/datepicker/DatePicker.tsx",
@@ -301,7 +306,9 @@
         "@base-ui/react",
         "tailwind-variants"
       ],
-      "internalDependencies": [],
+      "internalDependencies": [
+        "button"
+      ],
       "files": [
         {
           "path": "src/components/ui/preview-card/PreviewCard.tsx",
@@ -387,7 +394,9 @@
         "tailwind-variants",
         "@base-ui/react"
       ],
-      "internalDependencies": [],
+      "internalDependencies": [
+        "tooltip"
+      ],
       "files": [
         {
           "path": "src/components/ui/sidebar/Sidebar.tsx",
@@ -453,7 +462,11 @@
         "@tanstack/react-table",
         "lucide-react"
       ],
-      "internalDependencies": [],
+      "internalDependencies": [
+        "button",
+        "checkbox",
+        "spinner"
+      ],
       "files": [
         {
           "path": "src/components/ui/table/Table.tsx",
@@ -478,8 +491,8 @@
     "textarea": {
       "name": "textarea",
       "dependencies": [
-        "@testing-library/react",
-        "vitest"
+        "@base-ui/react",
+        "tailwind-variants"
       ],
       "internalDependencies": [],
       "files": [
