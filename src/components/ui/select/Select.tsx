@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Select as BaseSelect } from '@base-ui/react';
 import { tv } from 'tailwind-variants';
+import { cn } from '@lib/utils/cn';
 import { ChevronDown, Check, X } from 'lucide-react';
 
 const selectVariants = tv({
@@ -27,10 +28,12 @@ export interface SelectProps extends Omit<React.ComponentPropsWithoutRef<typeof 
     defaultValue?: string;
     clearable?: boolean;
     onChange?: (value: string) => void;
+    emptyText?: string;
+    clearLabel?: string;
 }
 
 const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, SelectProps>(
-    ({ label, description, error, placeholder, options, id, className, clearable = true, onChange, onValueChange, value, defaultValue, ...props }, ref) => {
+    ({ label, description, error, placeholder = 'Chọn...', options, id, className, clearable = true, onChange, onValueChange, value, defaultValue, emptyText = 'Không tìm thấy kết quả.', clearLabel = 'Xóa lựa chọn', ...props }, ref) => {
         const triggerRef = React.useRef<HTMLButtonElement>(null);
 
         const [selectedValue, setSelectedValue] = React.useState<string>(value ?? defaultValue ?? '');
@@ -43,7 +46,10 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
             const strVal = val as string;
             setSelectedValue(strVal);
             onChange?.(strVal);
-            onValueChange?.(strVal, {} as any);
+            // @ts-expect-error Base UI type mapping for onValueChange expects strict context which is internal
+            onValueChange?.(strVal, {
+                event: new Event('change')
+            });
         };
 
         const handleClear = (e: React.MouseEvent) => {
@@ -51,7 +57,10 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
             e.stopPropagation();
             setSelectedValue('');
             onChange?.('');
-            onValueChange?.('', {} as any);
+            // @ts-expect-error Base UI type mapping for onValueChange expects strict context which is internal
+            onValueChange?.('', {
+                event: new Event('change')
+            });
         };
 
         const selectedLabel = options.find((o) => o.value === selectedValue)?.label;
@@ -81,11 +90,11 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
                                 if (typeof ref === 'function') ref(node);
                                 else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node;
                             }}
-                            className={trigger({ className: `${className || ''} ${error ? 'border-danger focus:border-danger' : ''}` })}
+                            className={trigger({ className: cn(className, error ? 'border-danger focus:border-danger' : '') })}
                             id={id}
                         >
                             <span className={selectedLabel ? 'text-foreground' : 'text-muted-foreground'}>
-                                {selectedLabel ?? placeholder ?? 'Chọn...'}
+                                {selectedLabel ?? placeholder}
                             </span>
                             <BaseSelect.Icon>
                                 <ChevronDown className={icon()} />
@@ -95,14 +104,20 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
                             <BaseSelect.Positioner anchor={triggerRef} className="z-50" sideOffset={4}>
                                 <BaseSelect.Popup className={content()}>
                                     <div className={viewport()}>
-                                        {options.map((option) => (
-                                            <BaseSelect.Item key={option.value} value={option.value} className={item()}>
-                                                <BaseSelect.ItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                                                    <Check className="h-4 w-4" />
-                                                </BaseSelect.ItemIndicator>
-                                                <BaseSelect.ItemText>{option.label}</BaseSelect.ItemText>
-                                            </BaseSelect.Item>
-                                        ))}
+                                        {options.length === 0 ? (
+                                            <div className="py-2 px-8 text-sm text-muted-foreground italic text-center">
+                                                {emptyText}
+                                            </div>
+                                        ) : (
+                                            options.map((option) => (
+                                                <BaseSelect.Item key={option.value} value={option.value} className={item()}>
+                                                    <BaseSelect.ItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                                                        <Check className="h-4 w-4" />
+                                                    </BaseSelect.ItemIndicator>
+                                                    <BaseSelect.ItemText>{option.label}</BaseSelect.ItemText>
+                                                </BaseSelect.Item>
+                                            ))
+                                        )}
                                     </div>
                                 </BaseSelect.Popup>
                             </BaseSelect.Positioner>
@@ -113,7 +128,7 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
                     {clearable && selectedValue && (
                         <button
                             type="button"
-                            aria-label="Xóa lựa chọn"
+                            aria-label={clearLabel}
                             onMouseDown={handleClear}
                             className="cursor-pointer absolute right-8 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-red-50 hover:text-red-500 transition-colors z-10"
                         >

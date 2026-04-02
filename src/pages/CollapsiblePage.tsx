@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { Collapsible } from '@components/ui/collapsible/Collapsible'
 
 const CollapsiblePage = () => (

@@ -22,7 +22,7 @@ export interface CollapsibleProps {
   triggerClassName?: string;
 }
 
-const Collapsible = ({
+const Collapsible = React.forwardRef<HTMLDivElement, CollapsibleProps>(({
   trigger,
   children,
   defaultOpen,
@@ -30,11 +30,12 @@ const Collapsible = ({
   onOpenChange,
   className,
   triggerClassName,
-}: CollapsibleProps) => {
+}, ref) => {
   const { root, trigger: triggerCls, panel, content } = collapsibleVariants();
 
   return (
     <BaseCollapsible.Root
+      ref={ref}
       className={root({ className })}
       defaultOpen={defaultOpen}
       open={open}
@@ -51,7 +52,7 @@ const Collapsible = ({
       </BaseCollapsible.Panel>
     </BaseCollapsible.Root>
   );
-};
+});
 
 Collapsible.displayName = 'Collapsible';
 

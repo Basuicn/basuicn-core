@@ -37,23 +37,26 @@ const badgeVariants = tv({
 });
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLSpanElement>,
   VariantProps<typeof badgeVariants> {
   pulse?: boolean;
 }
 
-function Badge({ className, variant, size, pulse, children, ...props }: BadgeProps) {
-  return (
-    <div className={badgeVariants({ variant, size, className })} {...props}>
-      {pulse && (
-        <span className="relative grid place-items-center h-2 w-2 mr-1.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-current"></span>
-        </span>
-      )}
-      {children}
-    </div>
-  );
-}
+const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
+  ({ className, variant, size, pulse, children, ...props }, ref) => {
+    return (
+      <span ref={ref} className={badgeVariants({ variant, size, className })} {...props}>
+        {pulse && (
+          <span className="relative grid place-items-center h-2 w-2 mr-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-current"></span>
+          </span>
+        )}
+        {children}
+      </span>
+    );
+  }
+);
+Badge.displayName = 'Badge';
 
 export { Badge, badgeVariants };

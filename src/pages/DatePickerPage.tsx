@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { type DateRange } from 'react-day-picker'
 import { DatePicker } from '@components/ui/datepicker/DatePicker';
 

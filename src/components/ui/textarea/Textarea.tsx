@@ -1,0 +1,69 @@
+import * as React from 'react';
+import { Field as BaseField } from '@base-ui/react';
+import { tv, type VariantProps } from 'tailwind-variants';
+import { cn } from '@lib/utils/cn';
+
+const textareaVariants = tv({
+  base: 'flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:ring-0  placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 transition-shadow',
+  variants: {
+    variant: {
+      default: '',
+      filled: 'bg-accent border-transparent focus-visible:border-primary focus-visible:ring-0',
+    }
+  },
+  defaultVariants: {
+    variant: 'default'
+  }
+});
+
+export interface TextareaProps 
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement>, 
+  VariantProps<typeof textareaVariants> {
+  label?: string;
+  error?: string;
+  description?: string;
+}
+
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, variant, label, error, description, id, ...props }, ref) => {
+    const defaultId = React.useId();
+    const textareaId = id || defaultId;
+
+    return (
+      <BaseField.Root className="flex flex-col gap-1.5 w-full">
+        {label && (
+          <BaseField.Label htmlFor={textareaId} className="text-sm font-medium text-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            {label}
+          </BaseField.Label>
+        )}
+        
+        <BaseField.Control render={
+          <textarea
+            ref={ref}
+            id={textareaId}
+            className={cn(
+              textareaVariants({ variant }),
+              error && 'border-danger focus-visible:ring-danger',
+              className
+            )}
+            {...props}
+          />
+        } />
+        
+        {description && !error && (
+          <BaseField.Description className="text-[0.8rem] text-muted-foreground">
+            {description}
+          </BaseField.Description>
+        )}
+        {error && (
+          <p className="text-[0.8rem] font-medium text-danger">
+            {error}
+          </p>
+        )}
+      </BaseField.Root>
+    );
+  }
+);
+Textarea.displayName = 'Textarea';
+
+export { Textarea };

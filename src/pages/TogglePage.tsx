@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { Toggle, ToggleGroup, ToggleGroupItem } from '@components/ui/toggle/Toggle'
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from 'lucide-react'
 

@@ -198,7 +198,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ parts, onChange, timeFormat, ti
 
 // ---------- main component ----------
 
-export const DatePicker: React.FC<DatePickerProps> = ({
+export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     mode = 'single',
     date,
     onDateChange,
@@ -215,7 +215,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     className,
     description,
     error,
-}) => {
+}, ref) => {
     const [open, setOpen] = React.useState(false);
     const triggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -251,19 +251,20 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         }
     };
 
-    const handleDateSelect = (selectedDate: any) => {
+    const handleDateSelect = (selectedDate: Date | DateRange | Date[] | undefined) => {
         if (!selectedDate) {
             onDateChange?.(undefined);
             onChange?.(undefined);
             return;
         }
-        if (mode === 'single' && showTime) {
+        if (mode === 'single' && showTime && selectedDate instanceof Date) {
             const newDate = applyTimeToDate(selectedDate, timeParts);
             onDateChange?.(newDate);
             onChange?.(newDate);
         } else {
-            onDateChange?.(selectedDate);
-            onChange?.(selectedDate);
+            // Because of our mode checking, we can be confident here
+            onDateChange?.(selectedDate as DateRange);
+            onChange?.(selectedDate as DateRange);
         }
     };
 
@@ -301,7 +302,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     const needsTimePicker = isTimeMode || (mode === 'single' && showTime);
 
     return (
-        <div className={`flex flex-col gap-1.5 w-full ${className || ''}`}>
+        <div ref={ref} className={`flex flex-col gap-1.5 w-full ${className || ''}`}>
             {label && (
                 <label className="text-sm font-medium text-foreground leading-none">
                     {label}
@@ -338,14 +339,25 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 <BasePopover.Portal>
                     <BasePopover.Positioner anchor={triggerRef} sideOffset={6} className="z-50">
                         <BasePopover.Popup className={popoverContent()}>
-                            {/* Calendar — ẩn khi time-only */}
-                            {!isTimeMode && (
+                            {!isTimeMode && mode === 'single' && (
                                 <div className="p-2 flex justify-center">
                                     <DayPicker
+                                        mode="single"
                                         locale={locales.vi}
-                                        mode={mode as any}
-                                        selected={date as any}
-                                        onSelect={handleDateSelect}
+                                        selected={date as Date | undefined}
+                                        onSelect={(d) => handleDateSelect(d)}
+                                        disabled={disablePastDates ? [{ before: new Date() }] : undefined}
+                                        className="rdp-custom"
+                                    />
+                                </div>
+                            )}
+                            {!isTimeMode && mode === 'range' && (
+                                <div className="p-2 flex justify-center">
+                                    <DayPicker
+                                        mode="range"
+                                        locale={locales.vi}
+                                        selected={date as DateRange | undefined}
+                                        onSelect={(d) => handleDateSelect(d)}
                                         disabled={disablePastDates ? [{ before: new Date() }] : undefined}
                                         className="rdp-custom"
                                     />
@@ -402,4 +414,6 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             )}
         </div>
     );
-};
+});
+
+DatePicker.displayName = "DatePicker";

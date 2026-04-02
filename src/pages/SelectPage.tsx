@@ -1,5 +1,5 @@
-import { PageHeader, ShowcaseCard } from "@/Test";
 import { Select } from "@components/ui/select/Select";
+import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
 
 const SelectPage = () => (
   <div className="max-w-md">

@@ -1,6 +1,6 @@
 import { RadioGroup } from "@components/ui/radio-group/RadioGroup";
 import { Radio } from "@components/ui/radio/Radio";
-import { PageHeader, ShowcaseCard } from "@/Test";
+import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
 
 const RadioPage = () => (
     <div className="max-w-3xl">

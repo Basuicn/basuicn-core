@@ -1,5 +1,5 @@
 import { Checkbox } from "@components/ui/checkbox/Checkbox";
-import { PageHeader, ShowcaseCard } from "@/Test";
+import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
 
 const CheckboxPage = () => (
     <div className="max-w-3xl">

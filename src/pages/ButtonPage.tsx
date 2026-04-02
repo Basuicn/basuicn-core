@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { Button } from '@components/ui/button/Button'
 import { Mail, Star, Plus, ArrowRight, ChevronRight, Code2, Eye, Maximize2, Minimize2 } from 'lucide-react'
 import { LiveProvider, LiveEditor, LivePreview, LiveError } from 'react-live'

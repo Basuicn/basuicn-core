@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { Dialog } from '@components/ui/dialog/Dialog'
 import { Button } from '@components/ui/button/Button'
 import { Input } from '@components/ui/input/Input'

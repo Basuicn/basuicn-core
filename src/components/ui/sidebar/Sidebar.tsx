@@ -4,11 +4,14 @@ import { PanelLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
 import { tv } from 'tailwind-variants';
 import { Popover as BasePopover } from '@base-ui/react';
 import { Tooltip } from '../tooltip/Tooltip';
+import { cn } from '@lib/utils/cn';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SIDEBAR_WIDTH = '16em';
-const SIDEBAR_WIDTH_ICON = '3.5rem';
+const SIDEBAR_WIDTH_DEFAULT = 256; // px
+const SIDEBAR_WIDTH_MIN = 160; // px
+const SIDEBAR_WIDTH_MAX = 480; // px
+const SIDEBAR_WIDTH_ICON = '4rem';
 const MOBILE_BREAKPOINT = 768;
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -23,6 +26,8 @@ interface SidebarContextValue {
   isMobile: boolean;
   openMobile: boolean;
   setOpenMobile: (open: boolean) => void;
+  sidebarWidth: number;
+  setSidebarWidth: (w: number) => void;
 }
 
 const SidebarContext = React.createContext<SidebarContextValue | null>(null);
@@ -49,6 +54,7 @@ const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderProps>(
     const [isMobile, setIsMobile] = React.useState(false);
     const [openMobile, setOpenMobile] = React.useState(false);
     const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
+    const [sidebarWidth, setSidebarWidth] = React.useState(SIDEBAR_WIDTH_DEFAULT);
 
     const isControlled = controlledOpen !== undefined;
     const open = isControlled ? controlledOpen! : internalOpen;
@@ -88,19 +94,19 @@ const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderProps>(
 
     return (
       <SidebarContext.Provider
-        value={{ state, open, setOpen, toggleSidebar, isMobile, openMobile, setOpenMobile }}
+        value={{ state, open, setOpen, toggleSidebar, isMobile, openMobile, setOpenMobile, sidebarWidth, setSidebarWidth }}
       >
         <div
           ref={ref}
           data-sidebar-state={state}
           style={
             {
-              '--sidebar-width': SIDEBAR_WIDTH,
+              '--sidebar-width': `${sidebarWidth}px`,
               '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
               ...style,
             } as React.CSSProperties
           }
-          className={`group/sidebar-wrapper flex min-h-screen w-full has-data-[variant=inset]:bg-muted/30 ${className || ''}`}
+          className={cn('group/sidebar-wrapper flex min-h-screen w-full has-data-[variant=inset]:bg-muted/30', className)}
         >
           {children}
         </div>
@@ -126,7 +132,7 @@ const SidebarTrigger = React.forwardRef<
         toggleSidebar();
         onClick?.(e);
       }}
-      className={`inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${className || ''}`}
+      className={cn('inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary', className)}
       title="Toggle Sidebar (⌘B)"
       {...props}
     >
@@ -147,15 +153,15 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
 
 const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
   ({ side = 'left', variant = 'sidebar', collapsible = 'icon', className, children, ...props }, ref) => {
-    const { state, isMobile, openMobile, setOpenMobile } = useSidebar();
+    const { state, isMobile, openMobile, setOpenMobile, sidebarWidth } = useSidebar();
 
     if (collapsible === 'none') {
       return (
         <aside
           ref={ref}
-          className={`flex h-screen flex-col bg-sidebar border-r border-sidebar-border ${className || ''}`}
-          style={{ width: SIDEBAR_WIDTH }}
-          {...(props as any)}
+          className={cn('flex h-screen flex-col bg-sidebar border-r border-sidebar-border', className)}
+          style={{ width: SIDEBAR_WIDTH_DEFAULT }}
+          {...props}
         >
           {children}
         </aside>
@@ -173,7 +179,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           )}
           <aside
             ref={ref}
-            className={[
+            className={cn(
               'fixed inset-y-0 z-50 flex flex-col bg-sidebar border-r border-sidebar-border shadow-xl',
               'transition-transform duration-300 ease-in-out',
               side === 'left' ? 'left-0' : 'right-0',
@@ -182,10 +188,10 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 : side === 'left'
                 ? '-translate-x-full'
                 : 'translate-x-full',
-              className || '',
-            ].join(' ')}
-            style={{ width: SIDEBAR_WIDTH }}
-            {...(props as any)}
+              className
+            )}
+            style={{ width: sidebarWidth }}
+            {...props}
           >
             {children}
           </aside>
@@ -200,18 +206,15 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         data-collapsible={state === 'collapsed' ? collapsible : ''}
         data-variant={variant}
         data-side={side}
-        className={[
+        className={cn(
           'group relative flex h-screen flex-col bg-sidebar text-sidebar-foreground',
           'border-r border-dashed border-sidebar-border',
-          // Smooth width transition — key cho shadcn feel
-          'will-change-[width] transition-[width] duration-300 ease-in-out',
+          state === 'collapsed' && 'will-change-[width] transition-[width] duration-300 ease-in-out',
           'overflow-hidden shrink-0',
-          state === 'collapsed' && collapsible === 'icon'
-            ? 'w-(--sidebar-width-icon)'
-            : 'w-(--sidebar-width)',
-          className || '',
-        ].join(' ')}
-        {...(props as any)}
+          state === 'collapsed' && collapsible === 'icon' ? 'w-(--sidebar-width-icon)' : 'w-(--sidebar-width)',
+          className
+        )}
+        {...props}
       >
         {children}
       </aside>
@@ -220,13 +223,80 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
 );
 Sidebar.displayName = 'Sidebar';
 
+// ─── SidebarRail — drag handle để resize ──────────────────────────────────────
+
+const SidebarRail = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    const { state, setSidebarWidth, sidebarWidth } = useSidebar();
+    const isDragging = React.useRef(false);
+    const startX = React.useRef(0);
+    const startWidth = React.useRef(0);
+
+    const onMouseDown = React.useCallback(
+      (e: React.MouseEvent) => {
+        if (state === 'collapsed') return;
+        isDragging.current = true;
+        startX.current = e.clientX;
+        startWidth.current = sidebarWidth;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+      },
+      [state, sidebarWidth]
+    );
+
+    React.useEffect(() => {
+      const onMouseMove = (e: MouseEvent) => {
+        if (!isDragging.current) return;
+        const delta = e.clientX - startX.current;
+        const next = Math.min(SIDEBAR_WIDTH_MAX, Math.max(SIDEBAR_WIDTH_MIN, startWidth.current + delta));
+        setSidebarWidth(next);
+      };
+
+      const onMouseUp = () => {
+        if (!isDragging.current) return;
+        isDragging.current = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      };
+
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+      };
+    }, [setSidebarWidth]);
+
+    if (state === 'collapsed') return null;
+
+    return (
+      <div
+        ref={ref}
+        data-sidebar="rail"
+        aria-label="Resize sidebar"
+        onMouseDown={onMouseDown}
+        className={cn(
+          'absolute inset-y-0 right-0 z-20 w-1 cursor-col-resize',
+          'group/rail flex items-center justify-center',
+          'after:absolute after:inset-y-0 after:right-0 after:w-1',
+          'hover:after:bg-primary/50 transition-colors duration-150',
+          className
+        )}
+        {...props}
+      >
+      </div>
+    );
+  }
+);
+SidebarRail.displayName = 'SidebarRail';
+
 // ─── SidebarInset ─────────────────────────────────────────────────────────────
 
 const SidebarInset = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={`relative flex flex-1 flex-col overflow-hidden min-w-0 bg-background ${className || ''}`}
+      className={cn('relative flex flex-1 flex-col overflow-hidden min-w-0 bg-background', className)}
       {...props}
     />
   )
@@ -240,7 +310,7 @@ const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
     <div
       ref={ref}
       data-sidebar="header"
-      className={`flex flex-col gap-2 p-2 shrink-0 ${className || ''}`}
+      className={cn('flex flex-col gap-2 p-2 shrink-0', className)}
       {...props}
     />
   )
@@ -257,7 +327,7 @@ const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
     <div
       ref={ref}
       data-sidebar="footer"
-      className={`flex flex-col gap-2 p-2 mt-auto shrink-0 ${className || ''}`}
+      className={cn('flex flex-col gap-2 p-2 mt-auto shrink-0', className)}
       {...props}
     />
   )
@@ -270,7 +340,7 @@ const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
     <div
       ref={ref}
       data-sidebar="content"
-      className={`flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden py-2 ${className || ''}`}
+      className={cn('flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden py-2', className)}
       {...props}
     />
   )
@@ -282,7 +352,7 @@ const SidebarSeparator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<H
     <div
       ref={ref}
       data-sidebar="separator"
-      className={`mx-2  h-px border-t border-sidebar-border ${className || ''}`}
+      className={cn('mx-2  h-px border-t border-sidebar-border', className)}
       {...props}
     />
   )
@@ -296,7 +366,7 @@ const SidebarGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLD
     <div
       ref={ref}
       data-sidebar="group"
-      className={`relative flex flex-col w-full min-w-0 px-2 py-1 ${className || ''}`}
+      className={cn('relative flex flex-col w-full min-w-0 px-2 py-1', className)}
       {...props}
     />
   )
@@ -310,13 +380,13 @@ const SidebarGroupLabel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
       <div
         ref={ref}
         data-sidebar="group-label"
-        className={[
+        className={cn(
           'flex h-8 shrink-0 items-center rounded-md px-2',
           'text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider',
           'transition-all duration-200 overflow-hidden whitespace-nowrap select-none',
-          state === 'collapsed' ? 'opacity-0 h-0 mb-0 hidden'  : 'opacity-100 ',
-          className || '',
-        ].join(' ')}
+          state === 'collapsed' ? 'opacity-0 h-0 mb-0 hidden' : 'opacity-100',
+          className
+        )}
         {...props}
       />
     );
@@ -329,7 +399,7 @@ const SidebarGroupContent = React.forwardRef<HTMLDivElement, React.HTMLAttribute
     <div
       ref={ref}
       data-sidebar="group-content"
-      className={`w-full ${className || ''}`}
+      className={cn('w-full', className)}
       {...props}
     />
   )
@@ -343,7 +413,7 @@ const SidebarMenu = React.forwardRef<HTMLUListElement, React.HTMLAttributes<HTML
     <ul
       ref={ref}
       data-sidebar="menu"
-      className={`flex flex-col gap-0.5 list-none m-0 p-0 w-full ${className || ''}`}
+      className={cn('flex flex-col gap-0.5 list-none m-0 p-0 w-full', className)}
       {...props}
     />
   )
@@ -355,7 +425,7 @@ const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.HTMLAttributes<HTM
     <li
       ref={ref}
       data-sidebar="menu-item"
-      className={`group/menu-item relative ${className || ''}`}
+      className={cn('group/menu-item relative', className)}
       {...props}
     />
   )
@@ -458,10 +528,10 @@ const SidebarNavLink: React.FC<SidebarNavLinkProps> = ({
     <NavLink
       to={to}
       end={end}
-      className={({ isActive }) =>
-        menuButtonVariants({ size, collapsed: isCollapsed, className }) +
-        (isActive ? ' bg-sidebar-accent text-sidebar-accent-foreground font-semibold' : ' text-sidebar-foreground/70')
-      }
+      className={({ isActive }) => cn(
+        menuButtonVariants({ size, collapsed: isCollapsed, className }),
+        isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold' : 'text-sidebar-foreground/70'
+      )}
     >
       {icon && (
         <span className="shrink-0 flex h-4 w-4 items-center justify-center">
@@ -558,11 +628,11 @@ const SidebarMenuCollapsible: React.FC<SidebarMenuCollapsibleProps> = ({
         <>
           <span className="flex-1 truncate text-left">{label}</span>
           <ChevronRight
-            className={[
+            className={cn(
               'ml-auto h-3.5 w-3.5 shrink-0 text-sidebar-foreground/40',
               'transition-transform duration-200',
-              isOpen ? 'rotate-90' : '',
-            ].join(' ')}
+              isOpen && 'rotate-90'
+            )}
           />
         </>
       )}
@@ -570,7 +640,7 @@ const SidebarMenuCollapsible: React.FC<SidebarMenuCollapsibleProps> = ({
   );
 
   return (
-    <div className="w-full">
+    <>
       {isCollapsed ? (
         <Tooltip content={label} side="right">
           <span className="block">{trigger}</span>
@@ -579,20 +649,16 @@ const SidebarMenuCollapsible: React.FC<SidebarMenuCollapsibleProps> = ({
         trigger
       )}
 
-      {/* Sub-items với animation mượt */}
-      <div
-        className={[
+      {/* Sub-items với animation mượt - Sử dụng SidebarMenuSub (ul) để hợp lệ HTML */}
+      <SidebarMenuSub
+        className={cn(
           'overflow-hidden transition-all duration-200 ease-in-out',
-          !isCollapsed && isOpen
-            ? 'max-h-[800px] opacity-100'
-            : 'max-h-0 opacity-0',
-        ].join(' ')}
+          !isCollapsed && isOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
+        )}
       >
-        <div className="mt-0.5 ml-4 flex flex-col gap-0.5 border-l border-sidebar-border pl-2">
-          {children}
-        </div>
-      </div>
-    </div>
+        {children}
+      </SidebarMenuSub>
+    </>
   );
 };
 SidebarMenuCollapsible.displayName = 'SidebarMenuCollapsible';
@@ -607,7 +673,7 @@ const SidebarMenuSub = React.forwardRef<HTMLUListElement, React.HTMLAttributes<H
       <ul
         ref={ref}
         data-sidebar="menu-sub"
-        className={`mx-3.5 flex min-w-0 flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5 list-none ${className || ''}`}
+        className={cn('mx-3.5 flex min-w-0 flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5 list-none', className)}
         {...props}
       />
     );
@@ -627,7 +693,7 @@ const SidebarMenuBadge = React.forwardRef<HTMLDivElement, React.HTMLAttributes<H
     <div
       ref={ref}
       data-sidebar="menu-badge"
-      className={`ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1 text-xs font-medium text-primary ${className || ''}`}
+      className={cn('ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1 text-xs font-medium text-primary', className)}
       {...props}
     />
   )
@@ -661,10 +727,10 @@ const UserMenuPopover: React.FC<UserMenuPopoverProps> = ({ name, email, avatar, 
         <button
           type="button"
           data-active={open}
-          className={[
+          className={cn(
             menuButtonVariants({ size: 'lg', collapsed: isCollapsed }),
-            'data-[active=true]:bg-sidebar-accent',
-          ].join(' ')}
+            'data-[active=true]:bg-sidebar-accent'
+          )}
         >
           <img
             src={avatar || 'https://i.pravatar.cc/100'}
@@ -697,11 +763,11 @@ const UserMenuPopover: React.FC<UserMenuPopoverProps> = ({ name, email, avatar, 
       <BasePopover.Portal>
         <BasePopover.Positioner side="right" align="end" sideOffset={8}>
           <BasePopover.Popup
-            className={[
+            className={cn(
               'z-50 w-64 rounded-xl border border-border bg-popover shadow-xl outline-none p-1',
               'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95',
-              'data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
-            ].join(' ')}
+              'data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95'
+            )}
           >
             {/* User info header */}
             <div className="flex items-center gap-3 p-3 pb-2 border-b border-border/50">
@@ -735,12 +801,12 @@ interface UserMenuItemProps extends React.ButtonHTMLAttributes<HTMLButtonElement
 const UserMenuItem: React.FC<UserMenuItemProps> = ({ icon, children, destructive, className, ...props }) => (
   <button
     type="button"
-    className={[
+    className={cn(
       'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
       'hover:bg-muted outline-none focus-visible:bg-muted',
       destructive ? 'text-destructive hover:text-destructive' : 'text-foreground',
-      className || '',
-    ].join(' ')}
+      className
+    )}
     {...props}
   >
     {icon && <span className="shrink-0 h-4 w-4 flex items-center justify-center">{icon}</span>}
@@ -754,6 +820,7 @@ export {
   SidebarProvider,
   SidebarTrigger,
   Sidebar,
+  SidebarRail,
   SidebarInset,
   SidebarHeader,
   SidebarFooter,

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
+import { cn } from '@lib/utils/cn';
 
 const toggleVariants = tv({
   base: [
@@ -82,8 +83,7 @@ const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(
       <button
         ref={ref}
         type="button"
-        role="switch"
-        aria-checked={isPressed}
+        aria-pressed={isPressed}
         data-state={isPressed ? 'on' : 'off'}
         onClick={handleClick}
         className={toggleVariants({ variant, size, className })}
@@ -151,7 +151,7 @@ const ToggleGroup = React.forwardRef<HTMLDivElement, ToggleGroupProps>(
         <div
           ref={ref}
           role="group"
-          className={`inline-flex items-center gap-1 ${className || ''}`}
+          className={cn('inline-flex items-center gap-1', className)}
           aria-disabled={disabled}
           {...props}
         >

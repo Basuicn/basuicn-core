@@ -1,7 +1,5 @@
 import * as React from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { ComboBox } from '../combobox/ComboBox';
-import { flattenSearchableRoutes } from '../../../../routes';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import * as Icon from "@components/ui/icons";
 import { cn } from '@lib/utils/cn';
@@ -30,88 +28,14 @@ import {
 } from '../sidebar/Sidebar';
 import { ROUTES } from '../../../../routes';
 
-// ─── SidebarNavItem ──────────────────────────────────────────────────────────
+// ─── Nav Config ───────────────────────────────────────────────────────────────
 
-interface SidebarNavItemProps {
-  route: any;
-  parentPath?: string;
-  isCollapsed: boolean;
-}
-
-const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ route, parentPath = '', isCollapsed }) => {
-  const location = useLocation();
-  
-  // Tính toán path tuyệt đối
-  const absolutePath = [parentPath, route.prefix, route.path]
-    .filter(Boolean)
-    .join('/')
-    .replace(/\/+/g, '/');
-
-  const hasChildren = route.children && route.children.length > 0;
-
-  // Kiểm tra xem có node con nào đang active không (để tự động mở group)
-  const isAnyChildActive = React.useMemo(() => {
-    if (!hasChildren) return false;
-    const checkActive = (items: any[]): boolean => {
-      return items.some(item => {
-        const itemAbsPath = [absolutePath, item.prefix, item.path]
-          .filter(Boolean)
-          .join('/')
-          .replace(/\/+/g, '/');
-        if (location.pathname === itemAbsPath) return true;
-        if (item.children) return checkActive(item.children);
-        return false;
-      });
-    };
-    return checkActive(route.children);
-  }, [hasChildren, route.children, absolutePath, location.pathname]);
-
-  if (hasChildren) {
-    return (
-      <SidebarMenuItem>
-        <SidebarMenuCollapsible
-          id={route.label}
-          icon={route.icon}
-          label={route.label}
-          isChildActive={isAnyChildActive}
-        >
-          {route.children.map((child: any, index: number) => (
-            <SidebarNavItem 
-              key={index} 
-              route={child} 
-              parentPath={absolutePath} 
-              isCollapsed={isCollapsed} 
-            />
-          ))}
-        </SidebarMenuCollapsible>
-      </SidebarMenuItem>
-    );
-  }
-
-  // Nếu không có children nhưng có element -> Render Link
-  if (route.element) {
-    return (
-      <SidebarMenuItem>
-        <SidebarNavLink
-          to={absolutePath === '' ? '/' : absolutePath}
-          icon={route.icon}
-          label={route.label}
-          end={route.end}
-          size="sm"
-          badge={
-            route.badge && !isCollapsed ? (
-              <span className="text-[10px] bg-primary text-primary-foreground rounded px-1.5 py-0.5 font-medium leading-none">
-                {route.badge}
-              </span>
-            ) : undefined
-          }
-        />
-      </SidebarMenuItem>
-    );
-  }
-
-  return null;
-};
+const COLLAPSIBLE_GROUPS = [
+  { id: 'general', label: 'General', icon: <Icon.BookOpen className="w-4 h-4" />, defaultOpen: true },
+  { id: 'forms', label: 'Forms', icon: <Icon.Users className="w-4 h-4" />, defaultOpen: false },
+  { id: 'complex', label: 'Complex', icon: <Icon.CreditCard className="w-4 h-4" />, defaultOpen: false },
+  { id: 'overlays', label: 'Overlays', icon: <Icon.ShieldCheck className="w-4 h-4" />, defaultOpen: false },
+] as const;
 
 // ─── App Sidebar ──────────────────────────────────────────────────────────────
 
@@ -119,6 +43,31 @@ const AppSidebar: React.FC = () => {
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
   const location = useLocation();
+
+  // ─── Memoized Nav Config ───────────────────────────────────────────────────
+  const navOverview = React.useMemo(() => 
+    ROUTES.filter((r) => r.category === 'overview').map((r) => ({
+      to: r.path,
+      end: r.end,
+      icon: r.icon,
+      label: r.label,
+    })), 
+  []);
+
+  const navCollapsibles = React.useMemo(() => 
+    COLLAPSIBLE_GROUPS.map((group) => ({
+      id: group.id,
+      icon: group.icon,
+      label: group.label,
+      defaultOpen: group.defaultOpen,
+      items: ROUTES.filter((r) => r.category === group.id).map((r) => ({
+        to: r.path,
+        icon: r.icon,
+        label: r.label,
+        badge: r.badge,
+      })),
+    })),
+  []);
 
   return (
     <Sidebar collapsible="icon">
@@ -149,28 +98,65 @@ const AppSidebar: React.FC = () => {
 
       {/* Content */}
       <SidebarContent>
-        {['overview', 'general', 'forms', 'complex', 'overlays'].map((cat) => {
-          const catRoutes = ROUTES.filter(r => r.category === cat);
-          if (catRoutes.length === 0) return null;
+        {/* Overview */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Overview</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navOverview.map((item) => (
+                <SidebarMenuItem key={item.to}>
+                  <SidebarNavLink to={item.to} end={item.end} icon={item.icon} label={item.label} />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-          return (
-            <SidebarGroup key={cat}>
-              <SidebarGroupLabel className="capitalize">{cat}</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {catRoutes.map((route, idx) => (
-                    <SidebarNavItem 
-                      key={idx} 
-                      route={route} 
-                      isCollapsed={isCollapsed} 
-                    />
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-              <SidebarSeparator className="mt-2 opacity-50" />
-            </SidebarGroup>
-          );
-        })}
+        <SidebarSeparator />
+
+        {/* Components Collapsible Groups */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Components</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navCollapsibles.map((group) => {
+                // Detect xem có child nào đang active không
+                const isChildActive = group.items.some((item) =>
+                  location.pathname === item.to || location.pathname.startsWith(item.to + '/')
+                );
+
+                return (
+                  <SidebarMenuItem key={group.id}>
+                    <SidebarMenuCollapsible
+                      id={group.id}
+                      icon={group.icon}
+                      label={group.label}
+                      defaultOpen={group.defaultOpen}
+                      isChildActive={isChildActive}
+                    >
+                      {group.items.map((item) => (
+                        <SidebarNavLink
+                          key={item.to}
+                          to={item.to}
+                          icon={item.icon}
+                          label={item.label}
+                          size="sm"
+                          badge={
+                            'badge' in item && item.badge && !isCollapsed ? (
+                              <span className="text-[10px] bg-primary text-primary-foreground rounded px-1.5 py-0.5 font-medium leading-none">
+                                {item.badge}
+                              </span>
+                            ) : undefined
+                          }
+                        />
+                      ))}
+                    </SidebarMenuCollapsible>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       {/* Footer — User menu */}
@@ -207,47 +193,6 @@ const AppSidebar: React.FC = () => {
   );
 };
 
-// ─── Header Search ───────────────────────────────────────────────────────────
-
-const HeaderSearch: React.FC = () => {
-  const navigate = useNavigate();
-  const searchItems = React.useMemo(() => flattenSearchableRoutes(), []);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  // Ctrl + K to focus search
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  return (
-    <div className="flex-1 max-w-sm mx-4 relative group hidden md:block">
-      <ComboBox
-        ref={inputRef}
-        options={searchItems}
-        placeholder="Tìm kiếm component... (Ctrl + K)"
-        leftIcon={<Icon.Search className="w-4 h-4" />}
-        className="w-full h-9 min-h-[36px]" // Tinh chỉnh chiều cao cho gọn
-        onValueChange={(val) => {
-          if (typeof val === 'string') {
-            navigate(val);
-          }
-        }}
-      />
-
-      <div className="absolute right-10 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-border bg-muted/50 text-[10px] font-medium text-muted-foreground pointer-events-none group-focus-within:opacity-0 transition-opacity">
-        <span className="text-[8px]">⌘</span>K
-      </div>
-    </div>
-  );
-};
-
 // ─── Header ───────────────────────────────────────────────────────────────────
 
 const Header: React.FC = () => {
@@ -277,9 +222,6 @@ const Header: React.FC = () => {
           </React.Fragment>
         ))}
       </nav>
-
-      <HeaderSearch />
-
       <div className="flex items-center gap-2 shrink-0">
         <ThemeToggle />
         <img
@@ -294,7 +236,7 @@ const Header: React.FC = () => {
 
 // ─── DashboardLayout ──────────────────────────────────────────────────────────
 
-export const DashboardLayout = React.forwardRef<HTMLDivElement, { children?: React.ReactNode }>(({ children }, ref) => {
+export const LayoutSample = React.forwardRef<HTMLDivElement, { children?: React.ReactNode }>(({ children }, ref) => {
   return (
     <div ref={ref} className="h-full w-full">
       <SidebarProvider>
@@ -312,4 +254,4 @@ export const DashboardLayout = React.forwardRef<HTMLDivElement, { children?: Rea
   );
 });
 
-DashboardLayout.displayName = "DashboardLayout";
+LayoutSample.displayName = "LayoutSample";

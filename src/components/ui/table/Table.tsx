@@ -26,52 +26,107 @@ import { Button } from '../button/Button';
 import { Checkbox } from '../checkbox/Checkbox';
 import { Spinner } from '../spinner/Spinner';
 
-export interface TableProps<TData> {
+// ─── Pagination Config ───────────────────────────────────────────────────────
+
+export interface PaginationConfig {
+    /** Trang hiện tại, 1-based (dùng để controlled ở server mode) */
+    current?: number;
+    /** Số dòng mỗi trang, default 10 */
+    pageSize?: number;
+    /** Tổng bản ghi từ BE — có giá trị → tự động bật server mode */
+    total?: number;
+    /** Danh sách page size options, default [5,10,20,50,100] */
+    pageSizeOptions?: number[];
+    /** Hiển thị info tổng. (total, range) => ReactNode */
+    showTotal?: (total: number, range: [number, number]) => React.ReactNode;
+    /** Ẩn/hiện page size selector, default true */
+    showSizeChanger?: boolean;
+    /**
+     * Callback khi đổi trang / pageSize.
+     * - Client mode: tuỳ chọn, chỉ để notify
+     * - Server mode: bắt buộc, dùng để fetch API
+     */
+    onChange?: (page: number, pageSize: number) => void;
+}
+
+export interface TableProps<TData, TValue = unknown> {
     data: TData[];
-    columns: ColumnDef<TData, any>[];
+    columns: ColumnDef<TData, TValue>[];
     isLoading?: boolean;
     enableSorting?: boolean;
     enableRowSelection?: boolean;
-    enablePagination?: boolean;
     enableExpanding?: boolean;
     renderSubComponent?: (props: { row: TData }) => React.ReactNode;
     getRowCanExpand?: (row: TData) => boolean;
     onSelectionChange?: (selectedRows: TData[]) => void;
-    className?: string; // wrapper class
-    renderPaginationText?: ((from: number, to: number, total: number) => React.ReactNode) | boolean;
-    renderPageSizeText?: (pageSize: number) => React.ReactNode;
-    goToPageText?: string | boolean;
-    alignType?: 'left' | 'center' | 'right';
+    className?: string;
     enableColumnResizing?: boolean;
     columnResizeMode?: ColumnResizeMode;
+    /**
+     * Cấu hình pagination.
+     * - false / không truyền: tắt pagination
+     * - {} object: bật pagination (client-side mặc định)
+     * - { total }: bật server-side mode
+     */
+    pagination?: PaginationConfig | false;
+    emptyText?: string;
 }
 
-export function Table<TData>({
+export function Table<TData, TValue = unknown>({
     data,
     columns,
     isLoading = false,
     enableSorting = true,
     enableRowSelection = false,
-    enablePagination = true,
     enableExpanding = false,
     renderSubComponent,
     getRowCanExpand,
     onSelectionChange,
     className,
-    renderPaginationText = (from, to, total) => (
-        <>
-            Show <span className="font-medium text-foreground">{from}</span> to <span className="font-medium text-foreground">{to}</span> of <span className="font-medium text-foreground">{total}</span> results
-        </>
-    ),
-    renderPageSizeText = (size) => `${size} / page`,
-    goToPageText = "Go to page",
     enableColumnResizing = false,
-    columnResizeMode = 'onChange'
+    columnResizeMode = 'onChange',
+    pagination: paginationProp = {},
+    emptyText = 'Không có dữ liệu',
 }: TableProps<TData>) {
+    // Xác định có bật pagination không
+    const paginationEnabled = paginationProp !== false;
+    const cfg = paginationEnabled ? (paginationProp as PaginationConfig) : {};
+
+    // Server mode khi có cfg.total
+    const isServerMode = paginationEnabled && cfg.total !== undefined;
+    const pageSizeOptions = cfg.pageSizeOptions ?? [5, 10, 20, 50, 100];
+
+    // Internal pagination state (0-based pageIndex cho tanstack)
+    const [page, setPage] = useState(cfg.current ?? 1);       // 1-based
+    const [pageSize, setPageSize] = useState(cfg.pageSize ?? 10);
+
+    // Sync controlled current từ ngoài vào (server mode)
+    useEffect(() => {
+        if (cfg.current !== undefined) setPage(cfg.current);
+    }, [cfg.current]);
+
+    // Derived
+    const pageIndex = page - 1; // 0-based cho tanstack
+    const totalRows = isServerMode ? cfg.total! : data.length;
+    const pageCount = isServerMode ? Math.ceil(totalRows / pageSize) : undefined;
+
+    const tanstackPagination: PaginationState = { pageIndex, pageSize };
+
+    const handlePaginationChange = (updater: PaginationState | ((prev: PaginationState) => PaginationState)) => {
+        const next = typeof updater === 'function' ? updater(tanstackPagination) : updater;
+        const newPage = next.pageIndex + 1;     // convert về 1-based
+        const newPageSize = next.pageSize;
+
+        if (!isServerMode) {
+            setPage(newPage);
+            setPageSize(newPageSize);
+        }
+        cfg.onChange?.(newPage, newPageSize);
+    };
 
     const [sorting, setSorting] = useState<SortingState>([]);
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+
     const finalColumns = React.useMemo(() => {
         const cols = [...columns];
         if (enableRowSelection) {
@@ -80,9 +135,7 @@ export function Table<TData>({
                 size: 10,
                 minSize: 5,
                 maxSize: 10,
-                meta: {
-                    align: 'center'
-                },
+                meta: { align: 'center' },
                 header: ({ table }) => (
                     <div className="flex items-center justify-center">
                         <Checkbox
@@ -113,23 +166,17 @@ export function Table<TData>({
                 size: 10,
                 minSize: 10,
                 maxSize: 10,
-                meta: {
-                    align: 'center'
-                },
-                cell: ({ row }) => {
-                    return row.getCanExpand() ? (
-                        <div className="flex items-center justify-center">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={row.getToggleExpandedHandler()}
-                                className="p-0.5 hover:bg-muted text-muted-foreground transition-colors cursor-pointer outline-none focus:ring-2 focus:ring-primary/50"
-                            >
-                                {row.getIsExpanded() ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                            </Button>
-                        </div>
-                    ) : null;
-                },
+                meta: { align: 'center' },
+                cell: ({ row }) => row.getCanExpand() ? (
+                    <div className="flex items-center justify-center">
+                        <span
+                            onClick={row.getToggleExpandedHandler()}
+                            className="hover:bg-muted text-muted-foreground transition-colors cursor-pointer outline-none focus:ring-2 focus:ring-primary/50 p-1 rounded-md border border-border"
+                        >
+                            {row.getIsExpanded() ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                        </span>
+                    </div>
+                ) : null,
                 enableSorting: false,
             });
         }
@@ -137,27 +184,29 @@ export function Table<TData>({
     }, [columns, enableRowSelection, enableExpanding]);
 
     const table = useReactTable({
-
         data,
         columns: finalColumns,
-        state: { sorting, rowSelection, pagination },
+        state: { sorting, rowSelection, pagination: tanstackPagination },
         onSortingChange: setSorting,
         onRowSelectionChange: setRowSelection,
-        onPaginationChange: setPagination,
+        onPaginationChange: handlePaginationChange,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: enableSorting ? getSortedRowModel() : undefined,
-        getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
+        getPaginationRowModel: paginationEnabled ? getPaginationRowModel() : undefined,
         getFilteredRowModel: getFilteredRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
         columnResizeMode,
         enableColumnResizing,
         enableRowSelection,
+        manualPagination: isServerMode,
+        pageCount: isServerMode ? pageCount : undefined,
         getRowCanExpand: getRowCanExpand ? (row) => getRowCanExpand(row.original) : () => !!renderSubComponent,
     });
-    const [inputValue, setInputValue] = useState(table.getState().pagination.pageIndex + 1);
-    useEffect(() => {
-        setInputValue(table.getState().pagination.pageIndex + 1);
-    }, [table.getState().pagination.pageIndex]);
+
+    // Input go-to-page
+    const [inputValue, setInputValue] = useState<string | number>(page);
+    useEffect(() => { setInputValue(page); }, [page]);
+
     useEffect(() => {
         if (onSelectionChange) {
             const selected = table.getSelectedRowModel().rows.map(row => row.original);
@@ -165,12 +214,19 @@ export function Table<TData>({
         }
     }, [rowSelection, onSelectionChange, table]);
 
+    // Computed display values
+    const currentPageIndex = table.getState().pagination.pageIndex;
+    const currentPageSize = table.getState().pagination.pageSize;
+    const from = currentPageIndex * currentPageSize + 1;
+    const to = Math.min((currentPageIndex + 1) * currentPageSize, totalRows);
+    const totalPageCount = isServerMode ? (pageCount ?? 1) : (table.getPageCount() || 1);
+
     return (
         <div className={cn("relative w-full rounded-md border border-border bg-background flex flex-col overflow-hidden", className)}>
 
             {/* Loading Overlay */}
             {isLoading && (
-                <div className="absolute inset-0 bg-black/10 z-10 flex items-center justify-center backdrop-blur-[2px]">
+                <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center backdrop-blur-[0.5px]">
                     <Spinner size="lg" variant="primary" />
                 </div>
             )}
@@ -192,14 +248,23 @@ export function Table<TData>({
                                     const canSort = header.column.getCanSort() && enableSorting && header.column.id !== 'select';
 
                                     return (
-                                        <th
-                                            key={header.id}
-                                            colSpan={header.colSpan}
-                                            style={{
-                                                width: enableColumnResizing ? header.getSize() : header.column.columnDef.size,
-                                                position: 'relative'
-                                            }}
-                                            className={cn(
+                                            <th
+                                                key={header.id}
+                                                colSpan={header.colSpan}
+                                                style={{
+                                                    width: enableColumnResizing ? header.getSize() : header.column.columnDef.size,
+                                                    position: 'relative'
+                                                }}
+                                                aria-sort={
+                                                    canSort
+                                                        ? header.column.getIsSorted() === 'desc'
+                                                            ? 'descending'
+                                                            : header.column.getIsSorted() === 'asc'
+                                                                ? 'ascending'
+                                                                : 'none'
+                                                        : undefined
+                                                }
+                                                className={cn(
                                                 header.column.id === 'select' || header.column.id === 'expander' ? "px-1" : "px-2",
                                                 "py-3 font-semibold tracking-wide border border-border transition-colors group/header",
                                                 canSort ? "cursor-pointer select-none hover:bg-muted" : "",
@@ -262,7 +327,7 @@ export function Table<TData>({
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                             </svg>
                                         </span>
-                                        <span>Không có dữ liệu</span>
+                                        <span>{emptyText}</span>
                                     </div>
                                 </td>
                             </tr>
@@ -316,96 +381,92 @@ export function Table<TData>({
             </div>
 
             {/* Pagination Controls */}
-            {enablePagination && table.getPageCount() > 0 && (
-                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between px-2 py-3 border-t border-border bg-muted/50 gap-4">
-                    <div className="text-sm text-muted-foreground w-full sm:w-auto text-center sm:text-left">
-                        {renderPaginationText !== false && (
-                            typeof renderPaginationText === 'function' ? renderPaginationText(
-                                table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1,
-                                Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, data.length),
-                                data.length
-                            ) : renderPaginationText
-                        )}
+            {paginationEnabled && totalPageCount > 0 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between px-3 py-2.5 border-t border-border bg-muted/50 gap-2">
+                    {/* showTotal info */}
+                    <div className="text-xs text-muted-foreground shrink-0 order-2 sm:order-1">
+                        {cfg.showTotal
+                            ? cfg.showTotal(totalRows, [from, to])
+                            : <>Show <b>{from}</b>–<b>{to}</b> of <b>{totalRows}</b> results</>
+                        }
                     </div>
 
-                    <div className="flex items-center justify-center sm:justify-end gap-3 w-full sm:w-auto">
-                        <select
-                            value={table.getState().pagination.pageSize}
-                            onChange={e => {
-                                table.setPageSize(Number(e.target.value))
-                            }}
-                            className="px-2 py-1.5 text-sm border border-border rounded-md bg-background text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
-                        >
-                            {[5, 10, 20, 50, 100].map(pageSize => (
-                                <option key={pageSize} value={pageSize}>
-                                    {renderPageSizeText(pageSize)}
-                                </option>
-                            ))}
-                        </select>
+                    {/* Controls */}
+                    <div className="flex items-center gap-2 overflow-x-auto order-1 sm:order-2 w-full sm:w-auto pb-0.5 sm:pb-0">
+                        {/* Page size */}
+                        {(cfg.showSizeChanger !== false) && (
+                            <select
+                                value={currentPageSize}
+                                onChange={e => table.setPageSize(Number(e.target.value))}
+                                className="shrink-0 px-2 py-1 text-xs border border-border rounded-md bg-background text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
+                            >
+                                {pageSizeOptions.map(s => (
+                                    <option key={s} value={s}>{s} / trang</option>
+                                ))}
+                            </select>
+                        )}
 
-                        <div className="flex items-center gap-1">
+                        {/* Nav buttons */}
+                        <div className="flex items-center gap-1 shrink-0">
                             <button
-                                className="p-1.5 rounded-md border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="p-1 rounded border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => table.setPageIndex(0)}
                                 disabled={!table.getCanPreviousPage()}
-                                aria-label="First block"
+                                aria-label="First page"
                             >
-                                <ChevronsLeft className="w-4 h-4" />
+                                <ChevronsLeft className="w-3.5 h-3.5" />
                             </button>
                             <button
-                                className="p-1.5 rounded-md border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed  transition-colors"
+                                className="p-1 rounded border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => table.previousPage()}
                                 disabled={!table.getCanPreviousPage()}
-                                aria-label="Previous block"
+                                aria-label="Previous page"
                             >
-                                <ChevronLeft className="w-4 h-4" />
+                                <ChevronLeft className="w-3.5 h-3.5" />
                             </button>
 
-                            <span className="text-sm font-medium px-3 py-1 bg-background border border-border rounded-md h-full flex items-center min-w-20 justify-center text-foreground">
-                                {table.getState().pagination.pageIndex + 1} / {table.getPageCount() || 1}
+                            <span className="text-xs font-medium px-2.5 py-1 bg-background border border-border rounded shrink-0 min-w-14 text-center text-foreground">
+                                {currentPageIndex + 1} / {totalPageCount}
                             </span>
 
                             <button
-                                className="p-1.5 rounded-md border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="p-1 rounded border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 onClick={() => table.nextPage()}
                                 disabled={!table.getCanNextPage()}
-                                aria-label="Next block"
+                                aria-label="Next page"
                             >
-                                <ChevronRight className="w-4 h-4" />
+                                <ChevronRight className="w-3.5 h-3.5" />
                             </button>
                             <button
-                                className="p-1.5 rounded-md border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                                className="p-1 rounded border border-border text-muted-foreground bg-background hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                onClick={() => table.setPageIndex(totalPageCount - 1)}
                                 disabled={!table.getCanNextPage()}
-                                aria-label="Last block"
+                                aria-label="Last page"
                             >
-                                <ChevronsRight className="w-4 h-4" />
+                                <ChevronsRight className="w-3.5 h-3.5" />
                             </button>
                         </div>
-                        {goToPageText !== false && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground border-l border-border pl-3 ml-1">
-                                {typeof goToPageText === 'string' && <span>{goToPageText}</span>}
-                                <input
-                                    type="number"
-                                    min={1}
-                                    max={table.getPageCount() || 1}
-                                    value={inputValue}
-                                    onChange={e => {
-                                        const val = e.target.value;
-                                        setInputValue(val as any);
 
-                                        const page = val ? Number(val) - 1 : 0;
-                                        if (val && page >= 0 && page < table.getPageCount()) {
-                                            table.setPageIndex(page);
-                                        }
-                                    }}
-                                    onBlur={() => {
-                                        setInputValue(table.getState().pagination.pageIndex + 1);
-                                    }}
-                                    className="w-12 px-1 py-1 text-sm border border-border rounded-md bg-background text-foreground text-center outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                                />
-                            </div>
-                        )}
+                        {/* Go to page */}
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground border-l border-border pl-2 ml-1 shrink-0">
+                            <span className="hidden sm:inline">Trang</span>
+                            <input
+                                type="number"
+                                min={1}
+                                max={totalPageCount}
+                                value={inputValue}
+                                onChange={e => {
+                                    const val = e.target.value;
+                                    setInputValue(val);
+                                    const p = val ? Number(val) - 1 : 0;
+                                    if (val && p >= 0 && p < totalPageCount) {
+                                        table.setPageIndex(p);
+                                    }
+                                }}
+                                onBlur={() => setInputValue(currentPageIndex + 1)}
+                                className="w-10 px-1 py-1 text-xs border border-border rounded bg-background text-foreground text-center outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                            />
+                        </div>
                     </div>
                 </div>
             )}

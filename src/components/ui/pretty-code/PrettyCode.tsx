@@ -43,7 +43,6 @@ export const PrettyCode: React.FC<PrettyCodeProps> = ({ code, lang = 'tsx', clas
 
                 const file = await unified()
                     .use(rehypeParse, { fragment: true })
-                    // @ts-ignore
                     .use(rehypeReact, { 
                         ...prod,
                     })

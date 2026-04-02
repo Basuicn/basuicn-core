@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { Tooltip } from '@components/ui/tooltip/Tooltip'
 import { Button } from '@components/ui/button/Button'
 import { Plus, Settings, Trash2 } from 'lucide-react'

@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { Skeleton } from '@components/ui/skeleton/Skeleton'
 
 const SkeletonPage = () => (

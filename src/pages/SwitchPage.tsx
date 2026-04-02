@@ -1,4 +1,4 @@
-import { PageHeader, ShowcaseCard } from "@/Test";
+import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
 import { Switch } from "@components/ui/switch/Switch";
 
 const SwitchPage = () => (

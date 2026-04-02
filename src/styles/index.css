@@ -57,6 +57,15 @@
     --color-danger: var(--danger);
     --color-danger-foreground: var(--danger-foreground);
 
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
 
@@ -151,6 +160,15 @@
         --danger: #ef4444;
         --danger-foreground: #ffffff;
 
+        --ring: #6366f1;
+        --input: #334155;
+
+        --chart-1: #fb7185;
+        --chart-2: #6366f1;
+        --chart-3: #34d399;
+        --chart-4: #fbbf24;
+        --chart-5: #818cf8;
+
         --popover: #0f172a;
         --popover-foreground: #f8fafc;
 
@@ -202,6 +220,46 @@
         top: 0 !important;
         right: 0 !important;
         bottom: 0 !important;
+    }
+
+    /* Custom Scrollbar - Sleek & Modern */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1; /* slate-300 */
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+        background: #334155; /* slate-700 */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; /* slate-400 */
+        background-clip: content-box;
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: #475569; /* slate-600 */
+    }
+
+    /* Firefox */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+
+    .dark * {
+        scrollbar-color: #334155 transparent;
     }
 }
 

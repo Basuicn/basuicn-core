@@ -1,11 +1,11 @@
-import { PageHeader, ShowcaseCard } from "@/Test";
+import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
 import { Badge } from "@components/ui/badge/Badge";
 
 const BadgePage = () => (
     <div className="max-w-4xl">
         <PageHeader title="Badge" description="Nhãn trạng thái với nhiều kiểu thiết kế hiện đại." />
 
-        <ShowcaseCard 
+        <ShowcaseCard
             title="Solid Variants"
             code={`<Badge>Default</Badge>\n<Badge variant="secondary">Secondary</Badge>\n<Badge variant="outline">Outline</Badge>\n<Badge variant="success">Success</Badge>\n<Badge variant="warning">Warning</Badge>\n<Badge variant="danger">Danger</Badge>`}
         >
@@ -17,8 +17,8 @@ const BadgePage = () => (
             <Badge variant="danger">Danger</Badge>
         </ShowcaseCard>
 
-        <ShowcaseCard 
-            title="Soft Variants" 
+        <ShowcaseCard
+            title="Soft Variants"
             description="Nền nhạt, chữ đậm — phong cách hiện đại."
             code={`<Badge variant="soft-primary">Soft Primary</Badge>\n<Badge variant="soft-success">Soft Success</Badge>\n<Badge variant="soft-warning">Soft Warning</Badge>\n<Badge variant="soft-danger">Soft Danger</Badge>`}
         >
@@ -28,7 +28,7 @@ const BadgePage = () => (
             <Badge variant="soft-danger">Soft Danger</Badge>
         </ShowcaseCard>
 
-        <ShowcaseCard 
+        <ShowcaseCard
             title="Special Variants"
             code={`<Badge variant="glass">Glass</Badge>\n<Badge variant="gradient">Gradient</Badge>`}
         >
@@ -36,7 +36,7 @@ const BadgePage = () => (
             <Badge variant="gradient">Gradient</Badge>
         </ShowcaseCard>
 
-        <ShowcaseCard 
+        <ShowcaseCard
             title="Sizes"
             code={`<Badge size="sm">Small</Badge>\n<Badge size="md">Medium</Badge>\n<Badge size="lg">Large</Badge>`}
         >
@@ -45,8 +45,8 @@ const BadgePage = () => (
             <Badge size="lg">Large</Badge>
         </ShowcaseCard>
 
-        <ShowcaseCard 
-            title="Pulse — Trạng thái Sống" 
+        <ShowcaseCard
+            title="Pulse — Trạng thái Sống"
             description="Hiệu ứng nhấp nháy cho live/active."
             code={`<Badge variant="success" pulse>Live</Badge>\n<Badge variant="danger" pulse>Critical</Badge>\n<Badge variant="warning" pulse>Pending</Badge>\n<Badge variant="soft-primary" pulse>Processing</Badge>`}
         >
@@ -57,7 +57,7 @@ const BadgePage = () => (
             <Badge variant="soft-success" pulse>Soft Success Live</Badge>
         </ShowcaseCard>
 
-        <ShowcaseCard 
+        <ShowcaseCard
             title="Use Cases"
             code={`<div className="flex items-center gap-2">\n  <span className="text-sm">Trạng thái:</span>\n  <Badge variant="soft-success" pulse>Đang giao</Badge>\n</div>\n<div className="flex items-center gap-2">\n  <span className="text-sm">Phiên bản:</span>\n  <Badge variant="gradient">v2.0</Badge>\n</div>\n<div className="flex items-center gap-2">\n  <span className="text-sm">Ưu tiên:</span>\n  <Badge variant="danger" size="sm">High</Badge>\n</div>`}
         >

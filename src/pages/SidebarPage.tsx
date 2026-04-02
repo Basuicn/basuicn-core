@@ -1,14 +1,42 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import {
     SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarGroup,
     SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem,
     SidebarMenuButton, SidebarMenuBadge, SidebarSeparator, SidebarFooter,
-    SidebarInset, SidebarTrigger, SidebarMenuSkeleton
+    SidebarInset, SidebarTrigger, SidebarMenuSkeleton,
+    UserMenuPopover,
+    UserMenuItem,
+    SidebarMenuCollapsible,
+    SidebarNavLink,
+    useSidebar
 } from '@components/ui/sidebar/Sidebar'
+import * as Icons from '@components/ui/icons'
+import { useLocation } from 'react-router-dom';
 
 const SidebarPage = () => {
     const [open, setOpen] = React.useState(true);
+    const { state } = useSidebar();
+    const isCollapsed = state === 'collapsed';
+    const location = useLocation();
+    const NAV_OVERVIEW = [
+        { to: '/', end: true, icon: <Icons.LayoutDashboard className="w-4 h-4" />, label: 'Dashboard' },
+    ];
+    const NAV_COLLAPSIBLES = [
+        {
+            id: 'components',
+            icon: <Icons.LayoutDashboard className="w-4 h-4" />,
+            label: 'Components',
+            defaultOpen: true,
+            items: [
+                { to: '#', icon: <Icons.AlertCircle className="w-4 h-4" />, label: 'Alert' },
+                { to: '#', icon: <Icons.BadgeCheck className="w-4 h-4" />, label: 'Badge' },
+                { to: '#', icon: <Icons.CheckCircle2 className="w-4 h-4" />, label: 'Button' },
+                { to: '#', icon: <Icons.Bell className="w-4 h-4" />, label: 'Bell' },
+
+            ],
+        },
+    ];
     return (
         <div className="max-w-5xl">
             <PageHeader title="Sidebar" description="Thanh điều hướng chuyên nghiệp với đầy đủ tính năng (collapsible, groups, menus)." />
@@ -28,21 +56,14 @@ const SidebarPage = () => {
                             </SidebarHeader>
 
                             <SidebarContent>
+                                {/* Overview */}
                                 <SidebarGroup>
-                                    <SidebarGroupLabel>Platform</SidebarGroupLabel>
+                                    <SidebarGroupLabel>Overview</SidebarGroupLabel>
                                     <SidebarGroupContent>
                                         <SidebarMenu>
-                                            {[
-                                                { to: '#', icon: '🏠', label: 'Dashboard' },
-                                                { to: '#', icon: '📊', label: 'Analytics' },
-                                                { to: '#', icon: '⚙️', label: 'Settings', badge: '3' },
-                                            ].map((item) => (
-                                                <SidebarMenuItem key={item.label}>
-                                                    <SidebarMenuButton tooltip={item.label} isActive={item.label === 'Dashboard'}>
-                                                        <span>{item.icon}</span>
-                                                        {open && <span className="flex-1">{item.label}</span>}
-                                                        {open && item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
-                                                    </SidebarMenuButton>
+                                            {NAV_OVERVIEW.map((item) => (
+                                                <SidebarMenuItem key={item.to}>
+                                                    <SidebarNavLink to={item.to} end={item.end} icon={item.icon} label={item.label} />
                                                 </SidebarMenuItem>
                                             ))}
                                         </SidebarMenu>
@@ -51,33 +72,79 @@ const SidebarPage = () => {
 
                                 <SidebarSeparator />
 
+                                {/* Components Collapsible Groups */}
                                 <SidebarGroup>
-                                    <SidebarGroupLabel>Projects</SidebarGroupLabel>
+                                    <SidebarGroupLabel>Components</SidebarGroupLabel>
                                     <SidebarGroupContent>
                                         <SidebarMenu>
-                                            {['Project Alpha', 'Project Beta', 'Project Gamma'].map((p) => (
-                                                <SidebarMenuItem key={p}>
-                                                    <SidebarMenuButton tooltip={p}>
-                                                        <div className="w-2 h-2 rounded-full bg-primary/60 shrink-0" />
-                                                        {open && <span>{p}</span>}
-                                                    </SidebarMenuButton>
-                                                </SidebarMenuItem>
-                                            ))}
+                                            {NAV_COLLAPSIBLES.map((group) => {
+                                                // Detect xem có child nào đang active không
+                                                const isChildActive = group.items.some((item) =>
+                                                    location.pathname === item.to || location.pathname.startsWith(item.to + '/')
+                                                );
+
+                                                return (
+                                                    <SidebarMenuItem key={group.id}>
+                                                        <SidebarMenuCollapsible
+                                                            id={group.id}
+                                                            icon={group.icon}
+                                                            label={group.label}
+                                                            defaultOpen={group.defaultOpen}
+                                                            isChildActive={isChildActive}
+                                                        >
+                                                            {group.items.map((item) => (
+                                                                <SidebarNavLink
+                                                                    key={item.to}
+                                                                    to={item.to}
+                                                                    icon={item.icon}
+                                                                    label={item.label}
+                                                                    size="sm"
+                                                                    badge={
+                                                                        'badge' in item && !isCollapsed ? (
+                                                                            <span className="text-[10px] bg-primary text-primary-foreground rounded px-1.5 py-0.5 font-medium leading-none">
+                                                                                {(item as any).badge}
+                                                                            </span>
+                                                                        ) : undefined
+                                                                    }
+                                                                />
+                                                            ))}
+                                                        </SidebarMenuCollapsible>
+                                                    </SidebarMenuItem>
+                                                );
+                                            })}
                                         </SidebarMenu>
                                     </SidebarGroupContent>
                                 </SidebarGroup>
                             </SidebarContent>
 
-                            <SidebarFooter>
-                                <SidebarMenuButton tooltip="shadcn">
-                                    <img src="https://i.pravatar.cc/100" alt="" className="w-6 h-6 rounded-full" />
-                                    {open && (
-                                        <div className="flex-1 text-left text-xs overflow-hidden">
-                                            <p className="font-medium truncate">shadcn</p>
-                                            <p className="text-muted-foreground truncate">m@example.com</p>
-                                        </div>
-                                    )}
-                                </SidebarMenuButton>
+                            <SidebarFooter className="border-t border-sidebar-border pb-2">
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <UserMenuPopover
+                                            name="admin2"
+                                            email="admin@example.com"
+                                            avatar="https://i.pravatar.cc/100"
+                                        >
+                                            <UserMenuItem icon={<Icons.Sparkles className="w-4 h-4" />}>
+                                                Upgrade to Pro
+                                            </UserMenuItem>
+                                            <div className="h-px bg-border/50 my-1" />
+                                            <UserMenuItem icon={<Icons.BadgeCheck className="w-4 h-4" />}>
+                                                Account
+                                            </UserMenuItem>
+                                            <UserMenuItem icon={<Icons.CreditCard className="w-4 h-4" />}>
+                                                Billing
+                                            </UserMenuItem>
+                                            <UserMenuItem icon={<Icons.Bell className="w-4 h-4" />}>
+                                                Notifications
+                                            </UserMenuItem>
+                                            <div className="h-px bg-border/50 my-1" />
+                                            <UserMenuItem icon={<Icons.LogOut className="w-4 h-4" />} destructive>
+                                                Log out
+                                            </UserMenuItem>
+                                        </UserMenuPopover>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
                             </SidebarFooter>
                         </Sidebar>
 

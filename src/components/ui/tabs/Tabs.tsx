@@ -13,49 +13,61 @@ const tabsVariants = tv({
   }
 });
 
-export interface TabsProps
-  extends Omit<BaseTabs.Root.Props, 'className' | 'children'>,
-    VariantProps<typeof tabsVariants> {
-  className?: string;
-  items: { label: string; value: string; content: React.ReactNode }[];
+const { rootSlots, list, indicator, trigger, panel } = tabsVariants();
+
+export interface TabsProps extends React.ComponentPropsWithoutRef<typeof BaseTabs.Root> {
 }
 
 const Tabs = React.forwardRef<React.ElementRef<typeof BaseTabs.Root>, TabsProps>(
-  ({ className, items, ...props }, ref) => {
-    const { rootSlots, list, indicator, trigger, panel } = tabsVariants();
-    
+  ({ className, ...props }, ref) => {
     return (
       <BaseTabs.Root
         ref={ref}
-        className={rootSlots({ className })}
+        className={cn(rootSlots(), className)}
         {...props}
-      >
-        <BaseTabs.List className={list()}>
-          <BaseTabs.Indicator className={indicator()} />
-          {items.map((item) => (
-            <BaseTabs.Tab
-              key={item.value}
-              value={item.value}
-              className={trigger()}
-            >
-              {item.label}
-            </BaseTabs.Tab>
-          ))}
-        </BaseTabs.List>
-        {items.map((item) => (
-          <BaseTabs.Panel
-            key={item.value}
-            value={item.value}
-            className={panel()}
-          >
-            {item.content}
-          </BaseTabs.Panel>
-        ))}
-      </BaseTabs.Root>
+      />
     );
   }
 );
-
 Tabs.displayName = 'Tabs';
 
-export { Tabs };
+export interface TabsListProps extends React.ComponentPropsWithoutRef<typeof BaseTabs.List> {
+}
+
+const TabsList = React.forwardRef<React.ElementRef<typeof BaseTabs.List>, TabsListProps>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <BaseTabs.List ref={ref} className={cn(list(), className)} {...props}>
+        <BaseTabs.Indicator className={indicator()} />
+        {children}
+      </BaseTabs.List>
+    );
+  }
+);
+TabsList.displayName = 'TabsList';
+
+export interface TabsTriggerProps extends React.ComponentPropsWithoutRef<typeof BaseTabs.Tab> {
+}
+
+const TabsTrigger = React.forwardRef<React.ElementRef<typeof BaseTabs.Tab>, TabsTriggerProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <BaseTabs.Tab ref={ref} className={cn(trigger(), className)} {...props} />
+    );
+  }
+);
+TabsTrigger.displayName = 'TabsTrigger';
+
+export interface TabsContentProps extends React.ComponentPropsWithoutRef<typeof BaseTabs.Panel> {
+}
+
+const TabsContent = React.forwardRef<React.ElementRef<typeof BaseTabs.Panel>, TabsContentProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <BaseTabs.Panel ref={ref} className={cn(panel(), className)} {...props} />
+    );
+  }
+);
+TabsContent.displayName = 'TabsContent';
+
+export { Tabs, TabsList, TabsTrigger, TabsContent };

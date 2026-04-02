@@ -1,4 +1,4 @@
-import { PageHeader, ShowcaseCard } from "@/Test";
+import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
 import { Input } from "@components/ui/input/Input";
 import *as Icon from "@components/ui/icons";
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DayPicker, type DateRange } from 'react-day-picker';
+import { DayPicker, type DateRange, type Matcher } from 'react-day-picker';
 import { tv, type VariantProps } from 'tailwind-variants';
 import * as locales from 'react-day-picker/locale';
 
@@ -39,7 +39,7 @@ export interface CalendarProps extends VariantProps<typeof calendarVariants> {
   showOutsideDays?: boolean;
 }
 
-const Calendar: React.FC<CalendarProps> = ({
+const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(({
   mode = 'single',
   selected,
   onSelect,
@@ -52,8 +52,8 @@ const Calendar: React.FC<CalendarProps> = ({
   size,
   numberOfMonths = 1,
   showOutsideDays = true,
-}) => {
-  const getDisabled = () => {
+}, ref) => {
+  const getDisabled = (): Matcher | Matcher[] | undefined => {
     if (disabled) return true;
     if (disablePastDates && disableFutureDates) return () => true;
     if (disablePastDates) return { before: new Date() };
@@ -62,20 +62,46 @@ const Calendar: React.FC<CalendarProps> = ({
   };
 
   return (
-    <div className={wrapperVariants({ className: wrapperClassName })}>
-      <DayPicker
-        locale={(locales as any)[locale]}
-        mode={mode as any}
-        selected={selected as any}
-        onSelect={onSelect as any}
-        disabled={getDisabled() as any}
-        numberOfMonths={numberOfMonths}
-        showOutsideDays={showOutsideDays}
-        className={calendarVariants({ size, className })}
-      />
+    <div ref={ref} className={wrapperVariants({ className: wrapperClassName })}>
+      {mode === 'single' && (
+        <DayPicker
+          locale={locales[locale as keyof typeof locales]}
+          mode="single"
+          selected={selected as Date | undefined}
+          onSelect={(d) => onSelect?.(d)}
+          disabled={getDisabled()}
+          numberOfMonths={numberOfMonths}
+          showOutsideDays={showOutsideDays}
+          className={calendarVariants({ size, className })}
+        />
+      )}
+      {mode === 'range' && (
+        <DayPicker
+          locale={locales[locale as keyof typeof locales]}
+          mode="range"
+          selected={selected as DateRange | undefined}
+          onSelect={(d) => onSelect?.(d)}
+          disabled={getDisabled()}
+          numberOfMonths={numberOfMonths}
+          showOutsideDays={showOutsideDays}
+          className={calendarVariants({ size, className })}
+        />
+      )}
+      {mode === 'multiple' && (
+        <DayPicker
+          locale={locales[locale as keyof typeof locales]}
+          mode="multiple"
+          selected={selected as Date[] | undefined}
+          onSelect={(d) => onSelect?.(d)}
+          disabled={getDisabled()}
+          numberOfMonths={numberOfMonths}
+          showOutsideDays={showOutsideDays}
+          className={calendarVariants({ size, className })}
+        />
+      )}
     </div>
   );
-};
+});
 
 Calendar.displayName = 'Calendar';
 

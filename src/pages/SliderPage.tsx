@@ -1,4 +1,4 @@
-import { PageHeader, ShowcaseCard } from "@/Test";
+import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
 import { Slider } from "@components/ui/slider/Slider";
 const SliderPage = () => (
     <div className="max-w-4xl">

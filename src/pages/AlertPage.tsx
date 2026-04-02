@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { Alert, AlertTitle, AlertDescription } from '@components/ui/alert/Alert'
 import { Button } from '@components/ui/button/Button'
 import { Info, CheckCircle2, AlertCircle, XCircle } from 'lucide-react'

@@ -40,7 +40,7 @@ export interface RateProps extends VariantProps<typeof rateVariants> {
   'aria-label'?: string;
 }
 
-const Rate: React.FC<RateProps> = ({
+const Rate = React.forwardRef<HTMLDivElement, RateProps>(({
   value: controlledValue,
   defaultValue = 0,
   onChange,
@@ -55,7 +55,7 @@ const Rate: React.FC<RateProps> = ({
   size,
   className,
   'aria-label': ariaLabel,
-}) => {
+}, ref) => {
   const isControlled = controlledValue !== undefined;
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const [hoverValue, setHoverValue] = React.useState<number | null>(null);
@@ -82,6 +82,7 @@ const Rate: React.FC<RateProps> = ({
 
   return (
     <div
+      ref={ref}
       className={slots.root({ className })}
       role="radiogroup"
       aria-label={ariaLabel || 'Đánh giá'}
@@ -176,7 +177,7 @@ const Rate: React.FC<RateProps> = ({
       })}
     </div>
   );
-};
+});
 
 Rate.displayName = 'Rate';
 

@@ -1,4 +1,4 @@
-import { PageHeader, ShowcaseCard } from "@/Test";
+import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
 import { Progress } from "@components/ui/progress/Progress";
 const ProgressPage = () => (
     <div className="max-w-4xl">

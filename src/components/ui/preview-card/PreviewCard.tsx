@@ -7,9 +7,9 @@ const previewCardVariants = tv({
   slots: {
     popup: [
       'z-50 w-72 rounded-xl border border-border bg-background shadow-xl outline-none',
-      'data-open:animate-in data-closed:animate-out',
-      'data-closed:fade-out-0 data-open:fade-in-0',
-      'data-closed:zoom-out-95 data-open:zoom-in-95',
+      'data-starting:animate-in data-ending:animate-out',
+      'data-ending:fade-out-0 data-starting:fade-in-0',
+      'data-ending:zoom-out-95 data-starting:zoom-in-95',
       'data-side-bottom:slide-in-from-top-2',
       'data-side-left:slide-in-from-right-2',
       'data-side-right:slide-in-from-left-2',
@@ -43,7 +43,7 @@ export interface PreviewCardProps {
   className?: string;
 }
 
-const PreviewCard: React.FC<PreviewCardProps> = ({
+const PreviewCard = React.forwardRef<HTMLSpanElement, PreviewCardProps>(({
   trigger,
   title,
   description,
@@ -58,7 +58,7 @@ const PreviewCard: React.FC<PreviewCardProps> = ({
   openOnHover = false,
   width = 288,
   className,
-}) => {
+}, ref) => {
   const [open, setOpen] = React.useState(false);
   const slots = previewCardVariants();
 
@@ -75,6 +75,7 @@ const PreviewCard: React.FC<PreviewCardProps> = ({
         nativeButton={false}
         render={
           <span
+            ref={ref}
             className="inline-block cursor-pointer"
             {...triggerProps}
           >
@@ -112,7 +113,7 @@ const PreviewCard: React.FC<PreviewCardProps> = ({
       </BasePopover.Portal>
     </BasePopover.Root>
   );
-};
+});
 
 PreviewCard.displayName = 'PreviewCard';
 

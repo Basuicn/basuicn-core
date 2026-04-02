@@ -28,27 +28,33 @@ export interface ComboBoxProps {
   options: ComboBoxOption[];
   label?: string;
   placeholder?: string;
-  value?: any;
-  defaultValue?: any;
-  onValueChange?: (value: any) => void;
+  value?: string | string[];
+  defaultValue?: string | string[];
+  onValueChange?: (value: string | string[]) => void;
   multiple?: boolean;
   isLoading?: boolean;
   className?: string;
   autocomplete?: boolean;
+  emptyText?: string;
+  selectAllText?: string;
+  clearAllText?: string;
+  leftIcon?: React.ReactNode;
 }
 
 const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
-  ({ options, label, placeholder, value, defaultValue, onValueChange, multiple, isLoading, className, autocomplete = true }, ref) => {
+  ({ options, label, placeholder, value, defaultValue, onValueChange, multiple, isLoading, className, autocomplete = true, emptyText = 'Không tìm thấy kết quả.', selectAllText = 'Chọn tất cả', clearAllText = 'Xóa tất cả', leftIcon }, ref) => {
     const [inputValue, setInputValue] = React.useState('');
-    const [internalValue, setInternalValue] = React.useState<any>(defaultValue || (multiple ? [] : null));
+    const [internalValue, setInternalValue] = React.useState<string | string[] | null>(defaultValue || (multiple ? [] : null));
 
     const activeValue = value !== undefined ? value : internalValue;
 
-    const handleValueChange = (newVal: any) => {
+    const handleValueChange = (newVal: string | string[] | null) => {
       if (value === undefined) {
         setInternalValue(newVal);
       }
-      onValueChange?.(newVal);
+      if (newVal !== null) {
+        onValueChange?.(newVal);
+      }
     };
 
     const handleClear = (e: React.MouseEvent) => {
@@ -90,8 +96,13 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
         <div className={root({ className })}>
           {label && <label className="text-sm font-medium text-foreground">{label}</label>}
 
-          <div className="relative w-full">
-            <BaseCombobox.InputGroup ref={inputGroupRef} className={inputContainer()}>
+          <div className="relative w-full group">
+            <BaseCombobox.InputGroup ref={inputGroupRef} className={cn(inputContainer(), leftIcon && 'pl-9')}>
+              {leftIcon && (
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
+                  {leftIcon}
+                </div>
+              )}
               {multiple ? (
                 <BaseCombobox.Chips className="flex flex-wrap items-center gap-1.5 flex-1 w-full min-w-0">
                   {Array.isArray(activeValue) && activeValue.map((val) => {
@@ -147,30 +158,32 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
                     <div className={actionsHeader()}>
                       <button
                         type="button"
+                        aria-label={selectAllText}
                         onClick={(e) => {
                           e.preventDefault();
                           handleValueChange(options.map((o) => o.value));
                         }}
                         className={actionButton()}
                       >
-                        Chọn tất cả
+                        {selectAllText}
                       </button>
                       <div className="w-px h-3 bg-border" />
                       <button
                         type="button"
+                        aria-label={clearAllText}
                         onClick={(e) => {
                           e.preventDefault();
                           handleValueChange([]);
                         }}
                         className={actionButton()}
                       >
-                        Xóa tất cả
+                        {clearAllText}
                       </button>
                     </div>
                   )}
                   <BaseCombobox.List className="p-1 max-h-[300px] overflow-auto">
                     {filteredOptions.length === 0 ? (
-                      <div className="py-2 px-8 text-sm text-muted-foreground italic">Không tìm thấy kết quả.</div>
+                      <div className="py-2 px-8 text-sm text-muted-foreground italic">{emptyText}</div>
                     ) : (
                       filteredOptions.map((option) => (
                         <BaseCombobox.Item

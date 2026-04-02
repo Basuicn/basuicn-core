@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageHeader, ShowcaseCard } from '@/Test'
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { Button } from '@components/ui/button/Button'
 import { Trash2 } from 'lucide-react'
 import { AlertDialog } from '@/components/ui/alert-dialog/AlertDialog';

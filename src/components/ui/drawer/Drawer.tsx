@@ -1,14 +1,16 @@
 import * as React from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
+import { Dialog as BaseDialog } from '@base-ui/react';
 import { X } from 'lucide-react';
+import { cn } from '@lib/utils/cn';
 
 const drawerVariants = tv({
   slots: {
-    overlay: 'fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0',
+    overlay: 'fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-starting:animate-in data-ending:animate-out data-ending:fade-out-0 data-starting:fade-in-0',
     panel: [
       'fixed z-50 bg-background shadow-2xl flex flex-col',
-      'data-open:animate-in data-closed:animate-out duration-300',
-      'outline-none overflow-hidden',
+      'data-starting:animate-in data-ending:animate-out duration-300',
+      'outline-none overflow-hidden m-0 p-0 max-w-full max-h-full border-none',
     ],
     header: 'flex items-center justify-between px-6 py-4 border-b border-border/50 shrink-0',
     title: 'text-base font-semibold text-foreground',
@@ -20,16 +22,16 @@ const drawerVariants = tv({
   variants: {
     direction: {
       left: {
-        panel: 'inset-y-0 left-0 h-full data-open:slide-in-from-left data-closed:slide-out-to-left',
+        panel: 'inset-y-0 left-0 h-full data-[starting-style]:-translate-x-full data-[ending-style]:-translate-x-full transition-transform',
       },
       right: {
-        panel: 'inset-y-0 right-0 h-full data-open:slide-in-from-right data-closed:slide-out-to-right',
+        panel: 'inset-y-0 right-0 h-full data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full transition-transform',
       },
       top: {
-        panel: 'inset-x-0 top-0 w-full data-open:slide-in-from-top data-closed:slide-out-to-top',
+        panel: 'inset-x-0 top-0 w-full data-[starting-style]:-translate-y-full data-[ending-style]:-translate-y-full transition-transform',
       },
       bottom: {
-        panel: 'inset-x-0 bottom-0 w-full data-open:slide-in-from-bottom data-closed:slide-out-to-bottom',
+        panel: 'inset-x-0 bottom-0 w-full data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full transition-transform',
       },
     },
     size: {
@@ -75,7 +77,7 @@ export interface DrawerProps extends VariantProps<typeof drawerVariants> {
   className?: string;
 }
 
-const Drawer: React.FC<DrawerProps> = ({
+const Drawer = React.forwardRef<HTMLDivElement, DrawerProps>(({
   open: controlledOpen,
   onOpenChange,
   trigger,
@@ -87,7 +89,7 @@ const Drawer: React.FC<DrawerProps> = ({
   size = 'md',
   hideClose = false,
   className,
-}) => {
+}, ref) => {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isControlled = controlledOpen !== undefined;
   const isOpen = isControlled ? controlledOpen : internalOpen;
@@ -99,76 +101,47 @@ const Drawer: React.FC<DrawerProps> = ({
 
   const slots = drawerVariants({ direction, size });
 
-  React.useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [isOpen]);
-
   return (
-    <>
+    <BaseDialog.Root open={isOpen} onOpenChange={handleOpenChange}>
       {trigger && (
-        <span onClick={() => handleOpenChange(true)} style={{ display: 'contents' }}>
-          {trigger}
-        </span>
+        <BaseDialog.Trigger
+          render={<span style={{ display: 'contents' }}>{trigger}</span>}
+        />
       )}
 
-      {isOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          data-open={isOpen || undefined}
-          style={{ position: 'fixed', inset: 0, zIndex: 50 }}
-        >
-          {/* Overlay */}
-          <div
-            className={slots.overlay()}
-            onClick={() => handleOpenChange(false)}
-            aria-hidden="true"
-            data-open={isOpen || undefined}
-          />
-
-          {/* Panel */}
-          <div
-            className={slots.panel({ className })}
-            data-open={isOpen || undefined}
-          >
-            {/* Header */}
-            {(title || description || !hideClose) && (
-              <div className={slots.header()}>
-                <div>
-                  {title && <p className={slots.title()}>{title}</p>}
-                  {description && <p className={slots.description()}>{description}</p>}
-                </div>
-                {!hideClose && (
-                  <button
-                    type="button"
-                    className={slots.close()}
-                    onClick={() => handleOpenChange(false)}
-                    aria-label="Đóng"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
+      <BaseDialog.Portal>
+        <BaseDialog.Backdrop className={slots.overlay()} />
+        <BaseDialog.Popup ref={ref} className={cn(slots.panel({ className }))}>
+          {/* Header */}
+          {(title || description || !hideClose) && (
+            <div className={slots.header()}>
+              <div>
+                {title && <BaseDialog.Title className={slots.title()}>{title}</BaseDialog.Title>}
+                {description && <BaseDialog.Description className={slots.description()}>{description}</BaseDialog.Description>}
               </div>
-            )}
+              {!hideClose && (
+                <BaseDialog.Close
+                  className={slots.close()}
+                  aria-label="Đóng"
+                >
+                  <X className="h-4 w-4" />
+                </BaseDialog.Close>
+              )}
+            </div>
+          )}
 
-            {/* Body */}
-            <div className={slots.body()}>{children}</div>
+          {/* Body */}
+          <div className={slots.body()}>{children}</div>
 
-            {/* Footer */}
-            {footerContent && (
-              <div className={slots.footer()}>{footerContent}</div>
-            )}
-          </div>
-        </div>
-      )}
-    </>
+          {/* Footer */}
+          {footerContent && (
+            <div className={slots.footer()}>{footerContent}</div>
+          )}
+        </BaseDialog.Popup>
+      </BaseDialog.Portal>
+    </BaseDialog.Root>
   );
-};
+});
 
 Drawer.displayName = 'Drawer';
 
