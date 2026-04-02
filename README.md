@@ -25,6 +25,10 @@ npx base-cus-ui tailwind
 ```
 
 ---
+### 4. Liệt kê Component
+```bash
+npx base-cus-ui list
+```
 
 ## 🛠 Cách để tự bạn quản lý và phát hành
 
