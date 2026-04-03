@@ -56,7 +56,7 @@ const getRegistry = async (isLocal: boolean): Promise<Registry> => {
     }
 };
 
-const installNpmPackages = (packages: string[], cwd: string) => {
+const installNpmPackages = (packages: string[], cwd: string, dev = false) => {
     if (packages.length === 0) return;
 
     const pkgJsonPath = path.join(cwd, 'package.json');
@@ -71,11 +71,172 @@ const installNpmPackages = (packages: string[], cwd: string) => {
     if (toInstall.length === 0) return;
 
     log(`Installing: ${toInstall.join(', ')}...`);
+    const flag = dev ? '--save-dev' : '--save';
     try {
-        execSync(`npm install ${toInstall.join(' ')} --save`, { stdio: 'inherit', cwd });
+        execSync(`npm install ${toInstall.join(' ')} ${flag}`, { stdio: 'inherit', cwd });
     } catch (err) {
         error(`Failed to install packages: ${toInstall.join(', ')}. ${err instanceof Error ? err.message : ''}`);
     }
+};
+
+const VITE_DEV_PACKAGES = ['tailwindcss', '@tailwindcss/vite', '@vitejs/plugin-react', 'vite-plugin-babel', 'babel-plugin-react-compiler', '@types/node'];
+
+const VITE_CONFIG_TEMPLATE = `import { defineConfig } from 'vite';
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import babel from 'vite-plugin-babel';
+import { reactCompilerPreset } from 'babel-plugin-react-compiler';
+import path from 'path';
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    tailwindcss(),
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@lib': path.resolve(__dirname, './src/lib'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@assets': path.resolve(__dirname, './src/assets'),
+      '@pages': path.resolve(__dirname, './src/pages'),
+      '@styles': path.resolve(__dirname, './src/styles'),
+    },
+  },
+});
+`;
+
+const TSCONFIG_PATHS = {
+    '@/*': ['./src/*'],
+    '@lib/*': ['./src/lib/*'],
+    '@components/*': ['./src/components/*'],
+    '@assets/*': ['./src/assets/*'],
+    '@pages/*': ['./src/pages/*'],
+    '@styles/*': ['./src/styles/*'],
+};
+
+const setupViteConfig = (cwd: string) => {
+    installNpmPackages(VITE_DEV_PACKAGES, cwd, true);
+
+    const configTs = path.join(cwd, 'vite.config.ts');
+    const configJs = path.join(cwd, 'vite.config.js');
+
+    if (!fs.existsSync(configTs) && !fs.existsSync(configJs)) {
+        fs.writeFileSync(configTs, VITE_CONFIG_TEMPLATE);
+        log('Created vite.config.ts with Tailwind + React Compiler setup.');
+        return;
+    }
+
+    const existingPath = fs.existsSync(configTs) ? configTs : configJs;
+    const content = fs.readFileSync(existingPath, 'utf-8');
+
+    const missingImports: string[] = [];
+    if (!content.includes('@tailwindcss/vite')) missingImports.push("import tailwindcss from '@tailwindcss/vite';");
+    if (!content.includes('@vitejs/plugin-react')) missingImports.push("import react from '@vitejs/plugin-react';");
+    if (!content.includes('vite-plugin-babel')) missingImports.push("import babel from 'vite-plugin-babel';");
+    if (!content.includes('babel-plugin-react-compiler')) missingImports.push("import { reactCompilerPreset } from 'babel-plugin-react-compiler';");
+
+    const missingPlugins: string[] = [];
+    if (!content.includes('tailwindcss()')) missingPlugins.push('tailwindcss()');
+    if (!content.includes('react()') && !content.includes('react({')) missingPlugins.push('react()');
+    if (!content.includes('reactCompilerPreset')) missingPlugins.push('babel({ presets: [reactCompilerPreset()] })');
+
+    const hasAlias = content.includes('alias:') || content.includes("'@'") || content.includes('"@"');
+
+    if (missingImports.length === 0 && missingPlugins.length === 0 && hasAlias) {
+        log('vite.config already configured — skipping.');
+        return;
+    }
+
+    warn(`${path.basename(existingPath)} exists but is missing required setup. Add the following manually:`);
+    if (missingImports.length > 0) {
+        console.log('\n  // Imports to add:');
+        for (const imp of missingImports) console.log(`  ${imp}`);
+    }
+    if (missingPlugins.length > 0) {
+        console.log('\n  // Plugins to add inside defineConfig({ plugins: [...] }):');
+        for (const plugin of missingPlugins) console.log(`    ${plugin},`);
+    }
+    if (!hasAlias) {
+        console.log('\n  // resolve.alias to add inside defineConfig({}):');
+        console.log("  resolve: {");
+        console.log("    alias: {");
+        console.log("      '@': path.resolve(__dirname, './src'),");
+        console.log("      '@lib': path.resolve(__dirname, './src/lib'),");
+        console.log("      '@components': path.resolve(__dirname, './src/components'),");
+        console.log("      '@assets': path.resolve(__dirname, './src/assets'),");
+        console.log("      '@pages': path.resolve(__dirname, './src/pages'),");
+        console.log("      '@styles': path.resolve(__dirname, './src/styles'),");
+        console.log("    },");
+        console.log("  },");
+    }
+    console.log('');
+};
+
+const ensureTailwindCss = (cwd: string) => {
+    const candidates = ['src/index.css', 'src/App.css', 'src/main.css'];
+    for (const cssFile of candidates) {
+        const cssPath = path.join(cwd, cssFile);
+        if (fs.existsSync(cssPath)) {
+            const content = fs.readFileSync(cssPath, 'utf-8');
+            if (!content.includes('@import "tailwindcss"') && !content.includes("@import 'tailwindcss'")) {
+                fs.writeFileSync(cssPath, `@import "tailwindcss";\n\n${content}`);
+                log(`Added @import "tailwindcss" to ${cssFile}`);
+            } else {
+                log(`${cssFile} already imports Tailwind — skipping.`);
+            }
+            return;
+        }
+    }
+    // No CSS file found — create src/index.css
+    const srcDir = path.join(cwd, 'src');
+    if (!fs.existsSync(srcDir)) fs.mkdirSync(srcDir, { recursive: true });
+    fs.writeFileSync(path.join(srcDir, 'index.css'), '@import "tailwindcss";\n');
+    log('Created src/index.css with @import "tailwindcss"');
+};
+
+const setupTsConfig = (cwd: string) => {
+    const candidates = ['tsconfig.app.json', 'tsconfig.json'];
+
+    for (const candidate of candidates) {
+        const configPath = path.join(cwd, candidate);
+        if (!fs.existsSync(configPath)) continue;
+
+        const raw = fs.readFileSync(configPath, 'utf-8');
+
+        if (raw.includes('"@/*"') || raw.includes("'@/*'")) {
+            log(`${candidate} already has path aliases — skipping.`);
+            return;
+        }
+
+        try {
+            // Strip single-line and block comments before parsing
+            const stripped = raw.replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+            const parsed = JSON.parse(stripped) as { compilerOptions?: Record<string, unknown> };
+            if (!parsed.compilerOptions) parsed.compilerOptions = {};
+            parsed.compilerOptions.baseUrl = '.';
+            parsed.compilerOptions.paths = TSCONFIG_PATHS;
+            fs.writeFileSync(configPath, JSON.stringify(parsed, null, 2));
+            log(`Added path aliases to ${candidate}.`);
+        } catch {
+            warn(`Could not auto-patch ${candidate}. Add these to compilerOptions manually:`);
+            console.log('\n  "baseUrl": ".",');
+            console.log('  "paths": {');
+            for (const [alias, targets] of Object.entries(TSCONFIG_PATHS)) {
+                console.log(`    "${alias}": ["${targets[0]}"],`);
+            }
+            console.log('  }');
+            console.log('');
+        }
+        return;
+    }
+
+    // No tsconfig found — create a minimal one
+    const newConfig = { compilerOptions: { baseUrl: '.', paths: TSCONFIG_PATHS } };
+    fs.writeFileSync(path.join(cwd, 'tsconfig.json'), JSON.stringify(newConfig, null, 2));
+    log('Created tsconfig.json with path aliases.');
 };
 
 const ensureCore = (registry: { core?: { dependencies: string[]; files: { path: string; content: string }[] } }, cwd: string) => {
@@ -226,6 +387,9 @@ const main = async () => {
         }
 
         case 'init': {
+            setupViteConfig(cwd);
+            setupTsConfig(cwd);
+            ensureTailwindCss(cwd);
             ensureCore(registry, cwd);
             log('Initialization complete.');
             break;
