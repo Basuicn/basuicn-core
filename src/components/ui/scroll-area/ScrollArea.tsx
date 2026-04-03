@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
 
@@ -5,17 +7,12 @@ const scrollAreaVariants = tv({
   slots: {
     root: 'relative overflow-hidden',
     viewport: 'h-full w-full rounded-[inherit] [&>div]:!block',
-    scrollbar:
-      'flex touch-none select-none transition-colors',
-    thumb:
-      'relative rounded-full bg-border hover:bg-muted-foreground/30 transition-colors',
+    scrollbar: 'flex touch-none select-none transition-colors',
+    thumb: 'relative rounded-full bg-border hover:bg-muted-foreground/30 transition-colors',
   },
   variants: {
     size: {
-      sm: {
-        scrollbar: '',
-        thumb: '',
-      },
+      sm: { scrollbar: '', thumb: '' },
       md: {},
       lg: {},
     },
@@ -42,10 +39,12 @@ export interface ScrollAreaProps
     Omit<VariantProps<typeof scrollAreaVariants>, 'orientation'> {
   /** Scroll direction: vertical, horizontal, or both */
   orientation?: 'vertical' | 'horizontal' | 'both';
+  /** Accessible label for the scrollable region */
+  'aria-label'?: string;
 }
 
 const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
-  ({ className, children, orientation = 'vertical', size, ...props }, ref) => {
+  ({ className, children, orientation = 'vertical', size, 'aria-label': ariaLabel, ...props }, ref) => {
     const { root, viewport } = scrollAreaVariants({ size });
 
     const overflowClass =
@@ -56,7 +55,13 @@ const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
           : 'overflow-y-auto overflow-x-hidden';
 
     return (
-      <div ref={ref} className={root({ className })} {...props}>
+      <div
+        ref={ref}
+        className={root({ className })}
+        role="region"
+        aria-label={ariaLabel}
+        {...props}
+      >
         <div
           className={viewport({
             className: `${overflowClass} scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent`,

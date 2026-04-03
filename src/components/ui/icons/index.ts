@@ -59,4 +59,5 @@ export {
   Hash,
   ChevronDown,
   MoreHorizontal,
+  AlertCircle as AlertCircleIcon
 } from 'lucide-react';

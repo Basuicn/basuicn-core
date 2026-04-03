@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ROUTES, type RouteConfig } from '../routes';
-import { DashboardLayout } from './components/ui/layout/DashboardLayout';
+import { DashboardLayout } from './components/layout/DashboardLayout';
 
 interface FlatRoute extends RouteConfig {
   path: string;

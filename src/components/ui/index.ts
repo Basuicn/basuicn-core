@@ -15,7 +15,7 @@ export * from './dialog/Dialog';
 export * from './drawer/Drawer';
 export * from './form/Form';
 export * from './input/Input';
-export * from './layout/DashboardLayout';
+export * from '../layout/DashboardLayout';
 export * from './popover/Popover';
 export * from './pretty-code/PrettyCode';
 export * from './preview-card/PreviewCard';

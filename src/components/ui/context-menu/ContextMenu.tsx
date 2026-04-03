@@ -1,4 +1,7 @@
+'use client';
+
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { tv } from 'tailwind-variants';
 import { Check, Circle } from 'lucide-react';
 
@@ -6,11 +9,11 @@ const contextMenuVariants = tv({
   slots: {
     content:
       'fixed z-50 min-w-[8rem] overflow-hidden rounded-md border border-border bg-background p-1 text-foreground shadow-md animate-in fade-in-0 zoom-in-95',
-    item: 'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+    item: 'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
     checkboxItem:
-      'relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground',
+      'relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground',
     radioItem:
-      'relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground',
+      'relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground',
     label: 'px-2 py-1.5 text-sm font-semibold',
     separator: '-mx-1 my-1 h-px bg-border',
     shortcut: 'ml-auto text-xs tracking-widest opacity-60',
@@ -20,7 +23,7 @@ const contextMenuVariants = tv({
 
 const styles = contextMenuVariants();
 
-/* ─── Context ───────────────────────────────────────────────────── */
+// ─── Context ─────────────────────────────────────────────────────────────────
 
 interface ContextMenuState {
   open: boolean;
@@ -32,9 +35,8 @@ const ContextMenuContext = React.createContext<{
   close: () => void;
 }>({ state: { open: false, position: { x: 0, y: 0 } }, close: () => {} });
 
-/* ─── Root ──────────────────────────────────────────────────────── */
+// ─── Root ─────────────────────────────────────────────────────────────────────
 
-/** Props for the ContextMenu root */
 export interface ContextMenuProps {
   children: React.ReactNode;
 }
@@ -47,28 +49,34 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
 
   const close = React.useCallback(() => setState(s => ({ ...s, open: false })), []);
 
+  // Close on outside click / second right-click / scroll
   React.useEffect(() => {
-    if (state.open) {
-      const handler = () => close();
-      document.addEventListener('click', handler);
-      document.addEventListener('contextmenu', handler);
-      return () => {
-        document.removeEventListener('click', handler);
-        document.removeEventListener('contextmenu', handler);
-      };
-    }
+    if (!state.open) return;
+    const handleClose = () => close();
+    document.addEventListener('click', handleClose, { capture: true });
+    document.addEventListener('contextmenu', handleClose, { capture: true });
+    document.addEventListener('scroll', handleClose, { capture: true, passive: true });
+    return () => {
+      document.removeEventListener('click', handleClose, { capture: true });
+      document.removeEventListener('contextmenu', handleClose, { capture: true });
+      document.removeEventListener('scroll', handleClose, { capture: true });
+    };
   }, [state.open, close]);
 
   return (
     <ContextMenuContext.Provider value={{ state, close }}>
       {React.Children.map(children, child => {
         if (React.isValidElement(child) && child.type === ContextMenuTrigger) {
-          return React.cloneElement(child as React.ReactElement<{ onContextMenu?: (e: React.MouseEvent) => void }>, {
-            onContextMenu: (e: React.MouseEvent) => {
-              e.preventDefault();
-              setState({ open: true, position: { x: e.clientX, y: e.clientY } });
-            },
-          });
+          return React.cloneElement(
+            child as React.ReactElement<{ onContextMenu?: (e: React.MouseEvent) => void }>,
+            {
+              onContextMenu: (e: React.MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setState({ open: true, position: { x: e.clientX, y: e.clientY } });
+              },
+            }
+          );
         }
         return child;
       })}
@@ -77,7 +85,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ children }) => {
 };
 ContextMenu.displayName = 'ContextMenu';
 
-/* ─── Trigger ───────────────────────────────────────────────────── */
+// ─── Trigger ──────────────────────────────────────────────────────────────────
 
 export interface ContextMenuTriggerProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -88,33 +96,98 @@ const ContextMenuTrigger = React.forwardRef<HTMLDivElement, ContextMenuTriggerPr
 );
 ContextMenuTrigger.displayName = 'ContextMenuTrigger';
 
-/* ─── Content ───────────────────────────────────────────────────── */
+// ─── Content ──────────────────────────────────────────────────────────────────
 
-/** Props for the ContextMenuContent component */
 export interface ContextMenuContentProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const ContextMenuContent = React.forwardRef<HTMLDivElement, ContextMenuContentProps>(
-  ({ className, ...props }, ref) => {
-    const { state } = React.useContext(ContextMenuContext);
+  ({ className, children, ...props }, ref) => {
+    const { state, close } = React.useContext(ContextMenuContext);
+    const contentRef = React.useRef<HTMLDivElement>(null);
+
+    // Merge refs
+    const mergedRef = React.useCallback(
+      (node: HTMLDivElement | null) => {
+        (contentRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      },
+      [ref]
+    );
+
+    // Focus first item on open
+    React.useEffect(() => {
+      if (state.open) {
+        const first = contentRef.current?.querySelector<HTMLElement>('[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"]');
+        first?.focus();
+      }
+    }, [state.open]);
+
+    // Keyboard navigation
+    const handleKeyDown = React.useCallback(
+      (e: React.KeyboardEvent<HTMLDivElement>) => {
+        const items = Array.from(
+          contentRef.current?.querySelectorAll<HTMLElement>(
+            '[role="menuitem"]:not([disabled]),[role="menuitemcheckbox"]:not([disabled]),[role="menuitemradio"]:not([disabled])'
+          ) ?? []
+        );
+        const current = document.activeElement as HTMLElement;
+        const idx = items.indexOf(current);
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          items[(idx + 1) % items.length]?.focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          items[(idx - 1 + items.length) % items.length]?.focus();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          close();
+        } else if (e.key === 'Tab') {
+          e.preventDefault();
+          close();
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          items[0]?.focus();
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          items[items.length - 1]?.focus();
+        }
+      },
+      [close]
+    );
+
     if (!state.open) return null;
-    return (
+
+    // Clamp position to viewport
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 0;
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 0;
+    const MENU_W = 192; // ~min-w-[8rem] generous estimate
+    const MENU_H = 300;
+    const x = Math.min(state.position.x, vw - MENU_W - 8);
+    const y = Math.min(state.position.y, vh - MENU_H - 8);
+
+    return ReactDOM.createPortal(
       <div
-        ref={ref}
+        ref={mergedRef}
         className={styles.content({ className })}
-        style={{ top: state.position.y, left: state.position.x }}
+        style={{ top: y, left: x }}
         role="menu"
+        aria-orientation="vertical"
+        onKeyDown={handleKeyDown}
         {...props}
-      />
+      >
+        {children}
+      </div>,
+      document.body
     );
   }
 );
 ContextMenuContent.displayName = 'ContextMenuContent';
 
-/* ─── Item ──────────────────────────────────────────────────────── */
+// ─── Item ─────────────────────────────────────────────────────────────────────
 
-/** Props for the ContextMenuItem component */
 export interface ContextMenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** Add left padding to align with items that have icons */
   inset?: boolean;
   disabled?: boolean;
 }
@@ -126,8 +199,25 @@ const ContextMenuItem = React.forwardRef<HTMLDivElement, ContextMenuItemProps>(
       <div
         ref={ref}
         role="menuitem"
-        className={styles.item({ className: `${inset ? 'pl-8' : ''} ${disabled ? 'opacity-50 pointer-events-none' : ''} ${className ?? ''}` })}
-        onClick={(e) => { onClick?.(e); close(); }}
+        tabIndex={disabled ? undefined : -1}
+        aria-disabled={disabled || undefined}
+        className={styles.item({
+          className: `${inset ? 'pl-8' : ''} ${disabled ? 'opacity-50 pointer-events-none' : ''} ${className ?? ''}`,
+        })}
+        onClick={(e) => {
+          if (disabled) return;
+          onClick?.(e);
+          close();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (!disabled) {
+              onClick?.(e as unknown as React.MouseEvent<HTMLDivElement>);
+              close();
+            }
+          }
+        }}
         {...props}
       />
     );
@@ -135,7 +225,7 @@ const ContextMenuItem = React.forwardRef<HTMLDivElement, ContextMenuItemProps>(
 );
 ContextMenuItem.displayName = 'ContextMenuItem';
 
-/* ─── CheckboxItem ──────────────────────────────────────────────── */
+// ─── CheckboxItem ─────────────────────────────────────────────────────────────
 
 export interface ContextMenuCheckboxItemProps extends React.HTMLAttributes<HTMLDivElement> {
   checked?: boolean;
@@ -147,9 +237,16 @@ const ContextMenuCheckboxItem = React.forwardRef<HTMLDivElement, ContextMenuChec
     <div
       ref={ref}
       role="menuitemcheckbox"
+      tabIndex={-1}
       aria-checked={checked}
       className={styles.checkboxItem({ className })}
       onClick={() => onCheckedChange?.(!checked)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onCheckedChange?.(!checked);
+        }
+      }}
       {...props}
     >
       <span className={styles.indicatorWrapper()}>
@@ -161,7 +258,7 @@ const ContextMenuCheckboxItem = React.forwardRef<HTMLDivElement, ContextMenuChec
 );
 ContextMenuCheckboxItem.displayName = 'ContextMenuCheckboxItem';
 
-/* ─── RadioGroup + RadioItem ────────────────────────────────────── */
+// ─── RadioGroup + RadioItem ───────────────────────────────────────────────────
 
 const ContextMenuRadioContext = React.createContext<{
   value?: string;
@@ -194,9 +291,16 @@ const ContextMenuRadioItem = React.forwardRef<HTMLDivElement, ContextMenuRadioIt
       <div
         ref={ref}
         role="menuitemradio"
+        tabIndex={-1}
         aria-checked={isChecked}
         className={styles.radioItem({ className })}
         onClick={() => ctx.onValueChange?.(value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            ctx.onValueChange?.(value);
+          }
+        }}
         {...props}
       >
         <span className={styles.indicatorWrapper()}>
@@ -209,7 +313,7 @@ const ContextMenuRadioItem = React.forwardRef<HTMLDivElement, ContextMenuRadioIt
 );
 ContextMenuRadioItem.displayName = 'ContextMenuRadioItem';
 
-/* ─── Label ─────────────────────────────────────────────────────── */
+// ─── Label ────────────────────────────────────────────────────────────────────
 
 const ContextMenuLabel = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(
   ({ className, ...props }, ref) => (
@@ -218,19 +322,19 @@ const ContextMenuLabel = React.forwardRef<HTMLDivElement, React.ComponentPropsWi
 );
 ContextMenuLabel.displayName = 'ContextMenuLabel';
 
-/* ─── Separator ─────────────────────────────────────────────────── */
+// ─── Separator ────────────────────────────────────────────────────────────────
 
 const ContextMenuSeparator = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={styles.separator({ className })} {...props} />
+    <div ref={ref} role="separator" className={styles.separator({ className })} {...props} />
   )
 );
 ContextMenuSeparator.displayName = 'ContextMenuSeparator';
 
-/* ─── Shortcut ──────────────────────────────────────────────────── */
+// ─── Shortcut ─────────────────────────────────────────────────────────────────
 
 const ContextMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => (
-  <span className={styles.shortcut({ className })} {...props} />
+  <span aria-hidden="true" className={styles.shortcut({ className })} {...props} />
 );
 ContextMenuShortcut.displayName = 'ContextMenuShortcut';
 

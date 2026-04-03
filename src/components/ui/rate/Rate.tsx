@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
 import { Star } from 'lucide-react';
@@ -49,7 +51,14 @@ export interface RateProps extends VariantProps<typeof rateVariants> {
   /** Tailwind text color class for empty stars */
   inactiveColor?: string;
   className?: string;
+  /** Accessible label for the rating group */
   'aria-label'?: string;
+  /**
+   * Custom label for individual stars.
+   * Receives the star index (1-based) and returns a string.
+   * Defaults to "1 star", "2 stars", etc.
+   */
+  getStarLabel?: (index: number) => string;
 }
 
 const Rate = React.forwardRef<HTMLDivElement, RateProps>(({
@@ -67,6 +76,7 @@ const Rate = React.forwardRef<HTMLDivElement, RateProps>(({
   size,
   className,
   'aria-label': ariaLabel,
+  getStarLabel,
 }, ref) => {
   const isControlled = controlledValue !== undefined;
   const [internalValue, setInternalValue] = React.useState(defaultValue);
@@ -80,6 +90,11 @@ const Rate = React.forwardRef<HTMLDivElement, RateProps>(({
     if (!isControlled) setInternalValue(next);
     onChange?.(next);
   };
+
+  const defaultGetStarLabel = (index: number) =>
+    index === 1 ? '1 star' : `${index} stars`;
+
+  const resolveLabel = getStarLabel ?? defaultGetStarLabel;
 
   const getStarFraction = (starIndex: number, displayValue: number): number => {
     const full = starIndex + 1;
@@ -148,7 +163,7 @@ const Rate = React.forwardRef<HTMLDivElement, RateProps>(({
             type="button"
             role="radio"
             aria-checked={full <= value}
-            aria-label={`${full} sao`}
+            aria-label={resolveLabel(full)}
             disabled={disabled}
             className={slots.star()}
             onMouseMove={(e) => {

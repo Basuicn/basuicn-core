@@ -11,6 +11,7 @@ import SliderPage from './src/pages/SliderPage';
 import InputPage from './src/pages/InputPage';
 import SelectPage from './src/pages/SelectPage';
 import ComboBoxPage from './src/pages/ComboBoxPage';
+import AutocompletePage from './src/pages/AutocompletePage';
 import DatePickerPage from './src/pages/DatePickerPage';
 import TabsPage from './src/pages/TabsPage';
 import AccordionPage from './src/pages/AccordionPage';
@@ -41,6 +42,7 @@ import ContextMenuPage from './src/pages/ContextMenuPage';
 import AspectRatioPage from './src/pages/AspectRatioPage';
 import SheetPage from './src/pages/SheetPage';
 import { VsCodeIDE } from './src/components/ui/vs-code/VsCodeIDE';
+import { FORM_PREFIX, GENERAL_PREFIX, ROUTES_CONSTANT } from '@/constants/Routes.constant';
 
 export interface RouteConfig {
   path: string;
@@ -58,7 +60,7 @@ export interface RouteConfig {
 export const ROUTES: RouteConfig[] = [
   // Overview
   {
-    path: '/',
+    path: ROUTES_CONSTANT.DASHBOARD,
     label: 'Dashboard',
     icon: <Icon.LayoutDashboard className="w-4 h-4" />,
     element: <TransactionPage />,
@@ -68,175 +70,173 @@ export const ROUTES: RouteConfig[] = [
 
   // General Components
   {
-    path: '/general',
+    path: GENERAL_PREFIX,
     label: 'General',
     icon: <Icon.BookOpen className="w-4 h-4" />,
     category: 'general',
     children: [
       {
-        path: '/button',
+        path: ROUTES_CONSTANT.GENERAL.BUTTON,
         label: 'Button',
         icon: <Icon.Square className="w-4 h-4" />,
         element: <ButtonPage />,
       },
       {
-        path: '/badge',
+        path: ROUTES_CONSTANT.GENERAL.ALERT,
+        label: 'Alert',
+        icon: <Icon.AlertCircle className="w-4 h-4" />,
+        element: <AlertPage />,
+      },
+      {
+        path: ROUTES_CONSTANT.GENERAL.BADGE,
         label: 'Badge',
         icon: <Icon.Tag className="w-4 h-4" />,
         element: <BadgePage />,
       },
       {
-        path: '/avatar',
+        path: ROUTES_CONSTANT.GENERAL.AVATAR,
         label: 'Avatar',
         icon: <Icon.UserCircle className="w-4 h-4" />,
         element: <AvatarPage />,
       },
       {
-        path: '/skeleton',
+        path: ROUTES_CONSTANT.GENERAL.SKELETON,
         label: 'Skeleton',
         icon: <Icon.Layers3 className="w-4 h-4" />,
         element: <SkeletonPage />,
       },
       {
-        path: '/spinner',
+        path: ROUTES_CONSTANT.GENERAL.SPINNER,
         label: 'Spinner',
         icon: <Icon.Loader2 className="w-4 h-4" />,
         element: <SpinnerPage />,
       },
       {
-        path: '/separator',
+        path: ROUTES_CONSTANT.GENERAL.SEPARATOR,
         label: 'Separator',
         icon: <Icon.Minus className="w-4 h-4" />,
         element: <SeparatorPage />,
       },
       {
-        path: '/breadcrumb',
+        path: ROUTES_CONSTANT.GENERAL.BREADCRUMB,
         label: 'Breadcrumb',
         icon: <Icon.Navigation className="w-4 h-4" />,
         element: <BreadcrumbPage />,
       },
       {
-        path: '/aspect-ratio',
+        path: ROUTES_CONSTANT.GENERAL.ASPECT_RATIO,
         label: 'Aspect Ratio',
         icon: <Icon.Square className="w-4 h-4" />,
         element: <AspectRatioPage />,
       },
       {
-        path: '/calendar',
+        path: ROUTES_CONSTANT.GENERAL.CALENDAR,
         label: 'Calendar',
         icon: <Icon.CalendarDays className="w-4 h-4" />,
         element: <CalendarPage />,
       },
       {
-        path: '/rate',
+        path: ROUTES_CONSTANT.GENERAL.RATE,
         label: 'Rate',
         icon: <Icon.Star className="w-4 h-4" />,
         element: <RatePage />,
       },
       {
-        path: '/toggle',
+        path: ROUTES_CONSTANT.GENERAL.TOGGLE,
         label: 'Toggle',
         icon: <Icon.ToggleLeft className="w-4 h-4" />,
         element: <TogglePage />,
       },
       {
-        path: '/preview-card',
+        path: ROUTES_CONSTANT.GENERAL.PREVIEW_CARD,
         label: 'Preview Card',
         icon: <Icon.Square className="w-4 h-4" />,
         element: <PreviewCardPage />,
       },
-      {
-        path: '/scroll-area',
-        label: 'Scroll Area',
-        icon: <Icon.ScrollText className="w-4 h-4" />,
-        element: <ScrollAreaPage />,
-      },
-     
-     
-      
     ]
   },
 
   // Form Components
   {
-    path: '/forms',
+    path: FORM_PREFIX,
     label: 'Forms',
     icon: <Icon.Users className="w-4 h-4" />,
     category: 'forms',
     children: [
       {
-        path: '/input',
+        path: ROUTES_CONSTANT.FORM.INPUT,
         label: 'Input',
         icon: <Icon.Type className="w-4 h-4" />,
         element: <InputPage />,
       },
       {
-        path: '/textarea',
+        path: ROUTES_CONSTANT.FORM.TEXTAREA,
         label: 'Textarea',
         icon: <Icon.TextCursorInput className="w-4 h-4" />,
         element: <TextareaPage />,
       },
       {
-        path: '/select',
+        path: ROUTES_CONSTANT.FORM.SELECT,
         label: 'Select',
         icon: <Icon.ChevronsUpDown className="w-4 h-4" />,
         element: <SelectPage />,
       },
       {
-        path: '/datepicker',
+        path: ROUTES_CONSTANT.FORM.DATEPICKER,
         label: 'DatePicker',
         icon: <Icon.CalendarDays className="w-4 h-4" />,
         element: <DatePickerPage />,
       },
       {
-        path: '/checkbox',
+        path: ROUTES_CONSTANT.FORM.CHECKBOX,
         label: 'Checkbox',
         icon: <Icon.ListChecks className="w-4 h-4" />,
         element: <CheckboxPage />,
       },
       {
-        path: '/radio',
+        path: ROUTES_CONSTANT.FORM.RADIO,
         label: 'Radio Group',
         icon: <Icon.Circle className="w-4 h-4" />,
         element: <RadioPage />,
       },
       {
-        path: '/combobox',
+        path: ROUTES_CONSTANT.FORM.COMBOBOX,
         label: 'ComboBox',
         icon: <Icon.Columns3 className="w-4 h-4" />,
         element: <ComboBoxPage />,
       },
       {
-        path: '/switch',
+        path: ROUTES_CONSTANT.FORM.AUTOCOMPLETE,
+        label: 'Autocomplete',
+        icon: <Icon.Search className="w-4 h-4" />,
+        element: <AutocompletePage />,
+      },
+      {
+        path: ROUTES_CONSTANT.FORM.SWITCH,
         label: 'Switch',
         icon: <Icon.ToggleLeft className="w-4 h-4" />,
         element: <SwitchPage />,
       },
       {
-        path: '/slider',
+        path: ROUTES_CONSTANT.FORM.SLIDER,
         label: 'Slider',
         icon: <Icon.SlidersHorizontal className="w-4 h-4" />,
         element: <SliderPage />,
       },
-      {
-        path: '/textarea',
-        label: 'Textarea',
-        icon: <Icon.TextCursorInput className="w-4 h-4" />,
-        element: <TextareaPage />,
-      },
+
     ]
   },
 
   // Navigation & Layout
   {
-    path: '/components/pagination',
+    path: ROUTES_CONSTANT.COMPLEX.PAGINATION,
     label: 'Pagination',
     icon: <Icon.Hash className="w-4 h-4" />,
     element: <PaginationPage />,
     category: 'complex',
   },
   {
-    path: '/components/scroll-area',
+    path: ROUTES_CONSTANT.COMPLEX.SCROLL_AREA,
     label: 'Scroll Area',
     icon: <Icon.ScrollText className="w-4 h-4" />,
     element: <ScrollAreaPage />,
@@ -245,108 +245,109 @@ export const ROUTES: RouteConfig[] = [
 
   // Complex
   {
-    path: '/components/table',
+    path: ROUTES_CONSTANT.COMPLEX.TABLE,
     label: 'Data Table',
     icon: <Icon.Table2 className="w-4 h-4" />,
     element: <TablePage />,
     category: 'complex',
   },
   {
-    path: '/components/tabs',
+    path: ROUTES_CONSTANT.COMPLEX.TABS,
     label: 'Tabs',
     icon: <Icon.Layers3 className="w-4 h-4" />,
     element: <TabsPage />,
     category: 'complex',
   },
   {
-    path: '/components/accordion',
+    path: ROUTES_CONSTANT.COMPLEX.ACCORDION,
     label: 'Accordion',
     icon: <Icon.ChevronRight className="w-4 h-4" />,
     element: <AccordionPage />,
     category: 'complex',
   },
   {
-    path: '/components/collapsible',
+    path: ROUTES_CONSTANT.COMPLEX.COLLAPSIBLE,
     label: 'Collapsible',
     icon: <Icon.Menu className="w-4 h-4" />,
     element: <CollapsiblePage />,
     category: 'complex',
   },
   {
-    path: '/components/sidebar',
+    path: ROUTES_CONSTANT.COMPLEX.SIDEBAR,
     label: 'Sidebar',
     icon: <Icon.PanelLeft className="w-4 h-4" />,
     element: <SidebarPage />,
     category: 'complex',
   },
-  
+
 
   // Overlays
   {
-    path: '/components/dialog',
+    path: ROUTES_CONSTANT.OVERLAYS.DIALOG,
     label: 'Dialog (Modal)',
     icon: <Icon.MessageSquare className="w-4 h-4" />,
     element: <DialogModal />,
     category: 'overlays',
   },
   {
-    path: '/components/alert-dialog',
+    path: ROUTES_CONSTANT.OVERLAYS.ALERT_DIALOG,
     label: 'Alert Dialog',
     icon: <Icon.AlertTriangle className="w-4 h-4" />,
     element: <AlertDialogPage />,
     category: 'overlays',
   },
   {
-    path: '/components/popover',
+    path: ROUTES_CONSTANT.OVERLAYS.POPOVER,
     label: 'Popover',
     icon: <Icon.Lightbulb className="w-4 h-4" />,
     element: <PopoverPage />,
     category: 'overlays',
   },
   {
-    path: '/components/tooltip',
+    path: ROUTES_CONSTANT.OVERLAYS.TOOLTIP,
     label: 'Tooltip',
     icon: <Icon.Info className="w-4 h-4" />,
     element: <TooltipPage />,
     category: 'overlays',
   },
   {
-    path: '/components/drawer',
+    path: ROUTES_CONSTANT.OVERLAYS.DRAWER,
     label: 'Drawer',
     icon: <Icon.PanelLeft className="w-4 h-4" />,
     element: <DrawerPage />,
     category: 'overlays',
   },
   {
-    path: '/components/dropdown-menu',
+    path: ROUTES_CONSTANT.OVERLAYS.DROPDOWN_MENU,
     label: 'Dropdown Menu',
     icon: <Icon.ChevronDown className="w-4 h-4" />,
     element: <DropdownMenuPage />,
     category: 'overlays',
   },
   {
-    path: '/components/context-menu',
+    path: ROUTES_CONSTANT.OVERLAYS.CONTEXT_MENU,
     label: 'Context Menu',
     icon: <Icon.Menu className="w-4 h-4" />,
     element: <ContextMenuPage />,
     category: 'overlays',
   },
   {
-    path: '/components/sheet',
+    path: ROUTES_CONSTANT.OVERLAYS.SHEET,
     label: 'Sheet',
     icon: <Icon.PanelLeft className="w-4 h-4" />,
     element: <SheetPage />,
     category: 'overlays',
   },
-
-  // Standalone
   {
-    path: '/components/vscode',
-    label: 'VS Code IDE',
-    element: <VsCodeIDE />,
-    standalone: true,
+    path: ROUTES_CONSTANT.OVERLAYS.PROGRESS,
+    label: 'Progress',
+    icon: <Icon.PanelLeft className="w-4 h-4" />,
+    element: <ProgressPage />,
+    category: 'overlays',
   },
-  
+  // Standalone
+
+
 ];
 
 /**

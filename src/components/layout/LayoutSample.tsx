@@ -3,8 +3,8 @@ import { Outlet, useLocation } from 'react-router-dom';
 
 import * as Icon from "@/components/ui/icons";
 import { cn } from '@/lib/utils/cn';
-import { ThemeToggle } from '../ThemeToggle';
-import { Tooltip } from '../tooltip/Tooltip';
+import { ThemeToggle } from '../ui/ThemeToggle';
+import { Tooltip } from '../ui/tooltip/Tooltip';
 import {
   SidebarProvider,
   Sidebar,
@@ -25,8 +25,8 @@ import {
   UserMenuPopover,
   UserMenuItem,
   useSidebar,
-} from '../sidebar/Sidebar';
-import { ROUTES } from '../../../../routes';
+} from '../ui/sidebar/Sidebar';
+import { ROUTES } from '../../../routes';
 
 // ─── Nav Config ───────────────────────────────────────────────────────────────
 
@@ -45,16 +45,16 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
 
   // ─── Memoized Nav Config ───────────────────────────────────────────────────
-  const navOverview = React.useMemo(() => 
+  const navOverview = React.useMemo(() =>
     ROUTES.filter((r) => r.category === 'overview').map((r) => ({
       to: r.path,
       end: r.end,
       icon: r.icon,
       label: r.label,
-    })), 
-  []);
+    })),
+    []);
 
-  const navCollapsibles = React.useMemo(() => 
+  const navCollapsibles = React.useMemo(() =>
     COLLAPSIBLE_GROUPS.map((group) => ({
       id: group.id,
       icon: group.icon,
@@ -67,7 +67,7 @@ const AppSidebar: React.FC = () => {
         badge: r.badge,
       })),
     })),
-  []);
+    []);
 
   return (
     <Sidebar collapsible="icon">
@@ -240,16 +240,16 @@ export const LayoutSample = React.forwardRef<HTMLDivElement, { children?: React.
   return (
     <div ref={ref} className="h-full w-full">
       <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <Header />
-        <main className="flex-1 overflow-y-auto bg-muted/10">
-          <div className="p-6 h-[calc(100vh-60px)] overflow-auto">
-            {children ? children : <Outlet />}
-          </div>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <Header />
+          <main className="flex-1 overflow-y-auto bg-muted/10">
+            <div className="p-6 h-[calc(100vh-60px)] overflow-auto">
+              {children ? children : <Outlet />}
+            </div>
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
     </div>
   );
 });

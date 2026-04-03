@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { DayPicker, type DateRange, type Matcher } from 'react-day-picker';
 import { tv, type VariantProps } from 'tailwind-variants';
@@ -39,7 +41,7 @@ export interface CalendarProps extends VariantProps<typeof calendarVariants> {
   disableFutureDates?: boolean;
   /** Disable the entire calendar */
   disabled?: boolean;
-  /** Locale key from react-day-picker/locale (defaults to 'vi') */
+  /** Locale key from react-day-picker/locale (defaults to 'enUS') */
   locale?: keyof typeof locales;
   className?: string;
   /** Additional class name for the outer wrapper */
@@ -57,7 +59,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(({
   disablePastDates = false,
   disableFutureDates = false,
   disabled = false,
-  locale = 'vi',
+  locale = 'enUS',
   className,
   wrapperClassName,
   size,

@@ -100,45 +100,41 @@
 
 @layer base {
     :root {
-        /* Light Theme - Clean White */
+        /* GENERATED:theme-start */
+        /* Auto-generated from themes.ts — run `npm run theme:sync` to update */
         --background: #ffffff;
         --foreground: #0f172a;
-
         --primary: #2f27ce;
         --primary-foreground: #ffffff;
-
         --secondary: #dedcff;
         --secondary-foreground: #2f27ce;
-
         --muted: #f8fafc;
         --muted-foreground: #64748b;
-
         --accent: #f1f5f9;
         --accent-foreground: #0f172a;
-
-        --switch-background: #cbd5e1;
-        --border: #e2e8f0;
-
         --success: #10b981;
         --success-foreground: #ffffff;
-
         --warning: #f59e0b;
         --warning-foreground: #ffffff;
-
         --danger: #ef4444;
         --danger-foreground: #ffffff;
-
-        --ring: #2f27ce;
+        --destructive: #ef4444;
+        --destructive-foreground: #ffffff;
+        --border: #e2e8f0;
         --input: #e2e8f0;
+        --ring: #2f27ce;
+        --popover: #ffffff;
+        --popover-foreground: #0f172a;
+        /* GENERATED:theme-end */
+
+        /* Non-theme tokens (not managed by applyTheme) */
+        --switch-background: #cbd5e1;
 
         --chart-1: #e11d48;
         --chart-2: #2f27ce;
         --chart-3: #10b981;
         --chart-4: #f59e0b;
         --chart-5: #8b5cf6;
-
-        --popover: #ffffff;
-        --popover-foreground: #0f172a;
 
         --sidebar: #f8fafc;
         --sidebar-foreground: #0f172a;

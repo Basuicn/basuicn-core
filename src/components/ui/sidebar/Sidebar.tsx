@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { PanelLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
 import { tv } from 'tailwind-variants';
 import { Popover as BasePopover } from '@base-ui/react';
-import { Tooltip } from '../tooltip/Tooltip';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../tooltip/Tooltip';
 import { cn } from '@/lib/utils/cn';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -502,8 +502,9 @@ const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonP
 
     if (isCollapsed && tooltip) {
       return (
-        <Tooltip content={tooltip} side="right">
-          {button}
+        <Tooltip>
+          <TooltipTrigger render={button} />
+          <TooltipContent side="right">{tooltip}</TooltipContent>
         </Tooltip>
       );
     }
@@ -569,8 +570,9 @@ const SidebarNavLink: React.FC<SidebarNavLinkProps> = ({
 
   if (isCollapsed && label) {
     return (
-      <Tooltip content={label} side="right">
-        <span className="block">{link}</span>
+      <Tooltip>
+        <TooltipTrigger render={link} />
+        <TooltipContent side="right">{label}</TooltipContent>
       </Tooltip>
     );
   }
@@ -668,8 +670,9 @@ const SidebarMenuCollapsible: React.FC<SidebarMenuCollapsibleProps> = ({
   return (
     <>
       {isCollapsed ? (
-        <Tooltip content={label} side="right">
-          <span className="block">{trigger}</span>
+        <Tooltip>
+          <TooltipTrigger render={trigger} />
+          <TooltipContent side="right">{label}</TooltipContent>
         </Tooltip>
       ) : (
         trigger
@@ -780,8 +783,9 @@ const UserMenuPopover: React.FC<UserMenuPopoverProps> = ({ name, email, avatar, 
   return (
     <BasePopover.Root open={open} onOpenChange={setOpen}>
       {isCollapsed ? (
-        <Tooltip content={name} side="right">
-          <span className="block">{trigger}</span>
+        <Tooltip>
+          <TooltipTrigger render={trigger} />
+          <TooltipContent side="right">{name}</TooltipContent>
         </Tooltip>
       ) : (
         trigger

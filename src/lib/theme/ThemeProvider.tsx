@@ -1,46 +1,81 @@
+'use client';
+
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { themes, applyTheme, type Theme } from './themes';
+import { themes, applyTheme, createTheme, type Theme, type ThemeColors, type BuiltInThemeName } from './themes';
 
 const STORAGE_KEY = 'ui-theme';
 
+/**
+ * Union type for autocomplete suggestions while allowing any string.
+ */
+export type ThemeName = BuiltInThemeName | (string & {});
+
 interface ThemeContextValue {
   currentTheme: Theme;
-  setTheme: (name: string) => void;
+  setTheme: (name: ThemeName) => void;
+  /** Register and switch to a custom theme */
+  setCustomTheme: (name: string, label: string, colors: Partial<ThemeColors>) => void;
   themes: Theme[];
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
   currentTheme: themes[0],
   setTheme: () => {},
+  setCustomTheme: () => {},
   themes,
 });
 
-const getStoredTheme = (): Theme => {
-  if (typeof window === 'undefined') return themes[0];
+interface ThemeProviderProps {
+  children: ReactNode;
+  defaultTheme?: ThemeName;
+}
+
+const getStoredTheme = (allThemes: Theme[], defaultThemeName?: ThemeName): Theme => {
+  if (typeof window === 'undefined') return allThemes[0];
+  // defaultTheme prop in code takes priority over localStorage
+  if (defaultThemeName) {
+    return allThemes.find(t => t.name === defaultThemeName) ?? allThemes[0];
+  }
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return themes.find(t => t.name === saved) ?? themes[0];
+    if (saved) {
+      return allThemes.find(t => t.name === saved) ?? allThemes[0];
+    }
+    return allThemes[0];
   } catch {
-    return themes[0];
+    return allThemes[0];
   }
 };
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(getStoredTheme);
+export function ThemeProvider({ children, defaultTheme }: ThemeProviderProps) {
+  const [allThemes, setAllThemes] = useState<Theme[]>(themes);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme(themes, defaultTheme));
 
   useEffect(() => {
     applyTheme(currentTheme);
   }, [currentTheme]);
 
-  const setTheme = (name: string) => {
-    const found = themes.find(t => t.name === name);
+  const setTheme = (name: ThemeName) => {
+    const found = allThemes.find(t => t.name === name);
     if (!found) return;
     try { localStorage.setItem(STORAGE_KEY, name); } catch { /* SSR / quota */ }
     setCurrentTheme(found);
   };
 
+  const setCustomTheme = (name: string, label: string, colors: Partial<ThemeColors>) => {
+    const custom = createTheme(name, label, colors);
+    setAllThemes(prev => {
+      const exists = prev.findIndex(t => t.name === name);
+      return exists >= 0
+        ? prev.map(t => t.name === name ? custom : t)
+        : [...prev, custom];
+    });
+    try { localStorage.setItem(STORAGE_KEY, name); } catch { /* SSR / quota */ }
+    setCurrentTheme(custom);
+  };
+
   return (
-    <ThemeContext.Provider value={{ currentTheme, setTheme, themes }}>
+    <ThemeContext.Provider value={{ currentTheme, setTheme, setCustomTheme, themes: allThemes }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -135,6 +135,14 @@ const buildRegistry = () => {
           path: 'src/styles/index.css',
           content: fs.readFileSync('./src/styles/index.css', 'utf-8'),
         },
+        {
+          path: 'src/lib/theme/themes.ts',
+          content: fs.readFileSync('./src/lib/theme/themes.ts', 'utf-8'),
+        },
+        {
+          path: 'src/lib/theme/ThemeProvider.tsx',
+          content: fs.readFileSync('./src/lib/theme/ThemeProvider.tsx', 'utf-8'),
+        },
       ],
     },
     components: {},

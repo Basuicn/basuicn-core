@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
 import {
     useReactTable,
     getCoreRowModel,
@@ -14,6 +16,7 @@ import {
     type RowData,
     type ColumnResizeMode,
 } from '@tanstack/react-table';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 declare module '@tanstack/react-table' {
     interface ColumnMeta<TData extends RowData, TValue> {
@@ -49,6 +52,16 @@ export interface PaginationConfig {
     onChange?: (page: number, pageSize: number) => void;
 }
 
+/** i18n labels for Table UI strings */
+export interface TableLabels {
+  /** Label for the page input prefix. Default: "Page" */
+  page?: string;
+  /** Suffix for page size selector. Default: "/ page" */
+  perPage?: string;
+  /** Text shown when there is no data. Default: "No data" */
+  empty?: string;
+}
+
 export interface TableProps<TData, TValue = unknown> {
     data: TData[];
     columns: ColumnDef<TData, TValue>[];
@@ -63,13 +76,32 @@ export interface TableProps<TData, TValue = unknown> {
     enableColumnResizing?: boolean;
     columnResizeMode?: ColumnResizeMode;
     /**
-     * Cấu hình pagination.
-     * - false / không truyền: tắt pagination
-     * - {} object: bật pagination (client-side mặc định)
-     * - { total }: bật server-side mode
+     * Pagination config.
+     * - false / omitted: disable pagination
+     * - {} object: enable (client-side by default)
+     * - { total }: enable server-side mode
      */
     pagination?: PaginationConfig | false;
+    /** @deprecated Use `labels.empty` instead */
     emptyText?: string;
+    /** i18n labels for UI strings */
+    labels?: TableLabels;
+    /**
+     * Enable row virtualization for large datasets.
+     * Requires @tanstack/react-virtual to be installed.
+     * When enabled, `pagination` is ignored.
+     */
+    virtualize?: boolean;
+    /**
+     * Height (px) of the virtualized scroll container.
+     * Only used when `virtualize={true}`. Default: 400
+     */
+    virtualHeight?: number;
+    /**
+     * Estimated row height (px) for the virtualizer.
+     * Only used when `virtualize={true}`. Default: 45
+     */
+    estimatedRowHeight?: number;
 }
 
 export function Table<TData, TValue = unknown>({
@@ -86,8 +118,15 @@ export function Table<TData, TValue = unknown>({
     enableColumnResizing = false,
     columnResizeMode = 'onChange',
     pagination: paginationProp = {},
-    emptyText = 'Không có dữ liệu',
+    emptyText,
+    labels,
+    virtualize = false,
+    virtualHeight = 400,
+    estimatedRowHeight = 45,
 }: TableProps<TData>) {
+    const resolvedEmptyText = emptyText ?? labels?.empty ?? 'No data';
+    // Virtualization setup
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     // Xác định có bật pagination không
     const paginationEnabled = paginationProp !== false;
     const cfg = paginationEnabled ? (paginationProp as PaginationConfig) : {};
@@ -225,6 +264,17 @@ export function Table<TData, TValue = unknown>({
     const to = Math.min((currentPageIndex + 1) * currentPageSize, totalRows);
     const totalPageCount = isServerMode ? (pageCount ?? 1) : (table.getPageCount() || 1);
 
+    // Virtualizer — only active when virtualize=true
+    const allRows = virtualize ? table.getCoreRowModel().rows : [];
+    const rowVirtualizer = useVirtualizer({
+        count: virtualize ? allRows.length : 0,
+        getScrollElement: () => scrollContainerRef.current,
+        estimateSize: () => estimatedRowHeight,
+        overscan: 8,
+        enabled: virtualize,
+    });
+    const virtualItems = virtualize ? rowVirtualizer.getVirtualItems() : [];
+
     return (
         <div className={cn("relative w-full rounded-md border border-border bg-background flex flex-col overflow-hidden", className)}>
 
@@ -235,7 +285,11 @@ export function Table<TData, TValue = unknown>({
                 </div>
             )}
 
-            <div className="overflow-x-auto w-full">
+            <div
+                ref={scrollContainerRef}
+                className="overflow-x-auto w-full"
+                style={virtualize ? { overflowY: 'auto', maxHeight: virtualHeight } : undefined}
+            >
                 <table
                     className="w-full text-sm text-left text-foreground whitespace-nowrap"
                     style={{
@@ -331,11 +385,71 @@ export function Table<TData, TValue = unknown>({
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                             </svg>
                                         </span>
-                                        <span>{emptyText}</span>
+                                        <span>{resolvedEmptyText}</span>
                                     </div>
                                 </td>
                             </tr>
+                        ) : virtualize ? (
+                            // ── Virtual rows ──────────────────────────────────
+                            <>
+                                {rowVirtualizer.getTotalSize() > 0 && (
+                                    <tr aria-hidden="true">
+                                        <td style={{ height: virtualItems[0]?.start ?? 0, padding: 0, border: 0 }} colSpan={finalColumns.length} />
+                                    </tr>
+                                )}
+                                {virtualItems.map(virtualRow => {
+                                    const row = allRows[virtualRow.index];
+                                    if (!row) return null;
+                                    return (
+                                        <tr
+                                            key={row.id}
+                                            data-index={virtualRow.index}
+                                            ref={rowVirtualizer.measureElement}
+                                            className={cn(
+                                                "hover:bg-muted/50 transition-colors",
+                                                row.getIsSelected() ? "bg-primary/5 hover:bg-primary/10" : ""
+                                            )}
+                                        >
+                                            {row.getVisibleCells().map(cell => {
+                                                const meta = cell.column.columnDef.meta;
+                                                const align = meta?.align || 'left';
+                                                return (
+                                                    <td
+                                                        key={cell.id}
+                                                        style={{ width: enableColumnResizing ? cell.column.getSize() : cell.column.columnDef.size }}
+                                                        className={cn(
+                                                            cell.column.id === 'select' || cell.column.id === 'expander' ? "px-1" : "px-2",
+                                                            "py-3 border border-border align-middle",
+                                                            align === 'center' ? "text-center" : align === 'right' ? "text-right" : "text-left"
+                                                        )}
+                                                    >
+                                                        <div className={cn(
+                                                            "flex items-center",
+                                                            align === 'center' ? "justify-center" : align === 'right' ? "justify-end" : "justify-start"
+                                                        )}>
+                                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                        </div>
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
+                                {rowVirtualizer.getTotalSize() > 0 && (
+                                    <tr aria-hidden="true">
+                                        <td
+                                            style={{
+                                                height: rowVirtualizer.getTotalSize() - (virtualItems[virtualItems.length - 1]?.end ?? 0),
+                                                padding: 0,
+                                                border: 0,
+                                            }}
+                                            colSpan={finalColumns.length}
+                                        />
+                                    </tr>
+                                )}
+                            </>
                         ) : (
+                            // ── Normal rows ───────────────────────────────────
                             table.getRowModel().rows.map(row => (
                                 <React.Fragment key={row.id}>
                                     <tr
@@ -384,8 +498,8 @@ export function Table<TData, TValue = unknown>({
                 </table>
             </div>
 
-            {/* Pagination Controls */}
-            {paginationEnabled && totalPageCount > 0 && (
+            {/* Pagination Controls — hidden in virtualize mode */}
+            {!virtualize && paginationEnabled && totalPageCount > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between px-3 py-2.5 border-t border-border bg-muted/50 gap-2">
                     {/* showTotal info */}
                     <div className="text-xs text-muted-foreground shrink-0 order-2 sm:order-1">
@@ -405,7 +519,7 @@ export function Table<TData, TValue = unknown>({
                                 className="shrink-0 px-2 py-1 text-xs border border-border rounded-md bg-background text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                             >
                                 {pageSizeOptions.map(s => (
-                                    <option key={s} value={s}>{s} / trang</option>
+                                    <option key={s} value={s}>{s}{labels?.perPage ?? ' / page'}</option>
                                 ))}
                             </select>
                         )}
@@ -453,7 +567,7 @@ export function Table<TData, TValue = unknown>({
 
                         {/* Go to page */}
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground border-l border-border pl-2 ml-1 shrink-0">
-                            <span className="hidden sm:inline">Trang</span>
+                            <span className="hidden sm:inline">{labels?.page ?? 'Page'}</span>
                             <input
                                 type="number"
                                 min={1}
