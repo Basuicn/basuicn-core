@@ -1,10 +1,10 @@
 {
-  "name": "cus-base-ui",
+  "name": "base-cus-ui",
   "private": false,
-  "version": "0.2.8",
+  "version": "0.2.9",
   "type": "module",
   "bin": {
-    "cus-base-ui": "./dist/ui-cli.cjs"
+    "base-cus-ui": "./dist/ui-cli.cjs"
   },
   "files": [
     "dist",
