@@ -6,9 +6,9 @@ import { execSync } from 'child_process';
 const REGISTRY_LOCAL = './registry.json';
 const REGISTRY_REMOTE = 'https://raw.githubusercontent.com/huy14032003/ui-component/main/registry.json';
 
-const log = (msg: string) => console.log(`[BASE-CUS-UI] ${msg}`);
-const warn = (msg: string) => console.warn(`[BASE-CUS-UI] WARN: ${msg}`);
-const error = (msg: string) => console.error(`[BASE-CUS-UI] ERROR: ${msg}`);
+const log = (msg: string) => console.log(`[CUS-BASE-UI] ${msg}`);
+const warn = (msg: string) => console.warn(`[CUS-BASE-UI] WARN: ${msg}`);
+const error = (msg: string) => console.error(`[CUS-BASE-UI] ERROR: ${msg}`);
 
 const getTargetProjectDir = () => process.cwd();
 
@@ -192,7 +192,7 @@ const main = async () => {
     switch (command) {
         case 'add': {
             if (componentNames.length === 0) {
-                error('Usage: npx base-cus-ui add <component-name> [--force]');
+                error('Usage: npx cus-base-ui add <component-name> [--force]');
                 return;
             }
             for (const name of componentNames) {
@@ -204,7 +204,7 @@ const main = async () => {
 
         case 'remove': {
             if (componentNames.length === 0) {
-                error('Usage: npx base-cus-ui remove <component-name>');
+                error('Usage: npx cus-base-ui remove <component-name>');
                 return;
             }
             for (const name of componentNames) {
@@ -239,7 +239,7 @@ const main = async () => {
 
         default: {
             console.log(`
-  base-cus-ui — UI Component CLI
+  cus-base-ui — UI Component CLI
 
   Commands:
     init                     Initialize project (install core deps + files)
