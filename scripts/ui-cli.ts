@@ -175,8 +175,12 @@ const setupViteConfig = (cwd: string) => {
         const match = content.match(/plugins:\s*\[/);
         if (match && match.index !== undefined) {
             const pos = match.index + match[0].length;
+            const after = content.slice(pos);
             const pluginLines = missingPlugins.map((p) => `\n      ${p},`).join('');
-            content = content.slice(0, pos) + pluginLines + content.slice(pos);
+            // If existing content continues on the same line (e.g. `plugins: [react()],`),
+            // push it to a new line so formatting stays clean
+            const needsNewline = after.length > 0 && after[0] !== '\n' && after[0] !== '\r';
+            content = content.slice(0, pos) + pluginLines + (needsNewline ? '\n      ' : '') + after;
         }
     }
 

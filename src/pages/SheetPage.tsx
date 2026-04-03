@@ -1,5 +1,5 @@
 import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
-import { Sheet } from "@components/ui/sheet/Sheet";
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetBody, SheetFooter } from "@components/ui/sheet/Sheet";
 import { Button } from "@components/ui/button/Button";
 import { Input } from "@components/ui/input/Input";
 
@@ -9,36 +9,45 @@ const SheetPage = () => (
 
     <ShowcaseCard
       title="Default (Right)"
-      code={`<Sheet\n  trigger={<Button variant="outline">Open Sheet</Button>}\n  title="Edit Profile"\n  description="Make changes to your profile here."\n>\n  <div className="space-y-4">\n    <Input label="Name" placeholder="Enter your name" />\n    <Input label="Email" placeholder="Enter your email" />\n  </div>\n</Sheet>`}
+      code={`<Sheet>\n  <SheetTrigger render={<Button variant="outline">Open Sheet</Button>} />\n  <SheetContent>\n    <SheetHeader>\n      <SheetTitle>Edit Profile</SheetTitle>\n      <SheetDescription>Make changes to your profile here.</SheetDescription>\n    </SheetHeader>\n    <SheetBody>\n      <Input label="Name" />\n    </SheetBody>\n    <SheetFooter>\n      <Button>Save</Button>\n    </SheetFooter>\n  </SheetContent>\n</Sheet>`}
     >
-      <Sheet
-        trigger={<Button variant="outline">Open Sheet</Button>}
-        title="Edit Profile"
-        description="Make changes to your profile here."
-        footerContent={
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm">Cancel</Button>
-            <Button size="sm">Save</Button>
-          </div>
-        }
-      >
-        <div className="space-y-4">
-          <Input label="Name" placeholder="Enter your name" />
-          <Input label="Email" placeholder="Enter your email" />
-        </div>
+      <Sheet>
+        <SheetTrigger render={<Button variant="outline">Open Sheet</Button>} />
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Edit Profile</SheetTitle>
+            <SheetDescription>Make changes to your profile here.</SheetDescription>
+          </SheetHeader>
+          <SheetBody>
+            <div className="space-y-4">
+              <Input label="Name" placeholder="Enter your name" />
+              <Input label="Email" placeholder="Enter your email" />
+            </div>
+          </SheetBody>
+          <SheetFooter>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm">Cancel</Button>
+              <Button size="sm">Save</Button>
+            </div>
+          </SheetFooter>
+        </SheetContent>
       </Sheet>
     </ShowcaseCard>
 
     <ShowcaseCard
       title="Left Side"
-      code={`<Sheet direction="left" trigger={<Button variant="outline">Left Sheet</Button>} title="Navigation">\n  <p>Sheet content here</p>\n</Sheet>`}
+      code={`<Sheet>\n  <SheetTrigger render={<Button variant="outline">Left Sheet</Button>} />\n  <SheetContent direction="left">\n    <SheetHeader>\n      <SheetTitle>Navigation</SheetTitle>\n    </SheetHeader>\n    <SheetBody>...</SheetBody>\n  </SheetContent>\n</Sheet>`}
     >
-      <Sheet
-        direction="left"
-        trigger={<Button variant="outline">Left Sheet</Button>}
-        title="Navigation"
-      >
-        <p className="text-sm text-muted-foreground">Navigation content here.</p>
+      <Sheet>
+        <SheetTrigger render={<Button variant="outline">Left Sheet</Button>} />
+        <SheetContent direction="left">
+          <SheetHeader>
+            <SheetTitle>Navigation</SheetTitle>
+          </SheetHeader>
+          <SheetBody>
+            <p className="text-sm text-muted-foreground">Navigation content here.</p>
+          </SheetBody>
+        </SheetContent>
       </Sheet>
     </ShowcaseCard>
   </div>

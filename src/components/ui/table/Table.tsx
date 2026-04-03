@@ -20,7 +20,7 @@ declare module '@tanstack/react-table' {
         align?: 'left' | 'center' | 'right';
     }
 }
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@lib/utils/cn';
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Button } from '../button/Button';
 import { Checkbox } from '../checkbox/Checkbox';
@@ -28,57 +28,52 @@ import { Spinner } from '../spinner/Spinner';
 
 // ─── Pagination Config ───────────────────────────────────────────────────────
 
-/** Configuration for table pagination behavior */
 export interface PaginationConfig {
-    /** Current page number (1-based), used for controlled server-side mode */
+    /** Trang hiện tại, 1-based (dùng để controlled ở server mode) */
     current?: number;
-    /** Number of rows per page (default: 10) */
+    /** Số dòng mỗi trang, default 10 */
     pageSize?: number;
-    /** Total record count from the server; setting this enables server-side mode */
+    /** Tổng bản ghi từ BE — có giá trị → tự động bật server mode */
     total?: number;
-    /** Available page size options (default: [5, 10, 20, 50, 100]) */
+    /** Danh sách page size options, default [5,10,20,50,100] */
     pageSizeOptions?: number[];
-    /** Custom renderer for the total info display */
+    /** Hiển thị info tổng. (total, range) => ReactNode */
     showTotal?: (total: number, range: [number, number]) => React.ReactNode;
-    /** Whether to show the page size selector (default: true) */
+    /** Ẩn/hiện page size selector, default true */
     showSizeChanger?: boolean;
-    /** Callback fired when page or page size changes; required for server-side mode */
+    /**
+     * Callback khi đổi trang / pageSize.
+     * - Client mode: tuỳ chọn, chỉ để notify
+     * - Server mode: bắt buộc, dùng để fetch API
+     */
     onChange?: (page: number, pageSize: number) => void;
 }
 
-/** Props for the Table component */
 export interface TableProps<TData, TValue = unknown> {
-    /** Array of row data to display */
     data: TData[];
-    /** TanStack column definitions */
     columns: ColumnDef<TData, TValue>[];
-    /** Shows a loading overlay with spinner */
     isLoading?: boolean;
-    /** Enable column header sorting (default: true) */
     enableSorting?: boolean;
-    /** Enable row selection with checkboxes */
     enableRowSelection?: boolean;
-    /** Enable expandable rows */
     enableExpanding?: boolean;
-    /** Render function for expanded row content */
     renderSubComponent?: (props: { row: TData }) => React.ReactNode;
-    /** Determines whether a given row can be expanded */
     getRowCanExpand?: (row: TData) => boolean;
-    /** Callback fired when row selection changes */
     onSelectionChange?: (selectedRows: TData[]) => void;
     className?: string;
-    /** Enable drag-to-resize columns */
     enableColumnResizing?: boolean;
-    /** Column resize strategy: 'onChange' updates live, 'onEnd' updates on release */
     columnResizeMode?: ColumnResizeMode;
-    /** Pagination config object, or false to disable pagination entirely */
+    /**
+     * Cấu hình pagination.
+     * - false / không truyền: tắt pagination
+     * - {} object: bật pagination (client-side mặc định)
+     * - { total }: bật server-side mode
+     */
     pagination?: PaginationConfig | false;
-    /** Text shown when data is empty */
     emptyText?: string;
 }
 
 export function Table<TData, TValue = unknown>({
-    data,
+    data = [],
     columns,
     isLoading = false,
     enableSorting = true,
@@ -91,7 +86,7 @@ export function Table<TData, TValue = unknown>({
     enableColumnResizing = false,
     columnResizeMode = 'onChange',
     pagination: paginationProp = {},
-    emptyText = 'No data',
+    emptyText = 'Không có dữ liệu',
 }: TableProps<TData>) {
     // Xác định có bật pagination không
     const paginationEnabled = paginationProp !== false;
@@ -105,10 +100,14 @@ export function Table<TData, TValue = unknown>({
     const [page, setPage] = useState(cfg.current ?? 1);       // 1-based
     const [pageSize, setPageSize] = useState(cfg.pageSize ?? 10);
 
-    // Sync controlled current từ ngoài vào (server mode)
+    // Sync controlled current/pageSize từ ngoài vào (server mode)
     useEffect(() => {
         if (cfg.current !== undefined) setPage(cfg.current);
     }, [cfg.current]);
+
+    useEffect(() => {
+        if (cfg.pageSize !== undefined) setPageSize(cfg.pageSize);
+    }, [cfg.pageSize]);
 
     // Derived
     const pageIndex = page - 1; // 0-based cho tanstack
@@ -231,7 +230,7 @@ export function Table<TData, TValue = unknown>({
 
             {/* Loading Overlay */}
             {isLoading && (
-                <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center backdrop-blur-[0.5px]">
+                <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center backdrop-blur-[0.5px]">
                     <Spinner size="lg" variant="primary" />
                 </div>
             )}
@@ -253,23 +252,23 @@ export function Table<TData, TValue = unknown>({
                                     const canSort = header.column.getCanSort() && enableSorting && header.column.id !== 'select';
 
                                     return (
-                                            <th
-                                                key={header.id}
-                                                colSpan={header.colSpan}
-                                                style={{
-                                                    width: enableColumnResizing ? header.getSize() : header.column.columnDef.size,
-                                                    position: 'relative'
-                                                }}
-                                                aria-sort={
-                                                    canSort
-                                                        ? header.column.getIsSorted() === 'desc'
-                                                            ? 'descending'
-                                                            : header.column.getIsSorted() === 'asc'
-                                                                ? 'ascending'
-                                                                : 'none'
-                                                        : undefined
-                                                }
-                                                className={cn(
+                                        <th
+                                            key={header.id}
+                                            colSpan={header.colSpan}
+                                            style={{
+                                                width: enableColumnResizing ? header.getSize() : header.column.columnDef.size,
+                                                position: 'relative'
+                                            }}
+                                            aria-sort={
+                                                canSort
+                                                    ? header.column.getIsSorted() === 'desc'
+                                                        ? 'descending'
+                                                        : header.column.getIsSorted() === 'asc'
+                                                            ? 'ascending'
+                                                            : 'none'
+                                                    : undefined
+                                            }
+                                            className={cn(
                                                 header.column.id === 'select' || header.column.id === 'expander' ? "px-1" : "px-2",
                                                 "py-3 font-semibold tracking-wide border border-border transition-colors group/header",
                                                 canSort ? "cursor-pointer select-none hover:bg-muted" : "",
@@ -387,9 +386,9 @@ export function Table<TData, TValue = unknown>({
 
             {/* Pagination Controls */}
             {paginationEnabled && totalPageCount > 0 && (
-                <nav role="navigation" aria-label="Table pagination" className="flex flex-col sm:flex-row items-center justify-between px-3 py-2.5 border-t border-border bg-muted/50 gap-2">
+                <div className="flex flex-col sm:flex-row items-center justify-between px-3 py-2.5 border-t border-border bg-muted/50 gap-2">
                     {/* showTotal info */}
-                    <div aria-live="polite" className="text-xs text-muted-foreground shrink-0 order-2 sm:order-1">
+                    <div className="text-xs text-muted-foreground shrink-0 order-2 sm:order-1">
                         {cfg.showTotal
                             ? cfg.showTotal(totalRows, [from, to])
                             : <>Show <b>{from}</b>–<b>{to}</b> of <b>{totalRows}</b> results</>
@@ -406,7 +405,7 @@ export function Table<TData, TValue = unknown>({
                                 className="shrink-0 px-2 py-1 text-xs border border-border rounded-md bg-background text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer"
                             >
                                 {pageSizeOptions.map(s => (
-                                    <option key={s} value={s}>{s} / page</option>
+                                    <option key={s} value={s}>{s} / trang</option>
                                 ))}
                             </select>
                         )}
@@ -454,7 +453,7 @@ export function Table<TData, TValue = unknown>({
 
                         {/* Go to page */}
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground border-l border-border pl-2 ml-1 shrink-0">
-                            <span className="hidden sm:inline">Page</span>
+                            <span className="hidden sm:inline">Trang</span>
                             <input
                                 type="number"
                                 min={1}
@@ -473,7 +472,7 @@ export function Table<TData, TValue = unknown>({
                             />
                         </div>
                     </div>
-                </nav>
+                </div>
             )}
         </div>
     );
