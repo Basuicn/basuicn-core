@@ -359,6 +359,17 @@ const main = async () => {
                 error('Usage: npx cus-base-ui add <component-name> [--force]');
                 return;
             }
+
+            // Auto-init if not yet initialized
+            const cnPath = path.join(cwd, 'src/lib/utils/cn.ts');
+            if (!fs.existsSync(cnPath)) {
+                log('Project not initialized — running init first...');
+                setupViteConfig(cwd);
+                setupTsConfig(cwd);
+                ensureTailwindCss(cwd);
+                installNpmPackages(RUNTIME_PACKAGES, cwd);
+            }
+
             for (const name of componentNames) {
                 addComponent(name, registry, cwd, { force: isForce });
             }

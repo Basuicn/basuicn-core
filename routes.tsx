@@ -121,6 +121,39 @@ export const ROUTES: RouteConfig[] = [
         icon: <Icon.Square className="w-4 h-4" />,
         element: <AspectRatioPage />,
       },
+      {
+        path: '/calendar',
+        label: 'Calendar',
+        icon: <Icon.CalendarDays className="w-4 h-4" />,
+        element: <CalendarPage />,
+      },
+      {
+        path: '/rate',
+        label: 'Rate',
+        icon: <Icon.Star className="w-4 h-4" />,
+        element: <RatePage />,
+      },
+      {
+        path: '/toggle',
+        label: 'Toggle',
+        icon: <Icon.ToggleLeft className="w-4 h-4" />,
+        element: <TogglePage />,
+      },
+      {
+        path: '/preview-card',
+        label: 'Preview Card',
+        icon: <Icon.Square className="w-4 h-4" />,
+        element: <PreviewCardPage />,
+      },
+      {
+        path: '/scroll-area',
+        label: 'Scroll Area',
+        icon: <Icon.ScrollText className="w-4 h-4" />,
+        element: <ScrollAreaPage />,
+      },
+     
+     
+      
     ]
   },
 
@@ -136,6 +169,12 @@ export const ROUTES: RouteConfig[] = [
         label: 'Input',
         icon: <Icon.Type className="w-4 h-4" />,
         element: <InputPage />,
+      },
+      {
+        path: '/textarea',
+        label: 'Textarea',
+        icon: <Icon.TextCursorInput className="w-4 h-4" />,
+        element: <TextareaPage />,
       },
       {
         path: '/select',
@@ -240,6 +279,7 @@ export const ROUTES: RouteConfig[] = [
     element: <SidebarPage />,
     category: 'complex',
   },
+  
 
   // Overlays
   {
@@ -306,6 +346,7 @@ export const ROUTES: RouteConfig[] = [
     element: <VsCodeIDE />,
     standalone: true,
   },
+  
 ];
 
 /**
