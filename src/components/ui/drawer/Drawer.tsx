@@ -6,7 +6,7 @@ import { X } from 'lucide-react';
 const drawerVariants = tv({
   slots: {
     overlay:
-      'fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-starting:animate-in data-ending:animate-out data-ending:fade-out-0 data-starting:fade-in-0',
+      'fixed inset-0 z-50 bg-black/40 data-starting:animate-in data-ending:animate-out data-ending:fade-out-0 data-starting:fade-in-0',
     panel: [
       'fixed z-50 bg-background shadow-2xl flex flex-col',
       'data-starting:animate-in data-ending:animate-out duration-300',
@@ -46,28 +46,33 @@ const drawerVariants = tv({
       lg: {},
       full: {},
     },
+    backdropBlur: {
+      true:  { overlay: 'backdrop-blur-sm' },
+      false: { overlay: '' },
+    },
   },
   compoundVariants: [
     { direction: 'left', size: 'sm', class: { panel: 'w-64' } },
     { direction: 'left', size: 'md', class: { panel: 'w-80' } },
-    { direction: 'left', size: 'lg', class: { panel: 'w-[480px]' } },
+    { direction: 'left', size: 'lg', class: { panel: 'w-[500px]' } },
     { direction: 'left', size: 'full', class: { panel: 'w-full' } },
     { direction: 'right', size: 'sm', class: { panel: 'w-64' } },
     { direction: 'right', size: 'md', class: { panel: 'w-80' } },
-    { direction: 'right', size: 'lg', class: { panel: 'w-[480px]' } },
+    { direction: 'right', size: 'lg', class: { panel: 'w-[500px]' } },
     { direction: 'right', size: 'full', class: { panel: 'w-full' } },
     { direction: 'top', size: 'sm', class: { panel: 'h-48' } },
     { direction: 'top', size: 'md', class: { panel: 'h-64' } },
-    { direction: 'top', size: 'lg', class: { panel: 'h-[480px]' } },
+    { direction: 'top', size: 'lg', class: { panel: 'h-[500px]' } },
     { direction: 'top', size: 'full', class: { panel: 'h-full' } },
     { direction: 'bottom', size: 'sm', class: { panel: 'h-48' } },
     { direction: 'bottom', size: 'md', class: { panel: 'h-64' } },
-    { direction: 'bottom', size: 'lg', class: { panel: 'h-[480px]' } },
+    { direction: 'bottom', size: 'lg', class: { panel: 'h-[500px]' } },
     { direction: 'bottom', size: 'full', class: { panel: 'h-full' } },
   ],
   defaultVariants: {
     direction: 'right',
     size: 'md',
+    backdropBlur: true,
   },
 });
 
@@ -83,13 +88,13 @@ const DrawerClose = BaseDialog.Close;
 /* ─── Content (Portal + Backdrop + Popup) ─── */
 interface DrawerContentProps
   extends Omit<React.ComponentPropsWithoutRef<typeof BaseDialog.Popup>, 'className'>,
-    VariantProps<typeof drawerVariants> {
+  VariantProps<typeof drawerVariants> {
   className?: string;
 }
 
 const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
-  ({ className, children, direction, size, ...props }, ref) => {
-    const slots = drawerVariants({ direction, size });
+  ({ className, children, direction, size, backdropBlur, ...props }, ref) => {
+    const slots = drawerVariants({ direction, size, backdropBlur });
     return (
       <BaseDialog.Portal>
         <BaseDialog.Backdrop className={slots.overlay()} />

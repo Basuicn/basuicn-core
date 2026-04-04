@@ -19,8 +19,8 @@ const SheetTrigger = DrawerTrigger;
 const SheetClose = DrawerClose;
 
 const SheetContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
-  ({ direction = 'right', size = 'lg', ...props }, ref) => (
-    <DrawerContent ref={ref} direction={direction} size={size} {...props} />
+  ({ direction = 'right', size = 'lg', backdropBlur = false, ...props }, ref) => (
+    <DrawerContent ref={ref} direction={direction} size={size} backdropBlur={backdropBlur} {...props} />
   ),
 );
 SheetContent.displayName = 'SheetContent';

@@ -19,6 +19,8 @@ export const ROUTES_CONSTANT = {
         RATE: "/rate",
         TOGGLE: "/toggle",
         PREVIEW_CARD: "/preview-card",
+        CAROUSEL: "/carousel",
+        TYPOGRAPHY: "/typography",
     },
     FORM: {
         INPUT: "/input",

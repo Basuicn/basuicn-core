@@ -446,12 +446,12 @@ const menuButtonVariants = tv({
   base: [
     'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md',
     'text-sm font-medium outline-none ring-sidebar-ring transition-all duration-150',
-    'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-    'focus-visible:ring-2 active:bg-sidebar-accent/80',
+    'hover:bg-accent hover:text-accent-foreground',
+    'focus-visible:ring-2 active:bg-accent/80',
     'disabled:pointer-events-none disabled:opacity-50',
     'group-has-data-[sidebar=menu-action]/menu-item:pr-8',
     // Data state active
-    'data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold',
+    'data-[active=true]:bg-accent data-[active=true]:text-accent-foreground data-[active=true]:font-semibold',
   ],
   variants: {
     size: {

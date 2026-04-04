@@ -17,7 +17,18 @@ const DialogModal = () => {
             <PageHeader title="Dialog (Modal)" description="Hộp thoại bắt buộc người dùng tập trung xử lý." />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ShowcaseCard title="Default Modal">
+                <ShowcaseCard title="Default Modal" code={`<Dialog>
+    <DialogTrigger render={<Button variant="outline">Mở Default</Button>} />
+    <DialogContent>
+        <DialogHeader>
+            <DialogTitle>Thông báo hệ thống</DialogTitle>
+            <DialogDescription>Dữ liệu đã được lưu tự động.</DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+            <p className="text-sm text-muted-foreground">Phiên làm việc sắp hết hạn sau 15 phút.</p>
+        </div>
+    </DialogContent>
+</Dialog>`}>
                     <Dialog>
                         <DialogTrigger render={<Button variant="outline">Mở Default</Button>} />
                         <DialogContent>
@@ -32,7 +43,24 @@ const DialogModal = () => {
                     </Dialog>
                 </ShowcaseCard>
 
-                <ShowcaseCard title="Custom Footer">
+                <ShowcaseCard title="Custom Footer" code={`<Dialog>
+    <DialogTrigger render={<Button variant="secondary">Custom Footer</Button>} />
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Xác nhận thanh toán</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm py-4">Vui lòng kiểm tra số tiền trước khi tiếp tục.</p>
+            <DialogFooter>
+                <div className="flex items-center justify-between w-full">
+                    <div className="text-sm text-muted-foreground">Phí: <b>12.000đ</b></div>
+                    <div className="flex gap-2">
+                        <Button variant="ghost" size="sm">Hủy</Button>
+                        <Button size="sm">Thanh toán</Button>
+                    </div>
+                </div>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>`}>
                     <Dialog>
                         <DialogTrigger render={<Button variant="secondary">Custom Footer</Button>} />
                         <DialogContent>

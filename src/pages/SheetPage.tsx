@@ -13,7 +13,7 @@ const SheetPage = () => (
     >
       <Sheet>
         <SheetTrigger render={<Button variant="outline">Open Sheet</Button>} />
-        <SheetContent>
+        <SheetContent size="lg" >
           <SheetHeader>
             <SheetTitle>Edit Profile</SheetTitle>
             <SheetDescription>Make changes to your profile here.</SheetDescription>

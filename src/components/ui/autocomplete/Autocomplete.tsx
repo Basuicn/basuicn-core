@@ -50,16 +50,23 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
     const [open, setOpen] = React.useState(false);
     const [internalValue, setInternalValue] = React.useState<string | null>(defaultValue ?? null);
     const inputGroupRef = React.useRef<HTMLDivElement>(null);
+    const isSelectingRef = React.useRef(false);
 
     const activeValue = value !== undefined ? value : internalValue;
 
     const handleValueChange = (newVal: string | null) => {
+      isSelectingRef.current = true;
       if (value === undefined) setInternalValue(newVal);
       if (newVal !== null) onValueChange?.(newVal);
     };
 
     const handleInputValueChange = (val: string) => {
       setInputValue(val);
+      // Khi base-ui cập nhật input sau khi chọn item, không mở lại popup
+      if (isSelectingRef.current) {
+        isSelectingRef.current = false;
+        return;
+      }
       // Chỉ mở popup khi người dùng đang gõ
       setOpen(val.length > 0);
     };

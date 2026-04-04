@@ -6,15 +6,15 @@ import { tv, type VariantProps } from 'tailwind-variants';
 const dialogVariants = tv({
   slots: {
     overlay:
-      'fixed inset-0! z-50 bg-black/30 backdrop-blur-sm data-starting:animate-in data-ending:animate-out data-ending:fade-out-0 data-starting:fade-in-0',
+      'fixed inset-0! z-50 bg-black/30 backdrop-blur-sm data-open:animate-in data-close:animate-out data-close:fade-out-0 data-open:fade-in-0',
     content:
-      'fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-lg duration-200 data-starting:animate-in data-ending:animate-out data-ending:fade-out-0 data-starting:fade-in-0 data-ending:zoom-out-95 data-starting:zoom-in-95',
+      'fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-lg duration-200 data-open:animate-in data-close:animate-out data-close:fade-out-0 data-open:fade-in-0 data-close:zoom-out-95 data-open:zoom-in-95',
     header: 'flex flex-col space-y-1.5 text-center sm:text-left',
     footer: 'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-auto',
     title: 'text-lg font-semibold leading-none tracking-tight',
     description: 'text-sm text-muted-foreground',
     close:
-      'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none data-starting:bg-accent data-starting:text-muted-foreground',
+      'absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:pointer-events-none data-open:bg-accent data-open:text-muted-foreground',
   },
   variants: {
     size: {

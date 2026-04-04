@@ -6,7 +6,7 @@ import { Toaster } from './components/ui/toast/Toaster'
 import { ThemeProvider } from './lib/theme/ThemeProvider'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="violet">
+    <ThemeProvider defaultTheme="">
       <App />
       <Toaster position="top-center" expand={true} richColors />
     </ThemeProvider>

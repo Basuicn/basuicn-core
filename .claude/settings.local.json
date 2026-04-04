@@ -10,7 +10,9 @@
       "Bash(find /d/code/fe/ui/ui_lib/src/pages -name \"*.tsx\" -exec wc -l {} +)",
       "Bash(node -e \"const r=require\\('./registry.json'\\); console.log\\(JSON.stringify\\(r.core?.dependencies, null, 2\\)\\)\")",
       "Bash(node:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(find:*)",
+      "WebSearch"
     ]
   }
 }

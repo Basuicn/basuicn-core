@@ -1,0 +1,14 @@
+src/components/ui/carousel/Carousel.tsx(4,20): error TS2307: Cannot find module '@/lib/utils/cn' or its corresponding type declarations.
+src/components/ui/carousel/Carousel.tsx(245,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(246,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(247,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(267,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(286,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(294,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(307,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(315,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(335,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(337,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(373,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(383,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/components/ui/carousel/Carousel.tsx(404,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import * as Icon from '@/components/ui/icons';
 import { FormShowcase } from './src/pages/FormShowcase';
+import TypographyPage from './src/pages/TypographyPage';
+import CarouselPage from './src/pages/CarouselPage';
 import ButtonPage from './src/pages/ButtonPage';
 import BadgePage from './src/pages/BadgePage';
 import CheckboxPage from './src/pages/CheckboxPage';
@@ -152,6 +154,18 @@ export const ROUTES: RouteConfig[] = [
         label: 'Preview Card',
         icon: <Icon.Square className="w-4 h-4" />,
         element: <PreviewCardPage />,
+      },
+      {
+        path: ROUTES_CONSTANT.GENERAL.TYPOGRAPHY,
+        label: 'Typography',
+        icon: <Icon.Type className="w-4 h-4" />,
+        element: <TypographyPage />,
+      },
+      {
+        path: ROUTES_CONSTANT.GENERAL.CAROUSEL,
+        label: 'Carousel',
+        icon: <Icon.GalleryHorizontal className="w-4 h-4" />,
+        element: <CarouselPage />,
       },
     ]
   },
@@ -341,7 +355,7 @@ export const ROUTES: RouteConfig[] = [
   {
     path: ROUTES_CONSTANT.OVERLAYS.PROGRESS,
     label: 'Progress',
-    icon: <Icon.PanelLeft className="w-4 h-4" />,
+    icon: <Icon.SlidersHorizontal className="w-4 h-4" />,
     element: <ProgressPage />,
     category: 'overlays',
   },

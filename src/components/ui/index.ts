@@ -42,4 +42,6 @@ export * from './pagination/Pagination';
 export * from './dropdown-menu/DropdownMenu';
 export * from './context-menu/ContextMenu';
 export * from './aspect-ratio/AspectRatio';
+export * from './carousel/Carousel';
 export * from './sheet/Sheet';
+export * from './typography/Typography';
