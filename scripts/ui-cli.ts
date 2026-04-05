@@ -6,9 +6,9 @@ import readline from 'readline';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const VERSION = '0.1.4';
+const VERSION = '0.1.5';
 const REGISTRY_LOCAL = './registry.json';
-const REGISTRY_REMOTE = 'https://raw.githubusercontent.com/huy14032003/ui-component/main/registry.json';
+const REGISTRY_REMOTE = 'https://raw.githubusercontent.com/Basuicn/basuicn-core/main/registry.json';
 
 // ─── Colors (ANSI) ───────────────────────────────────────────────────────────
 
@@ -556,7 +556,7 @@ ${c.bold}EXAMPLES${c.reset}
   ${c.dim}$${c.reset} npx basuicn diff button           ${c.dim}# See what changed since last update${c.reset}
   ${c.dim}$${c.reset} npx basuicn doctor                ${c.dim}# Diagnose missing deps/config${c.reset}
 
-${c.dim}Documentation: https://github.com/huy14032003/ui-component${c.reset}
+${c.dim}Documentation: https://github.com/Basuicn/basuicn-core${c.reset}
 `;
 
 const HELP_COMMANDS: Record<string, string> = {
