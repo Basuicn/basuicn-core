@@ -29,13 +29,24 @@ export interface MenuBarItemConfig {
   children?: MenuBarItemConfig[];
 }
 
-/** Config for one top-level menu (trigger + its dropdown) */
+/** Config for one top-level menu entry.
+ *
+ * - Có `items` → dropdown menu bình thường
+ * - Không có `items` → click thẳng vào entry (dùng `type` + `href` / `onClick`)
+ */
 export interface MenuBarMenuConfig {
   id: string;
   label: React.ReactNode;
   icon?: React.ReactNode;
-  items: MenuBarItemConfig[];
+  /** Nếu có items → render dropdown. Nếu bỏ qua → render trực tiếp như button/link */
+  items?: MenuBarItemConfig[];
   disabled?: boolean;
+  /** Chỉ dùng khi không có items. @default 'button' */
+  type?: MenuBarItemType;
+  /** Route path (type='link') hoặc URL (type='external') */
+  href?: string;
+  /** Callback khi click (type='button' | 'modal') */
+  onClick?: () => void;
 }
 
 /* ─── Variants ──────────────────────────────────────────────────────────── */
@@ -92,6 +103,24 @@ const MenuBarTrigger = React.forwardRef<HTMLButtonElement, MenuBarTriggerProps>(
   )
 );
 MenuBarTrigger.displayName = 'MenuBarTrigger';
+
+/* ─── MenuBarButton (top-level direct item, no dropdown) ───────────────── */
+
+export interface MenuBarButtonProps extends React.ComponentPropsWithoutRef<'button'> {
+  /** Highlights the button (e.g. active route) */
+  active?: boolean;
+}
+
+const MenuBarButton = React.forwardRef<HTMLButtonElement, MenuBarButtonProps>(
+  ({ className, active, ...props }, ref) => (
+    <button
+      ref={ref}
+      className={styles.trigger({ className: cn(active && styles.itemActive(), className) })}
+      {...props}
+    />
+  )
+);
+MenuBarButton.displayName = 'MenuBarButton';
 
 /* ─── MenuBarContent ────────────────────────────────────────────────────── */
 
@@ -289,22 +318,49 @@ export interface MenuBarNavProps extends Omit<MenuBarProps, 'children'> {
  * ]} />
  * ```
  */
+/** Internal: renders a direct (no-dropdown) top-level entry */
+const MenuBarDirectRenderer = ({ menu }: { menu: MenuBarMenuConfig }) => {
+  const navigate = useNavigate();
+  const isLink = menu.type === 'link' && !!menu.href;
+  const match = useMatch(isLink ? menu.href! : '__NO_MATCH__');
+
+  const handleClick = React.useCallback(() => {
+    if (menu.type === 'link' && menu.href) navigate(menu.href);
+    else if (menu.type === 'external' && menu.href) window.open(menu.href, '_blank', 'noopener,noreferrer');
+    else menu.onClick?.();
+  }, [menu, navigate]);
+
+  return (
+    <MenuBarButton active={isLink && !!match} disabled={menu.disabled} onClick={handleClick}>
+      {menu.icon}
+      {menu.label}
+      {menu.type === 'external' && <ExternalLink className="!size-3 opacity-50" />}
+    </MenuBarButton>
+  );
+};
+
 const MenuBarNav = React.forwardRef<HTMLDivElement, MenuBarNavProps>(
   ({ menus, className, ...props }, ref) => (
     <MenuBar ref={ref} className={className} {...props}>
-      {menus.map((menu) => (
-        <MenuBarMenu key={menu.id}>
-          <MenuBarTrigger disabled={menu.disabled}>
-            {menu.icon}
-            {menu.label}
-          </MenuBarTrigger>
-          <MenuBarContent>
-            {menu.items.map((item) => (
-              <MenuBarItemRenderer key={item.id} item={item} />
-            ))}
-          </MenuBarContent>
-        </MenuBarMenu>
-      ))}
+      {menus.map((menu) =>
+        !menu.items || menu.items.length === 0 ? (
+          // Direct item — không có dropdown
+          <MenuBarDirectRenderer key={menu.id} menu={menu} />
+        ) : (
+          // Dropdown menu bình thường
+          <MenuBarMenu key={menu.id}>
+            <MenuBarTrigger disabled={menu.disabled}>
+              {menu.icon}
+              {menu.label}
+            </MenuBarTrigger>
+            <MenuBarContent>
+              {menu.items.map((item) => (
+                <MenuBarItemRenderer key={item.id} item={item} />
+              ))}
+            </MenuBarContent>
+          </MenuBarMenu>
+        )
+      )}
     </MenuBar>
   )
 );
@@ -318,6 +374,7 @@ export {
   MenuBar,
   MenuBarMenu,
   MenuBarTrigger,
+  MenuBarButton,
   MenuBarContent,
   MenuBarItem,
   MenuBarSeparator,

@@ -4,6 +4,7 @@ import {
   MenuBar,
   MenuBarMenu,
   MenuBarTrigger,
+  MenuBarButton,
   MenuBarContent,
   MenuBarItem,
   MenuBarSeparator,
@@ -320,6 +321,68 @@ const MixedTypesDemo = () => {
   );
 };
 
+/* ─── Demo 4: Direct items (no dropdown) ────────────────────────────────── */
+
+const DirectItemDemo = () => {
+  const [lastClick, setLastClick] = React.useState('');
+
+  const menus: MenuBarMenuConfig[] = [
+    // Direct items — không có dropdown
+    { id: 'home',   label: 'Home',   type: 'link',   href: '/',              icon: <LayoutDashboard /> },
+    { id: 'notify', label: 'Notify', type: 'button', onClick: () => setLastClick('Notify clicked'), icon: <Info /> },
+    { id: 'docs',   label: 'Docs',   type: 'external', href: 'https://base-ui.com', icon: <ExternalLink /> },
+    // Dropdown bình thường — vẫn có items
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: <Settings />,
+      items: [
+        { id: 'profile',  label: 'Profile',  type: 'link',   href: '/general/avatar' },
+        { id: 'theme',    label: 'Theme',    type: 'button', onClick: () => setLastClick('Theme') },
+        { id: 'keyboard', label: 'Keyboard', type: 'button', onClick: () => setLastClick('Keyboard'), shortcut: '⌘,' },
+      ],
+    },
+  ];
+
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Config-driven */}
+      <div className="flex flex-col gap-1">
+        <p className="text-xs text-muted-foreground font-medium">Config-driven (MenuBarNav)</p>
+        <MenuBarNav menus={menus} />
+      </div>
+
+      {/* Primitive */}
+      <div className="flex flex-col gap-1">
+        <p className="text-xs text-muted-foreground font-medium">Primitive (MenuBarButton)</p>
+        <MenuBar>
+          <MenuBarButton onClick={() => setLastClick('Home (primitive)')}>
+            <LayoutDashboard className="size-4" /> Home
+          </MenuBarButton>
+          <MenuBarButton onClick={() => setLastClick('Notify (primitive)')}>
+            <Info className="size-4" /> Notify
+          </MenuBarButton>
+          <MenuBarMenu>
+            <MenuBarTrigger>
+              <Settings className="size-4" /> Settings
+            </MenuBarTrigger>
+            <MenuBarContent>
+              <MenuBarItem onClick={() => setLastClick('Profile')}>Profile</MenuBarItem>
+              <MenuBarItem onClick={() => setLastClick('Theme')}>Theme</MenuBarItem>
+            </MenuBarContent>
+          </MenuBarMenu>
+        </MenuBar>
+      </div>
+
+      {lastClick && (
+        <p className="text-sm text-muted-foreground">
+          Last: <span className="font-medium text-foreground">{lastClick}</span>
+        </p>
+      )}
+    </div>
+  );
+};
+
 /* ─── Page ──────────────────────────────────────────────────────────────── */
 
 const MenuBarPage = () => (
@@ -424,6 +487,35 @@ const MenuBarPage = () => (
 </MenuBar>`}
     >
       <MixedTypesDemo />
+    </ShowcaseCard>
+
+    <ShowcaseCard
+      title="Direct item — không có dropdown"
+      description="Bỏ qua 'items' trong config (hoặc dùng MenuBarButton primitive) để click thẳng vào entry mà không mở dropdown."
+      code={`// Config-driven: bỏ items → click thẳng
+<MenuBarNav menus={[
+  { id: 'home',      label: 'Home',      type: 'link',    href: '/'          },
+  { id: 'docs',      label: 'Docs',      type: 'external', href: 'https://...' },
+  { id: 'notify',   label: 'Notify',   type: 'button',  onClick: handleNotify },
+  {
+    id: 'settings',
+    label: 'Settings',
+    items: [  // ← có items → vẫn là dropdown bình thường
+      { id: 'profile', label: 'Profile', type: 'link', href: '/profile' },
+    ],
+  },
+]} />
+
+// Primitive: dùng MenuBarButton
+<MenuBar>
+  <MenuBarButton onClick={handleHome}>Home</MenuBarButton>
+  <MenuBarMenu>
+    <MenuBarTrigger>Settings</MenuBarTrigger>
+    <MenuBarContent>...</MenuBarContent>
+  </MenuBarMenu>
+</MenuBar>`}
+    >
+      <DirectItemDemo />
     </ShowcaseCard>
   </div>
 );
