@@ -7,6 +7,7 @@ describe('Button', () => {
     render(<Button>Click me</Button>);
     const button = screen.getByRole('button', { name: /click me/i });
     expect(button).toBeInTheDocument();
+    
   });
 
   it('renders loading spinner when isLoading is true', () => {

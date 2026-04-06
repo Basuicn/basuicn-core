@@ -41,6 +41,7 @@ import BreadcrumbPage from './src/pages/BreadcrumbPage';
 import PaginationPage from './src/pages/PaginationPage';
 import DropdownMenuPage from './src/pages/DropdownMenuPage';
 import ContextMenuPage from './src/pages/ContextMenuPage';
+import MenuBarPage from './src/pages/MenuBarPage';
 import AspectRatioPage from './src/pages/AspectRatioPage';
 import SheetPage from './src/pages/SheetPage';
 import { VsCodeIDE } from './src/components/ui/vs-code/VsCodeIDE';
@@ -343,6 +344,13 @@ export const ROUTES: RouteConfig[] = [
     label: 'Context Menu',
     icon: <Icon.Menu className="w-4 h-4" />,
     element: <ContextMenuPage />,
+    category: 'overlays',
+  },
+  {
+    path: ROUTES_CONSTANT.OVERLAYS.MENU_BAR,
+    label: 'Menu Bar',
+    icon: <Icon.Menu className="w-4 h-4" />,
+    element: <MenuBarPage />,
     category: 'overlays',
   },
   {

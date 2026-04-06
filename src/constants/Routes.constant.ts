@@ -54,6 +54,7 @@ export const ROUTES_CONSTANT = {
         CONTEXT_MENU: `${OVERLAYS_PREFIX}/context-menu`,
         SHEET: `${OVERLAYS_PREFIX}/sheet`,
         PROGRESS: `${OVERLAYS_PREFIX}/progress`,
+        MENU_BAR: `${OVERLAYS_PREFIX}/menu-bar`,
     },
 
 
