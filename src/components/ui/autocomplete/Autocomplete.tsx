@@ -61,12 +61,12 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
     };
 
     const handleInputValueChange = (val: string) => {
-      setInputValue(val);
-      // Khi base-ui cập nhật input sau khi chọn item, không mở lại popup
+      // Khi base-ui cập nhật input sau khi chọn item, bỏ qua để tránh nháy popup
       if (isSelectingRef.current) {
         isSelectingRef.current = false;
         return;
       }
+      setInputValue(val);
       // Chỉ mở popup khi người dùng đang gõ
       setOpen(val.length > 0);
     };

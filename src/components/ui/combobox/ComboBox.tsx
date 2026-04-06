@@ -61,16 +61,27 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
   ({ options, label, placeholder, value, defaultValue, onValueChange, multiple, isLoading, className, autocomplete = true, emptyText = 'No results found.', selectAllText = 'Select all', clearAllText = 'Clear all', leftIcon }, ref) => {
     const [inputValue, setInputValue] = React.useState('');
     const [internalValue, setInternalValue] = React.useState<string | string[] | null>(defaultValue || (multiple ? [] : null));
+    const isSelectingRef = React.useRef(false);
 
     const activeValue = value !== undefined ? value : internalValue;
 
     const handleValueChange = (newVal: string | string[] | null) => {
+      isSelectingRef.current = true;
       if (value === undefined) {
         setInternalValue(newVal);
       }
       if (newVal !== null) {
         onValueChange?.(newVal);
       }
+    };
+
+    const handleInputValueChange = (val: string) => {
+      // Bỏ qua cập nhật inputValue khi đang chọn item để tránh nháy popup
+      if (isSelectingRef.current) {
+        isSelectingRef.current = false;
+        return;
+      }
+      setInputValue(val);
     };
 
     const handleClear = (e: React.MouseEvent) => {
@@ -105,7 +116,7 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
         value={activeValue}
         onValueChange={handleValueChange}
         multiple={multiple}
-        onInputValueChange={setInputValue}
+        onInputValueChange={handleInputValueChange}
         autoHighlight
         itemToStringLabel={(val: string) => options.find((o) => o.value === val)?.label ?? val}
       >
