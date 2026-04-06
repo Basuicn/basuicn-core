@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:cli": "npx -y esbuild scripts/ui-cli.ts --bundle --platform=node --outfile=dist/ui-cli.cjs --format=cjs --packages=external",
+    "build:cli": "node scripts/build-cli.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
