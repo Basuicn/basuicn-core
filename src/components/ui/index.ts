@@ -45,3 +45,4 @@ export * from './aspect-ratio/AspectRatio';
 export * from './carousel/Carousel';
 export * from './sheet/Sheet';
 export * from './typography/Typography';
+export * from './menu-bar/MenuBar';
