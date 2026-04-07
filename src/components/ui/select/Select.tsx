@@ -100,7 +100,7 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
                                 {selectedLabel ?? placeholder}
                             </span>
                             <BaseSelect.Icon>
-                                <ChevronDown className={icon()} />
+                               {!selectedValue && <ChevronDown className={icon()} />}
                             </BaseSelect.Icon>
                         </BaseSelect.Trigger>
                         <BaseSelect.Portal>
@@ -133,7 +133,7 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
                             type="button"
                             aria-label={clearLabel}
                             onMouseDown={handleClear}
-                            className="cursor-pointer absolute right-8 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-red-50 hover:text-red-500 transition-colors z-10"
+                            className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:bg-red-50 hover:text-red-500 transition-colors z-10"
                         >
                             <X className="h-3 w-3" />
                         </button>

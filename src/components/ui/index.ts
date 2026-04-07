@@ -46,3 +46,5 @@ export * from './carousel/Carousel';
 export * from './sheet/Sheet';
 export * from './typography/Typography';
 export * from './menu-bar/MenuBar';
+export * from './resizable/Resizable';
+export * from './input-otp/InputOtp';

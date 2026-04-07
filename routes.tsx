@@ -44,6 +44,9 @@ import ContextMenuPage from './src/pages/ContextMenuPage';
 import MenuBarPage from './src/pages/MenuBarPage';
 import AspectRatioPage from './src/pages/AspectRatioPage';
 import SheetPage from './src/pages/SheetPage';
+import InputOTPPage from './src/pages/InputOTPPage';
+import CodeSandboxPage from './src/pages/CodeSandboxPage';
+import ResizablePage from './src/pages/ResizablePage';
 import { VsCodeIDE } from './src/components/ui/vs-code/VsCodeIDE';
 import { FORM_PREFIX, GENERAL_PREFIX, ROUTES_CONSTANT } from '@/constants/Routes.constant';
 
@@ -238,6 +241,12 @@ export const ROUTES: RouteConfig[] = [
         icon: <Icon.SlidersHorizontal className="w-4 h-4" />,
         element: <SliderPage />,
       },
+      {
+        path: ROUTES_CONSTANT.FORM.INPUT_OTP,
+        label: 'Input OTP',
+        icon: <Icon.KeyRound className="w-4 h-4" />,
+        element: <InputOTPPage />,
+      },
 
     ]
   },
@@ -292,6 +301,20 @@ export const ROUTES: RouteConfig[] = [
     label: 'Sidebar',
     icon: <Icon.PanelLeft className="w-4 h-4" />,
     element: <SidebarPage />,
+    category: 'complex',
+  },
+  {
+    path: ROUTES_CONSTANT.COMPLEX.CODE_SANDBOX,
+    label: 'Code Sandbox',
+    icon: <Icon.Code2 className="w-4 h-4" />,
+    element: <CodeSandboxPage />,
+    category: 'complex',
+  },
+  {
+    path: ROUTES_CONSTANT.COMPLEX.RESIZABLE,
+    label: 'Resizable',
+    icon: <Icon.PanelLeft className="w-4 h-4" />,
+    element: <ResizablePage />,
     category: 'complex',
   },
 

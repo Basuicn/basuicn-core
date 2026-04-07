@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { PanelLeft } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
-import { useSidebar, SIDEBAR_WIDTH_DEFAULT, SIDEBAR_WIDTH_MIN, SIDEBAR_WIDTH_MAX } from './SidebarContext';
+import { useSidebar, SIDEBAR_WIDTH_DEFAULT } from './SidebarContext';
 
 // ─── SidebarTrigger ───────────────────────────────────────────────────────────
 
@@ -98,11 +98,8 @@ export const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         data-variant={variant}
         data-side={side}
         className={cn(
-          'group relative flex h-screen flex-col bg-sidebar text-sidebar-foreground',
-          'border-r border-dashed border-sidebar-border',
-          state === 'collapsed' && 'will-change-[width] motion-safe:transition-[width] motion-safe:duration-300 motion-safe:ease-in-out',
+          'group relative flex h-full w-full flex-col bg-sidebar text-sidebar-foreground',
           'overflow-hidden shrink-0',
-          state === 'collapsed' && collapsible === 'icon' ? 'w-(--sidebar-width-icon)' : 'w-(--sidebar-width)',
           className
         )}
         {...props}
@@ -114,70 +111,10 @@ export const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
 );
 Sidebar.displayName = 'Sidebar';
 
-// ─── SidebarRail — drag handle để resize ──────────────────────────────────────
+// ─── SidebarRail — kept for API compatibility, resize is handled by ResizableHandle ──
 
 export const SidebarRail = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => {
-    const { state, setSidebarWidth, sidebarWidth } = useSidebar();
-    const isDragging = React.useRef(false);
-    const startX = React.useRef(0);
-    const startWidth = React.useRef(0);
-
-    const onMouseDown = React.useCallback(
-      (e: React.MouseEvent) => {
-        if (state === 'collapsed') return;
-        isDragging.current = true;
-        startX.current = e.clientX;
-        startWidth.current = sidebarWidth;
-        document.body.style.cursor = 'col-resize';
-        document.body.style.userSelect = 'none';
-      },
-      [state, sidebarWidth]
-    );
-
-    React.useEffect(() => {
-      const onMouseMove = (e: MouseEvent) => {
-        if (!isDragging.current) return;
-        const delta = e.clientX - startX.current;
-        const next = Math.min(SIDEBAR_WIDTH_MAX, Math.max(SIDEBAR_WIDTH_MIN, startWidth.current + delta));
-        setSidebarWidth(next);
-      };
-
-      const onMouseUp = () => {
-        if (!isDragging.current) return;
-        isDragging.current = false;
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
-      };
-
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
-      return () => {
-        window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('mouseup', onMouseUp);
-      };
-    }, [setSidebarWidth]);
-
-    if (state === 'collapsed') return null;
-
-    return (
-      <div
-        ref={ref}
-        data-sidebar="rail"
-        aria-label="Resize sidebar"
-        onMouseDown={onMouseDown}
-        className={cn(
-          'absolute inset-y-0 right-0 z-20 w-1 cursor-col-resize',
-          'group/rail flex items-center justify-center',
-          'after:absolute after:inset-y-0 after:right-0 after:w-1',
-          'hover:after:bg-primary/50 motion-safe:transition-colors motion-safe:duration-150',
-          className
-        )}
-        {...props}
-      >
-      </div>
-    );
-  }
+  (_props, _ref) => null,
 );
 SidebarRail.displayName = 'SidebarRail';
 

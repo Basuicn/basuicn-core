@@ -33,6 +33,7 @@ export const ROUTES_CONSTANT = {
         AUTOCOMPLETE: "/autocomplete",
         SWITCH: "/switch",
         SLIDER: "/slider",
+        INPUT_OTP: "/input-otp",
     },
     COMPLEX: {
         PAGINATION: `${COMPLEX_PREFIX}/pagination`,
@@ -42,7 +43,8 @@ export const ROUTES_CONSTANT = {
         ACCORDION: `${COMPLEX_PREFIX}/accordion`,
         COLLAPSIBLE: `${COMPLEX_PREFIX}/collapsible`,
         SIDEBAR: `${COMPLEX_PREFIX}/sidebar`,
-
+        CODE_SANDBOX: `${COMPLEX_PREFIX}/code-sandbox`,
+        RESIZABLE: `${COMPLEX_PREFIX}/resizable`,
     },
     OVERLAYS: {
         DIALOG: `${OVERLAYS_PREFIX}/dialog`,

@@ -14,7 +14,9 @@
       "Bash(find:*)",
       "WebSearch",
       "Bash(mv .storybook document/.storybook)",
-      "Bash(rm -rf src/stories)"
+      "Bash(rm -rf src/stories)",
+      "Bash(mv:*)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d['dependencies'].get\\('react-resizable-panels', 'not found'\\)\\)\")"
     ]
   }
 }
