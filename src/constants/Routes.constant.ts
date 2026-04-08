@@ -21,6 +21,7 @@ export const ROUTES_CONSTANT = {
         PREVIEW_CARD: "/preview-card",
         CAROUSEL: "/carousel",
         TYPOGRAPHY: "/typography",
+        EMPTY: "/empty",
     },
     FORM: {
         INPUT: "/input",

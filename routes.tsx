@@ -47,6 +47,7 @@ import SheetPage from './src/pages/SheetPage';
 import InputOTPPage from './src/pages/InputOTPPage';
 import CodeSandboxPage from './src/pages/CodeSandboxPage';
 import ResizablePage from './src/pages/ResizablePage';
+import EmptyPage from './src/pages/EmptyPage';
 import { VsCodeIDE } from './src/components/ui/vs-code/VsCodeIDE';
 import { FORM_PREFIX, GENERAL_PREFIX, ROUTES_CONSTANT } from '@/constants/Routes.constant';
 
@@ -170,6 +171,12 @@ export const ROUTES: RouteConfig[] = [
         label: 'Carousel',
         icon: <Icon.GalleryHorizontal className="w-4 h-4" />,
         element: <CarouselPage />,
+      },
+      {
+        path: ROUTES_CONSTANT.GENERAL.EMPTY,
+        label: 'Empty State',
+        icon: <Icon.PackageOpen className="w-4 h-4" />,
+        element: <EmptyPage />,
       },
     ]
   },

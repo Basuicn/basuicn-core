@@ -62,4 +62,5 @@ export {
   AlertCircle as AlertCircleIcon,
   GalleryHorizontal,
   KeyRound,
+  PackageOpen,
 } from 'lucide-react';
