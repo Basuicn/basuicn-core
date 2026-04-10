@@ -5,7 +5,7 @@ const COMPONENTS_DIR = './src/components/ui';
 const OUTPUT_FILE = './registry.json';
 
 // Directories to exclude from registry (not reusable components)
-const EXCLUDE_DIRS = new Set(['icons', 'layout', 'vs-code', 'pretty-code', 'Showcase.tsx']);
+const EXCLUDE_DIRS = new Set(['icons', 'layout', 'vs-code', 'Showcase.tsx']);
 
 interface RegistryFile {
   path: string;

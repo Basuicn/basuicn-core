@@ -6,7 +6,7 @@ import readline from 'readline';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const VERSION = '0.2.2';
+const VERSION = '0.2.3';
 const REGISTRY_LOCAL = './registry.json';
 const REGISTRY_REMOTE = 'https://raw.githubusercontent.com/Basuicn/basuicn-core/main/registry.json';
 
@@ -31,6 +31,40 @@ const warn  = (msg: string) => console.warn(`${c.yellow}⚠${c.reset} ${msg}`);
 const error = (msg: string) => console.error(`${c.red}✖${c.reset} ${msg}`);
 
 const getTargetProjectDir = () => process.cwd();
+
+// ─── Framework detection ──────────────────────────────────────────────────────
+
+type Framework = 'vite' | 'nextjs-app' | 'nextjs-pages';
+
+const detectFramework = (cwd: string): Framework => {
+    const hasNextConfig =
+        fs.existsSync(path.join(cwd, 'next.config.js')) ||
+        fs.existsSync(path.join(cwd, 'next.config.ts')) ||
+        fs.existsSync(path.join(cwd, 'next.config.mjs'));
+
+    const hasNextDep = (() => {
+        const pkgPath = path.join(cwd, 'package.json');
+        if (!fs.existsSync(pkgPath)) return false;
+        try {
+            const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8')) as Record<string, unknown>;
+            const all = { ...(pkg.dependencies as object || {}), ...(pkg.devDependencies as object || {}) } as Record<string, string>;
+            return !!all['next'];
+        } catch { return false; }
+    })();
+
+    if (hasNextConfig || hasNextDep) {
+        const hasAppDir =
+            fs.existsSync(path.join(cwd, 'src/app')) ||
+            fs.existsSync(path.join(cwd, 'app'));
+        const hasPagesDir =
+            fs.existsSync(path.join(cwd, 'src/pages')) ||
+            fs.existsSync(path.join(cwd, 'pages'));
+        if (hasPagesDir && !hasAppDir) return 'nextjs-pages';
+        return 'nextjs-app';
+    }
+
+    return 'vite';
+};
 
 // ─── Interactive prompt ──────────────────────────────────────────────────────
 
@@ -145,6 +179,21 @@ const RUNTIME_PACKAGES = [
     'tailwindcss-animate',
     'lucide-react',
 ];
+
+const NEXTJS_DEV_PACKAGES = [
+    'tailwindcss',
+    '@tailwindcss/postcss',
+    '@types/node',
+];
+
+const POSTCSS_CONFIG_TEMPLATE = `const config = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+};
+
+export default config;
+`;
 
 // ─── Vite config ──────────────────────────────────────────────────────────────
 
@@ -266,6 +315,28 @@ const setupViteConfig = (cwd: string) => {
     ok(`Updated ${path.basename(existingPath)} with Tailwind + path aliases.`);
 };
 
+// ─── Next.js config ───────────────────────────────────────────────────────────
+
+const setupNextConfig = (cwd: string) => {
+    installNpmPackages(NEXTJS_DEV_PACKAGES, cwd, true);
+
+    const postcssCandidates = ['postcss.config.mjs', 'postcss.config.js', 'postcss.config.cjs'];
+    const existingPostcss = postcssCandidates.map(f => path.join(cwd, f)).find(p => fs.existsSync(p));
+
+    if (!existingPostcss) {
+        fs.writeFileSync(path.join(cwd, 'postcss.config.mjs'), POSTCSS_CONFIG_TEMPLATE);
+        ok('Created postcss.config.mjs with @tailwindcss/postcss.');
+        return;
+    }
+
+    const content = fs.readFileSync(existingPostcss, 'utf-8');
+    if (!content.includes('@tailwindcss/postcss') && !content.includes('tailwindcss')) {
+        warn(`${path.basename(existingPostcss)} found but missing Tailwind plugin — add '@tailwindcss/postcss': {} to plugins manually.`);
+    } else {
+        ok(`${path.basename(existingPostcss)} already configured — skipping.`);
+    }
+};
+
 // ─── tsconfig ─────────────────────────────────────────────────────────────────
 
 const setupTsConfig = (cwd: string) => {
@@ -337,6 +408,178 @@ const ensureCore = (
         fs.writeFileSync(targetPath, file.content);
         ok(`${fs.existsSync(targetPath) ? 'Updated' : 'Created'} core file: ${file.path}`);
     }
+};
+
+// ─── Next.js layout patching ─────────────────────────────────────────────────
+
+const NEXT_APP_LAYOUT_CANDIDATES = [
+    'src/app/layout.tsx', 'src/app/layout.jsx',
+    'app/layout.tsx', 'app/layout.jsx',
+];
+
+const NEXT_PAGES_APP_CANDIDATES = [
+    'src/pages/_app.tsx', 'src/pages/_app.jsx',
+    'pages/_app.tsx', 'pages/_app.jsx',
+];
+
+const findNextLayoutFile = (cwd: string): string | null => {
+    for (const c of NEXT_APP_LAYOUT_CANDIDATES) {
+        const p = path.join(cwd, c);
+        if (fs.existsSync(p)) return p;
+    }
+    return null;
+};
+
+const findNextPagesAppFile = (cwd: string): string | null => {
+    for (const c of NEXT_PAGES_APP_CANDIDATES) {
+        const p = path.join(cwd, c);
+        if (fs.existsSync(p)) return p;
+    }
+    return null;
+};
+
+const patchNextLayout = (cwd: string) => {
+    const layoutPath = findNextLayoutFile(cwd);
+    if (!layoutPath) {
+        warn('Could not find app/layout.tsx — add ThemeProvider and CSS import manually.');
+        return;
+    }
+
+    let content = fs.readFileSync(layoutPath, 'utf-8');
+    let changed = false;
+
+    // CSS import
+    const cssImport = "import '@/styles/index.css';";
+    if (!content.includes('styles/index.css') && !content.includes('index.css')) {
+        const firstImport = content.match(/^import\s/m);
+        if (firstImport?.index !== undefined) {
+            content = content.slice(0, firstImport.index) + cssImport + '\n' + content.slice(firstImport.index);
+        } else {
+            content = cssImport + '\n' + content;
+        }
+        changed = true;
+    }
+
+    // ThemeProvider
+    if (!content.includes('ThemeProvider')) {
+        content = insertImport(content, "import { ThemeProvider } from '@/lib/theme/ThemeProvider';");
+        // Wrap {children} with ThemeProvider
+        const wrapped = content.replace(/\{children\}/, '<ThemeProvider>{children}</ThemeProvider>');
+        if (wrapped !== content) {
+            content = wrapped;
+        } else {
+            warn('Could not locate {children} in layout.tsx — add <ThemeProvider> wrapper manually.');
+        }
+        changed = true;
+    }
+
+    if (changed) {
+        fs.writeFileSync(layoutPath, content);
+        ok(`Patched ${path.relative(cwd, layoutPath)}.`);
+    } else {
+        ok(`${path.relative(cwd, layoutPath)} already configured — skipping.`);
+    }
+};
+
+const patchNextPagesApp = (cwd: string) => {
+    const appPath = findNextPagesAppFile(cwd);
+    if (!appPath) {
+        warn('Could not find pages/_app.tsx — add ThemeProvider and CSS import manually.');
+        return;
+    }
+
+    let content = fs.readFileSync(appPath, 'utf-8');
+    let changed = false;
+
+    // CSS import
+    const cssImport = "import '@/styles/index.css';";
+    if (!content.includes('styles/index.css') && !content.includes('index.css')) {
+        content = insertImport(content, cssImport);
+        changed = true;
+    }
+
+    // ThemeProvider
+    if (!content.includes('ThemeProvider')) {
+        content = insertImport(content, "import { ThemeProvider } from '@/lib/theme/ThemeProvider';");
+        const wrapped = content.replace(/(<Component\s[^/]*\/\s*>)/, '<ThemeProvider>\n        $1\n      </ThemeProvider>');
+        if (wrapped !== content) {
+            content = wrapped;
+        } else {
+            warn('Could not locate <Component .../> in _app.tsx — add <ThemeProvider> wrapper manually.');
+        }
+        changed = true;
+    }
+
+    if (changed) {
+        fs.writeFileSync(appPath, content);
+        ok(`Patched ${path.relative(cwd, appPath)}.`);
+    } else {
+        ok(`${path.relative(cwd, appPath)} already configured — skipping.`);
+    }
+};
+
+const patchNextLayoutComponent = (cwd: string, patch: { import: string; jsx: string }) => {
+    const layoutPath = findNextLayoutFile(cwd);
+    if (!layoutPath) {
+        warn(`Could not find Next.js layout — add ${patch.jsx} manually.`);
+        return;
+    }
+
+    let content = fs.readFileSync(layoutPath, 'utf-8');
+    const tagName = patch.jsx.match(/<(\w+)/)?.[1];
+    if (tagName && content.includes(`<${tagName}`)) return;
+
+    content = insertImport(content, patch.import);
+    // Insert before </body>
+    const updated = content.replace(/<\/body>/, `  ${patch.jsx}\n      </body>`);
+    if (updated !== content) {
+        fs.writeFileSync(layoutPath, updated);
+        ok(`Added <${tagName}> to ${path.relative(cwd, layoutPath)}.`);
+    } else {
+        warn(`Could not auto-add <${tagName}> to layout.tsx — add it manually.`);
+    }
+};
+
+const patchNextPagesAppComponent = (cwd: string, patch: { import: string; jsx: string }) => {
+    const appPath = findNextPagesAppFile(cwd);
+    if (!appPath) {
+        warn(`Could not find pages/_app.tsx — add ${patch.jsx} manually.`);
+        return;
+    }
+
+    let content = fs.readFileSync(appPath, 'utf-8');
+    const tagName = patch.jsx.match(/<(\w+)/)?.[1];
+    if (tagName && content.includes(`<${tagName}`)) return;
+
+    content = insertImport(content, patch.import);
+    // Insert after <Component .../>
+    let updated = content.replace(
+        /(<Component\s[^/]*\/\s*>)(\s*\n\s*<\/ThemeProvider>)/,
+        `$1\n      ${patch.jsx}$2`
+    );
+    if (updated === content) {
+        updated = content.replace(/(<Component\s[^/]*\/\s*>)/, `$1\n      ${patch.jsx}`);
+    }
+    if (updated !== content) {
+        fs.writeFileSync(appPath, updated);
+        ok(`Added <${tagName}> to ${path.relative(cwd, appPath)}.`);
+    } else {
+        warn(`Could not auto-add <${tagName}> to _app.tsx — add it manually.`);
+    }
+};
+
+const patchEntryFile = (cwd: string, framework: Framework) => {
+    if (framework === 'nextjs-app') patchNextLayout(cwd);
+    else if (framework === 'nextjs-pages') patchNextPagesApp(cwd);
+    else patchMainTsx(cwd);
+};
+
+const patchEntryComponentFile = (cwd: string, componentName: string, framework: Framework) => {
+    const patch = MAIN_PATCH_COMPONENTS[componentName];
+    if (!patch) return;
+    if (framework === 'nextjs-app') patchNextLayoutComponent(cwd, patch);
+    else if (framework === 'nextjs-pages') patchNextPagesAppComponent(cwd, patch);
+    else patchMainTsxComponent(cwd, componentName);
 };
 
 // ─── main.tsx patching ────────────────────────────────────────────────────────
@@ -448,7 +691,7 @@ const addComponent = (
     name: string,
     registry: { core?: unknown; components: Record<string, RegistryComponent> },
     cwd: string,
-    options: { force: boolean },
+    options: { force: boolean; framework?: Framework },
     added: Set<string> = new Set()
 ) => {
     if (added.has(name)) return;
@@ -484,7 +727,15 @@ const addComponent = (
             continue;
         }
 
-        fs.writeFileSync(targetPath, file.content);
+        // Add 'use client' for Next.js App Router TSX components that don't already have it
+        let content = file.content;
+        if (options.framework === 'nextjs-app' && file.path.endsWith('.tsx')) {
+            if (!content.startsWith("'use client'") && !content.startsWith('"use client"')) {
+                content = "'use client';\n" + content;
+            }
+        }
+
+        fs.writeFileSync(targetPath, content);
         ok(`Created: ${file.path}`);
     }
 };
@@ -564,13 +815,21 @@ const HELP_COMMANDS: Record<string, string> = {
 ${c.bold}basuicn init${c.reset}
 
   Initialize your project for basuicn components.
+  Auto-detects Vite or Next.js (App Router / Pages Router).
 
-  ${c.bold}What it does:${c.reset}
+  ${c.bold}What it does (Vite):${c.reset}
     1. Installs runtime dependencies (@base-ui/react, tailwind-variants, etc.)
     2. Sets up vite.config.ts with Tailwind CSS + path aliases
     3. Patches tsconfig.json with path aliases (@/*, @lib/*, etc.)
     4. Copies core files (cn.ts, themes.ts, ThemeProvider.tsx, index.css)
-    5. Wraps your <App /> with <ThemeProvider> in the main entry
+    5. Wraps your <App /> with <ThemeProvider> in src/main.tsx
+
+  ${c.bold}What it does (Next.js):${c.reset}
+    1. Installs runtime dependencies (@base-ui/react, tailwind-variants, etc.)
+    2. Sets up postcss.config.mjs with @tailwindcss/postcss
+    3. Patches tsconfig.json with path aliases (@/*, @lib/*, etc.)
+    4. Copies core files (cn.ts, themes.ts, ThemeProvider.tsx, index.css)
+    5. Wraps {children} with <ThemeProvider> in app/layout.tsx (or pages/_app.tsx)
 
   ${c.bold}Usage:${c.reset}
     ${c.dim}$${c.reset} npx basuicn init
@@ -693,11 +952,17 @@ const main = async () => {
 
         case 'init': {
             log('Initializing project...');
-            setupViteConfig(cwd);
+            const framework = detectFramework(cwd);
+            if (framework === 'vite') {
+                setupViteConfig(cwd);
+            } else {
+                log(`Detected Next.js (${framework === 'nextjs-app' ? 'App Router' : 'Pages Router'}).`);
+                setupNextConfig(cwd);
+            }
             setupTsConfig(cwd);
             installNpmPackages(RUNTIME_PACKAGES, cwd);
             ensureCore(registry, cwd, { force: true });
-            patchMainTsx(cwd);
+            patchEntryFile(cwd, framework);
             console.log('');
             ok(`${c.bold}Initialization complete!${c.reset} Run ${c.cyan}npx basuicn add <component>${c.reset} to get started.`);
             break;
@@ -737,19 +1002,25 @@ const main = async () => {
 
             // Auto-init if project hasn't been initialized yet
             const cnPath = path.join(cwd, 'src/lib/utils/cn.ts');
+            const framework = detectFramework(cwd);
             if (!fs.existsSync(cnPath)) {
                 log('Project not initialized — running init first...');
-                setupViteConfig(cwd);
+                if (framework === 'vite') {
+                    setupViteConfig(cwd);
+                } else {
+                    log(`Detected Next.js (${framework === 'nextjs-app' ? 'App Router' : 'Pages Router'}).`);
+                    setupNextConfig(cwd);
+                }
                 setupTsConfig(cwd);
                 installNpmPackages(RUNTIME_PACKAGES, cwd);
                 ensureCore(registry, cwd, { force: true });
-                patchMainTsx(cwd);
+                patchEntryFile(cwd, framework);
                 console.log('');
             }
 
             for (const name of names) {
-                addComponent(name, registry, cwd, { force: isForce });
-                patchMainTsxComponent(cwd, name);
+                addComponent(name, registry, cwd, { force: isForce, framework });
+                patchEntryComponentFile(cwd, name, framework);
             }
             console.log('');
             ok(`${c.bold}Done!${c.reset} Added ${names.length} component(s).`);
@@ -884,6 +1155,11 @@ const main = async () => {
                 if (!passed) { if (fix) console.log(`    ${c.dim}→ ${fix}${c.reset}`); issues++; }
             };
 
+            const docFramework = detectFramework(cwd);
+            if (docFramework !== 'vite') {
+                console.log(`  ${c.cyan}ℹ${c.reset} Framework: Next.js (${docFramework === 'nextjs-app' ? 'App Router' : 'Pages Router'})\n`);
+            }
+
             // Core files
             check(fs.existsSync(path.join(cwd, 'src/lib/utils/cn.ts')),
                 'src/lib/utils/cn.ts', 'run: npx basuicn init');
@@ -894,28 +1170,52 @@ const main = async () => {
             check(fs.existsSync(path.join(cwd, 'src/styles/index.css')),
                 'src/styles/index.css (theme variables)', 'run: npx basuicn init');
 
-            // Main entry
-            const mainPath = findMainFile(cwd);
-            if (mainPath) {
-                const mainContent = fs.readFileSync(mainPath, 'utf-8');
-                check(mainContent.includes('ThemeProvider'),
-                    'ThemeProvider in main entry', 'run: npx basuicn init');
-                check(mainContent.includes('styles/index.css') || mainContent.includes('index.css'),
-                    'CSS import in main entry', 'run: npx basuicn init');
+            // Entry file check (framework-aware)
+            if (docFramework === 'nextjs-app') {
+                const layoutPath = findNextLayoutFile(cwd);
+                if (layoutPath) {
+                    const layoutContent = fs.readFileSync(layoutPath, 'utf-8');
+                    check(layoutContent.includes('ThemeProvider'), 'ThemeProvider in app/layout.tsx', 'run: npx basuicn init');
+                    check(layoutContent.includes('styles/index.css') || layoutContent.includes('index.css'), 'CSS import in app/layout.tsx', 'run: npx basuicn init');
+                } else {
+                    check(false, 'app/layout.tsx', 'create src/app/layout.tsx');
+                }
+            } else if (docFramework === 'nextjs-pages') {
+                const pagesAppPath = findNextPagesAppFile(cwd);
+                if (pagesAppPath) {
+                    const pagesAppContent = fs.readFileSync(pagesAppPath, 'utf-8');
+                    check(pagesAppContent.includes('ThemeProvider'), 'ThemeProvider in pages/_app.tsx', 'run: npx basuicn init');
+                    check(pagesAppContent.includes('styles/index.css') || pagesAppContent.includes('index.css'), 'CSS import in pages/_app.tsx', 'run: npx basuicn init');
+                } else {
+                    check(false, 'pages/_app.tsx', 'create pages/_app.tsx');
+                }
             } else {
-                check(false, 'main entry file (src/main.tsx)', 'create src/main.tsx');
+                const mainPath = findMainFile(cwd);
+                if (mainPath) {
+                    const mainContent = fs.readFileSync(mainPath, 'utf-8');
+                    check(mainContent.includes('ThemeProvider'), 'ThemeProvider in main entry', 'run: npx basuicn init');
+                    check(mainContent.includes('styles/index.css') || mainContent.includes('index.css'), 'CSS import in main entry', 'run: npx basuicn init');
+                } else {
+                    check(false, 'main entry file (src/main.tsx)', 'create src/main.tsx');
+                }
             }
 
             // Runtime packages
             const pkgPath = path.join(cwd, 'package.json');
             if (fs.existsSync(pkgPath)) {
-                const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-                const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+                const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8')) as Record<string, unknown>;
+                const allDeps = { ...(pkg.dependencies as object || {}), ...(pkg.devDependencies as object || {}) } as Record<string, string>;
                 for (const dep of RUNTIME_PACKAGES) {
                     check(!!allDeps[dep], `package: ${dep}`, `run: npm install ${dep}`);
                 }
-                for (const dep of VITE_DEV_PACKAGES) {
-                    check(!!allDeps[dep], `package (dev): ${dep}`, `run: npm install -D ${dep}`);
+                if (docFramework === 'vite') {
+                    for (const dep of VITE_DEV_PACKAGES) {
+                        check(!!allDeps[dep], `package (dev): ${dep}`, `run: npm install -D ${dep}`);
+                    }
+                } else {
+                    for (const dep of NEXTJS_DEV_PACKAGES) {
+                        check(!!allDeps[dep], `package (dev): ${dep}`, `run: npm install -D ${dep}`);
+                    }
                 }
             } else {
                 check(false, 'package.json found', 'run: npm init -y');
@@ -942,10 +1242,16 @@ const main = async () => {
             });
             check(hasAlias, 'TypeScript path aliases (@/*)', 'run: npx basuicn init');
 
-            const hasViteConfig =
-                fs.existsSync(path.join(cwd, 'vite.config.ts')) ||
-                fs.existsSync(path.join(cwd, 'vite.config.js'));
-            check(hasViteConfig, 'vite.config.ts / vite.config.js', 'run: npx basuicn init');
+            if (docFramework === 'vite') {
+                const hasViteConfig =
+                    fs.existsSync(path.join(cwd, 'vite.config.ts')) ||
+                    fs.existsSync(path.join(cwd, 'vite.config.js'));
+                check(hasViteConfig, 'vite.config.ts / vite.config.js', 'run: npx basuicn init');
+            } else {
+                const hasPostcss = ['postcss.config.mjs', 'postcss.config.js', 'postcss.config.cjs']
+                    .some(f => fs.existsSync(path.join(cwd, f)));
+                check(hasPostcss, 'postcss.config.mjs (Tailwind CSS for Next.js)', 'run: npx basuicn init');
+            }
 
             console.log('');
             if (issues === 0) {
