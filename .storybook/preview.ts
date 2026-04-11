@@ -15,7 +15,7 @@ const preview: Preview = {
     docs: {
       toc: true,
     },
-    layout: 'centered',
+    layout: 'padded',
   },
   globalTypes: {
     theme: {
