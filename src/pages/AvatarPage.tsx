@@ -3,7 +3,7 @@ import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase'
 import { Avatar } from '@components/ui/avatar/Avatar'
 
 const AvatarPage = () => (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl mx-auto">
         <PageHeader title="Avatar" description="Hình đại diện với ảnh, fallback chữ và group stack." />
 
         <ShowcaseCard title="Sizes với ảnh (sm / md / lg / xl)">

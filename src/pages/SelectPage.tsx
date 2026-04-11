@@ -1,3 +1,4 @@
+import { MultiSelect } from "@/components/ui/select/MultiSelect";
 import { Select } from "@components/ui/select/Select";
 import { PageHeader, ShowcaseCard } from "@components/ui/Showcase";
 
@@ -13,6 +14,20 @@ const SelectPage = () => (
           { label: 'Hệ thống', value: 'system' },
         ]} />
         <Select label="Vai trò" placeholder="Chọn vai trò" options={[
+          { label: 'Quản trị viên', value: 'admin' },
+          { label: 'Biên tập viên', value: 'editor' },
+          { label: 'Người dùng', value: 'user' },
+        ]} />
+      </div>
+    </ShowcaseCard>
+    <ShowcaseCard title="Multi Select">
+      <div className="w-full space-y-5">
+        <MultiSelect label="Chủ đề" placeholder="Chọn theme" options={[
+          { label: 'Sáng (Light)', value: 'light' },
+          { label: 'Tối (Dark)', value: 'dark' },
+          { label: 'Hệ thống', value: 'system' },
+        ]} />
+        <MultiSelect label="Vai trò" placeholder="Chọn vai trò" options={[
           { label: 'Quản trị viên', value: 'admin' },
           { label: 'Biên tập viên', value: 'editor' },
           { label: 'Người dùng', value: 'user' },

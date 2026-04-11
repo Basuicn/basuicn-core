@@ -115,7 +115,7 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
                                             options.map((option) => (
                                                 <BaseSelect.Item key={option.value} value={option.value} className={item()}>
                                                     <BaseSelect.ItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                                                        <Check className="h-4 w-4" />
+                                                        {option.value === selectedValue && <Check className="h-4 w-4" />}
                                                     </BaseSelect.ItemIndicator>
                                                     <BaseSelect.ItemText>{option.label}</BaseSelect.ItemText>
                                                 </BaseSelect.Item>

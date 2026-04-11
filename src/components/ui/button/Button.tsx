@@ -14,7 +14,7 @@ const buttonVariants = tv({
       danger: 'bg-danger text-danger-foreground hover:bg-danger/70 shadow-sm',
       link: 'text-primary underline-offset-4 hover:underline h-auto px-0 py-0 font-normal',
       // Kính mờ tối — trên nền tối
-      glass: 'bg-white/15 backdrop-blur-md border border-white/30 text-white hover:bg-white/25 hover:border-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_20px_rgba(0,0,0,0.2)] transition-all',
+      glass: 'bg-white/15 backdrop-blur-md border border-white/30 text-accent-foreground hover:bg-white/25 hover:border-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_20px_rgba(0,0,0,0.2)] transition-all',
       // ─── Glossy Bubble Variants ───────────────────────────────────────────────
       // Gradient from white highlight (top-left) → tinted color (bottom-right)
       // + inset top border = hiệu ứng gương bong bóng xà phòng

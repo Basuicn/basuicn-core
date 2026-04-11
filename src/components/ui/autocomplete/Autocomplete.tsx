@@ -19,6 +19,7 @@ const autocompleteVariants = tv({
 export interface AutocompleteOption {
   label: string;
   value: string;
+  description?: string;
 }
 
 export interface AutocompleteProps {
@@ -32,6 +33,7 @@ export interface AutocompleteProps {
   className?: string;
   emptyText?: string;
   leftIcon?: React.ReactNode;
+  clearOnSelect?: boolean;
 }
 
 const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
@@ -46,6 +48,7 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
     className,
     emptyText = 'No results found.',
     leftIcon,
+    clearOnSelect = false,
   }, ref) => {
     const [inputValue, setInputValue] = React.useState('');
     const [open, setOpen] = React.useState(false);
@@ -57,22 +60,24 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
 
     const handleValueChange = (newVal: string | null) => {
       isSelectingRef.current = true;
-      if (value === undefined) setInternalValue(newVal);
+      if (value === undefined) setInternalValue(clearOnSelect ? null : newVal);
       if (newVal !== null) onValueChange?.(newVal);
     };
 
     const handleInputValueChange = (val: string) => {
-      // Khi base-ui cập nhật input sau khi chọn item, bỏ qua để tránh nháy popup
       if (isSelectingRef.current) {
         isSelectingRef.current = false;
+        // clearOnSelect: xóa input ngay sau khi chọn, không để label xuất hiện
+        if (clearOnSelect) {
+          setInputValue('');
+          setOpen(false);
+        }
         return;
       }
       setInputValue(val);
-      // Chỉ mở popup khi người dùng đang gõ
       setOpen(val.length > 0);
     };
 
-    // Block mọi lần mở từ focus/click — chỉ cho phép đóng từ bên ngoài (click-outside, select)
     const handleOpenChange = (newOpen: boolean) => {
       if (!newOpen) setOpen(false);
     };
@@ -85,16 +90,18 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
       setOpen(false);
     };
 
+    // Đóng popup trước khi browser paint nếu input rỗng — loại bỏ hoàn toàn nháy 1 frame
+   React.useLayoutEffect(() => {
+      if (!inputValue && open) setOpen(false);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [inputValue]);
+
     const filteredOptions = React.useMemo(() => {
-      if (!inputValue) return options;
-      if (activeValue) {
-        const selected = options.find(o => o.value === activeValue);
-        if (selected && inputValue === selected.label) return options;
-      }
+      if (!inputValue) return [];
       return options.filter(o =>
         o.label.toLowerCase().includes(inputValue.toLowerCase())
       );
-    }, [options, inputValue, activeValue]);
+    }, [options, inputValue]);
 
     const { root, inputContainer, input, popup, item, indicator } = autocompleteVariants();
 
@@ -121,7 +128,7 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
 
               {isLoading ? (
                 <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-              ) : activeValue && (
+              ) : activeValue && !clearOnSelect && (
                 <button
                   type="button"
                   aria-label="Clear selection"
@@ -135,7 +142,7 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
               <BaseCombobox.Input
                 ref={ref}
                 placeholder={placeholder}
-                className={cn(input(), (isLoading || activeValue) && 'pr-8')}
+                className={cn(input(), (isLoading || (activeValue && !clearOnSelect)) && 'pr-8')}
               />
             </BaseCombobox.InputGroup>
 
@@ -148,7 +155,9 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
                 <BaseCombobox.Popup className={cn(popup(), 'min-w-0')}>
                   <BaseCombobox.List className="p-1 max-h-[300px] overflow-auto">
                     {filteredOptions.length === 0 ? (
-                      <div className="py-2 px-8 text-sm text-muted-foreground italic">{emptyText}</div>
+                      inputValue ? (
+                        <div className="py-2 px-8 text-sm text-muted-foreground italic">{emptyText}</div>
+                      ) : null
                     ) : (
                       filteredOptions.map((option) => (
                         <BaseCombobox.Item
@@ -159,7 +168,12 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
                           <BaseCombobox.ItemIndicator className={indicator()}>
                             <Check className="h-4 w-4" />
                           </BaseCombobox.ItemIndicator>
-                          {option.label}
+                          {option.description ? (
+                            <div className="flex flex-col">
+                              <span>{option.label}</span>
+                              <span className="text-xs text-muted-foreground">{option.description}</span>
+                            </div>
+                          ) : option.label}
                         </BaseCombobox.Item>
                       ))
                     )}
