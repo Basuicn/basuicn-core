@@ -3,7 +3,7 @@ import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase';
 import { Table } from '@components/ui/table/Table';
 import { Badge } from '@components/ui/badge/Badge';
 import { Button } from '@components/ui/button/Button';
-import { type ColumnDef } from '@tanstack/react-table';
+import { type ColumnDef, type CellContext } from '@tanstack/react-table';
 import { Mail, Phone, MapPin, Building2, RefreshCw } from 'lucide-react';
 
 // ─── Kiểu dữ liệu ────────────────────────────────────────────────────────────
@@ -78,10 +78,12 @@ async function fetchUsers(page: number, pageSize: number) {
 
 // ─── Cell renderers ───────────────────────────────────────────────────────────
 
-const statusCell = ({ getValue }: any) => {
-    const s = getValue() as string;
-    const variant = s === 'Active' ? 'success' : s === 'Inactive' ? 'danger' : 'warning';
-    return <Badge variant={variant as any} size="sm" pulse={s === 'Active'}>{s}</Badge>;
+type BadgeVariant = 'success' | 'danger' | 'warning';
+
+const statusCell = ({ getValue }: CellContext<User, unknown>) => {
+    const s = getValue() as User['status'];
+    const variant: BadgeVariant = s === 'Active' ? 'success' : s === 'Inactive' ? 'danger' : 'warning';
+    return <Badge variant={variant} size="sm" pulse={s === 'Active'}>{s}</Badge>;
 };
 
 // ─── Column định nghĩa ────────────────────────────────────────────────────────
