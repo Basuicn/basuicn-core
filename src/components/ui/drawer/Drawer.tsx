@@ -183,6 +183,5 @@ export {
   DrawerBody,
   DrawerFooter,
   DrawerClose,
-  drawerVariants,
 };
 export type { DrawerContentProps, DrawerHeaderProps };

@@ -36,7 +36,34 @@ const dialogVariants = tv({
 const Dialog = BaseDialog.Root;
 
 /* ─── Trigger ─── */
-const DialogTrigger = BaseDialog.Trigger;
+// Hỗ trợ cả render={} (Base UI) lẫn children trực tiếp.
+// Nếu children là một React element (e.g. <Button>), tự động dùng làm render prop
+// để tránh nested button (<button><button>…</button></button>).
+type BaseTriggerProps = React.ComponentPropsWithoutRef<typeof BaseDialog.Trigger>;
+
+interface DialogTriggerProps extends Omit<BaseTriggerProps, 'render'> {
+  render?: BaseTriggerProps['render'];
+  children?: React.ReactNode;
+}
+
+const DialogTrigger = React.forwardRef<HTMLElement, DialogTriggerProps>(
+  ({ render: renderProp, children, ...props }, ref) => {
+    const resolvedRender =
+      renderProp ?? (React.isValidElement(children) ? children : undefined);
+
+    return (
+      <BaseDialog.Trigger
+        ref={ref as React.Ref<HTMLButtonElement>}
+        render={resolvedRender}
+        {...props}
+      >
+        {resolvedRender ? undefined : children}
+      </BaseDialog.Trigger>
+    );
+  },
+);
+DialogTrigger.displayName = 'DialogTrigger';
+
 
 /* ─── Close (re-export for custom close buttons) ─── */
 const DialogClose = BaseDialog.Close;
@@ -116,5 +143,4 @@ export {
   DialogTitle,
   DialogDescription,
   DialogClose,
-  dialogVariants,
 };

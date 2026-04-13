@@ -31,8 +31,7 @@ const DropdownMenu = BaseMenu.Root;
 
 /* ─── Trigger ───────────────────────────────────────────────────────── */
 
-export interface DropdownMenuTriggerProps
-  extends React.ComponentPropsWithoutRef<typeof BaseMenu.Trigger> { }
+export type DropdownMenuTriggerProps = React.ComponentPropsWithoutRef<typeof BaseMenu.Trigger>;
 
 const DropdownMenuTrigger = React.forwardRef<
   HTMLButtonElement,
@@ -157,7 +156,7 @@ DropdownMenuLabel.displayName = 'DropdownMenuLabel';
 
 /* ─── Separator ─────────────────────────────────────────────────────── */
 
-export interface DropdownMenuSeparatorProps extends React.ComponentPropsWithoutRef<'div'> { }
+export type DropdownMenuSeparatorProps = React.ComponentPropsWithoutRef<'div'>;
 
 const DropdownMenuSeparator = React.forwardRef<HTMLDivElement, DropdownMenuSeparatorProps>(
   ({ className, ...props }, ref) => (
@@ -236,5 +235,4 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
   DropdownMenuGroup,
-  dropdownMenuVariants,
 };

@@ -19,7 +19,33 @@ const alertDialogVariants = tv({
 const AlertDialog = BaseAlertDialog.Root;
 
 /* ─── Trigger ─── */
-const AlertDialogTrigger = BaseAlertDialog.Trigger;
+// Hỗ trợ cả render={} (Base UI) lẫn children trực tiếp.
+// Nếu children là một React element (e.g. <Button>), tự động dùng làm render prop
+// để tránh nested button (<button><button>…</button></button>).
+type BaseTriggerProps = React.ComponentPropsWithoutRef<typeof BaseAlertDialog.Trigger>;
+
+interface AlertDialogTriggerProps extends Omit<BaseTriggerProps, 'render'> {
+  render?: BaseTriggerProps['render'];
+  children?: React.ReactNode;
+}
+
+const AlertDialogTrigger = React.forwardRef<HTMLElement, AlertDialogTriggerProps>(
+  ({ render: renderProp, children, ...props }, ref) => {
+    const resolvedRender =
+      renderProp ?? (React.isValidElement(children) ? children : undefined);
+
+    return (
+      <BaseAlertDialog.Trigger
+        ref={ref as React.Ref<HTMLButtonElement>}
+        render={resolvedRender}
+        {...props}
+      >
+        {resolvedRender ? undefined : children}
+      </BaseAlertDialog.Trigger>
+    );
+  },
+);
+AlertDialogTrigger.displayName = 'AlertDialogTrigger';
 
 /* ─── Close (wraps BaseAlertDialog.Close for cancel buttons) ─── */
 const AlertDialogClose = BaseAlertDialog.Close;
