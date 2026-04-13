@@ -4,17 +4,21 @@ import { tv, type VariantProps } from 'tailwind-variants';
 import { Spinner } from '../spinner/Spinner';
 
 const buttonVariants = tv({
-  base: 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-30 disabled:hover:bg-transparent data-open:bg-muted cursor-pointer disabled:cursor-not-allowed',
+  base: 'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-30 disabled:hover:bg-transparent data-open:bg-muted cursor-pointer disabled:cursor-not-allowed',
   variants: {
     variant: {
-      solid: 'bg-primary text-primary-foreground hover:bg-primary/70 shadow-sm',
-      outline: 'border border-border bg-transparent hover:bg-secondary/90 hover:text-foreground',
-      ghost: 'hover:bg-secondary/90 hover:text-foreground',
-      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/70 shadow-sm',
-      danger: 'bg-danger text-danger-foreground hover:bg-danger/70 shadow-sm',
+      // Kraken Primary Purple
+      solid: 'bg-primary text-primary-foreground hover:bg-primary/80 shadow-[rgba(0,0,0,0.08)_0px_1px_4px]',
+      // Kraken Purple Outlined — border + text use primary colour
+      outline: 'border border-primary/40 bg-transparent text-primary hover:bg-primary/5 hover:border-primary/70',
+      // Kraken Secondary Gray — subtle bg, neutral text
+      ghost: 'hover:bg-accent hover:text-accent-foreground',
+      // Kraken Purple Subtle — secondary surface
+      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/70 shadow-[rgba(0,0,0,0.04)_0px_1px_4px]',
+      danger: 'bg-danger text-danger-foreground hover:bg-danger/80 shadow-[rgba(0,0,0,0.08)_0px_1px_4px]',
       link: 'text-primary underline-offset-4 hover:underline h-auto px-0 py-0 font-normal',
       // Kính mờ tối — trên nền tối
-      glass: 'bg-white/15 backdrop-blur-md border border-white/30 text-accent-foreground hover:bg-white/25 hover:border-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_20px_rgba(0,0,0,0.2)] transition-all',
+      glass: 'bg-white/15 backdrop-blur-md border border-white/30 text-accent hover:bg-white/25 hover:border-white/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_20px_rgba(0,0,0,0.2)] transition-all',
       // ─── Glossy Bubble Variants ───────────────────────────────────────────────
       // Gradient from white highlight (top-left) → tinted color (bottom-right)
       // + inset top border = hiệu ứng gương bong bóng xà phòng
@@ -70,4 +74,4 @@ const Button = React.forwardRef<React.ElementRef<typeof BaseButton>, ButtonProps
 );
 Button.displayName = 'Button';
 
-export { Button, buttonVariants };
+export { Button };

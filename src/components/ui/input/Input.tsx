@@ -6,7 +6,7 @@ import * as Icon from "@/components/ui/icons";
 import { Toggle } from '@/components/ui/toggle/Toggle';
 
 const inputVariants = tv({
-  base: 'flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 transition-shadow',
+  base: 'flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 transition-shadow',
   variants: {
     variant: {
       default: '',

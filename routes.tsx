@@ -48,15 +48,17 @@ import InputOTPPage from './src/pages/InputOTPPage';
 import CodeSandboxPage from './src/pages/CodeSandboxPage';
 import ResizablePage from './src/pages/ResizablePage';
 import EmptyPage from './src/pages/EmptyPage';
-import { VsCodeIDE } from './src/components/ui/vs-code/VsCodeIDE';
+import TableContentsPage from './src/pages/TableContentsPage';
+import LoginPage from './src/pages/form-login/LoginPage';
 import { FORM_PREFIX, GENERAL_PREFIX, ROUTES_CONSTANT } from '@/constants/Routes.constant';
+import DashboardPage from '@/pages/dashboard/DashboardPage';
 
 export interface RouteConfig {
   path: string;
   label: string;
   icon?: React.ReactNode;
   element?: React.ReactNode; // Optional for parent grouping routes
-  category?: 'overview' | 'general' | 'forms' | 'complex' | 'overlays' | 'none';
+  category?: string;
   badge?: string;
   end?: boolean;
   standalone?: boolean;
@@ -324,6 +326,13 @@ export const ROUTES: RouteConfig[] = [
     element: <ResizablePage />,
     category: 'complex',
   },
+  {
+    path: ROUTES_CONSTANT.COMPLEX.TABLE_CONTENTS,
+    label: 'Table of Contents',
+    icon: <Icon.ScrollText className="w-4 h-4" />,
+    element: <TableContentsPage />,
+    category: 'complex',
+  },
 
 
   // Overlays
@@ -398,9 +407,26 @@ export const ROUTES: RouteConfig[] = [
     category: 'overlays',
   },
   // Standalone
-
+ 
+    {
+      path: ROUTES_CONSTANT.DEMO.LOGIN,
+      label: 'Login',
+      icon: <Icon.User className="w-4 h-4" />,
+      element: <LoginPage />,
+      category: 'demo',
+      // standalone: true,
+    },
+    {
+      path: ROUTES_CONSTANT.DEMO.DASHBOARD,
+      label: 'Dashboard',
+      icon: <Icon.User className="w-4 h-4" />,
+      element: <DashboardPage />,
+      category: 'demo',
+      // standalone: true,
+    },
 
 ];
+
 
 /**
  * Hàm flattenSearchableRoutes: Lấy tất cả các route có element (cần search) thành mảng phẳng.

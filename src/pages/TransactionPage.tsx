@@ -15,7 +15,7 @@ const TransactionPage = () => {
         { accessorKey: 'user', header: 'Người dùng' },
         { accessorKey: 'type', header: 'Loại GD' },
         { accessorKey: 'amount', header: 'Số tiền' },
-        { accessorKey: 'status', header: 'Trạng thái', cell: ({ getValue }: any) => <Badge variant={getValue() === 'Thành công' ? 'success' : 'warning'}>{getValue()}</Badge> },
+        { accessorKey: 'status', header: 'Trạng thái', cell: ({ getValue }: any) => <Badge size='sm' variant={getValue() === 'Thành công' ? 'soft-success' : 'soft-warning'}>{getValue()}</Badge> },
     ];
     return (
         <div className="space-y-8 animate-in fade-in duration-500">

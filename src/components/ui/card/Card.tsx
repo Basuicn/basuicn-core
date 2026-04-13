@@ -3,7 +3,8 @@ import { tv, type VariantProps } from 'tailwind-variants';
 import { cn } from '@/lib/utils/cn';
 
 const cardVariants = tv({
-  base: 'rounded-xl border border-border bg-card text-card-foreground shadow-sm',
+  // Kraken: 16px radius, whisper shadow rgba(0,0,0,0.03)
+  base: 'rounded-xl border border-border bg-background text-foreground shadow-[rgba(0,0,0,0.03)_0px_4px_24px]',
   variants: {
     padding: {
       none: '',
@@ -47,7 +48,7 @@ const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTML
   ({ className, ...props }, ref) => (
     <h3
       ref={ref}
-      className={cn('text-lg font-semibold leading-none tracking-tight text-primary', className)}
+      className={cn('text-lg font-semibold leading-none tracking-tight text-foreground', className)}
       {...props}
     />
   )
@@ -83,4 +84,4 @@ const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 );
 CardFooter.displayName = 'CardFooter';
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, cardVariants };
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };

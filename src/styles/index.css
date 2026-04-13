@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 @custom-variant dark (&:where(.dark, .dark *));
@@ -107,10 +108,19 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    --radius-sm: 0.125rem;
-    --radius-md: 0.375rem;
-    --radius-lg: 0.5rem;
-    --radius-xl: 1rem;
+    /* ─── Kraken-inspired radius scale ───────────────────────────────────────── */
+    --radius-sm: 0.375rem;   /* 6px  — badges, tags */
+    --radius-md: 0.5rem;     /* 8px  — tooltips, popovers */
+    --radius-lg: 0.75rem;    /* 12px — buttons, inputs, cards */
+    --radius-xl: 1rem;       /* 16px — modals, large containers */
+
+    /* ─── Shadow tokens ───────────────────────────────────────────────────────── */
+    --shadow-subtle: rgba(0,0,0,0.03) 0px 4px 24px;
+    --shadow-micro:  rgba(16,24,40,0.04) 0px 1px 4px;
+
+    /* ─── Font families ───────────────────────────────────────────────────────── */
+    --font-display: 'IBM Plex Sans', Helvetica, Arial, sans-serif;
+    --font-ui:      'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
     /* Z-index scale */
     --z-dropdown: 50;
@@ -140,16 +150,16 @@
         /* GENERATED:theme-start */
         /* Auto-generated from themes.ts — run `npm run theme:sync` to update */
         --background: #ffffff;
-        --foreground: #0f172a;
-        --primary: #2f27ce;
+        --foreground: #101114;              /* Kraken Near Black */
+        --primary: #7132f5;                 /* Kraken Purple */
         --primary-foreground: #ffffff;
-        --secondary: #dedcff;
-        --secondary-foreground: #2f27ce;
-        --muted: #f8fafc;
-        --muted-foreground: #64748b;
-        --accent: #f1f5f9;
-        --accent-foreground: #0f172a;
-        --success: #10b981;
+        --secondary: #ebe5fe;               /* Purple Subtle — rgba(133,91,251,0.16) on white */
+        --secondary-foreground: #5741d8;    /* Purple Dark */
+        --muted: #f8f8fb;                   /* Cool off-white */
+        --muted-foreground: #9497a9;        /* Kraken Silver Blue */
+        --accent: #f5f4ff;                  /* Light purple tint */
+        --accent-foreground: #101114;
+        --success: #149e61;                 /* Kraken Green */
         --success-foreground: #ffffff;
         --warning: #f59e0b;
         --warning-foreground: #ffffff;
@@ -157,77 +167,78 @@
         --danger-foreground: #ffffff;
         --destructive: #ef4444;
         --destructive-foreground: #ffffff;
-        --border: #e2e8f0;
-        --input: #e2e8f0;
-        --ring: #2f27ce;
+        --border: #dedee5;                  /* Kraken Border Gray */
+        --input: #dedee5;
+        --ring: #7132f5;
         --popover: #ffffff;
-        --popover-foreground: #0f172a;
+        --popover-foreground: #101114;
         /* GENERATED:theme-end */
 
         /* Non-theme tokens (not managed by applyTheme) */
-        --switch-background: #cbd5e1;
+        --switch-background: #c0c2d1;       /* Cool gray toggle */
 
         --chart-1: #e11d48;
-        --chart-2: #2f27ce;
-        --chart-3: #10b981;
+        --chart-2: #7132f5;                 /* Kraken Purple */
+        --chart-3: #149e61;                 /* Kraken Green */
         --chart-4: #f59e0b;
-        --chart-5: #8b5cf6;
+        --chart-5: #5741d8;                 /* Purple Dark */
 
-        --sidebar: #f8fafc;
-        --sidebar-foreground: #0f172a;
-        --sidebar-border: #e2e8f0;
-        --sidebar-accent: #f1f5f9;
-        --sidebar-accent-foreground: #2f27ce;
-        --sidebar-ring: #2f27ce;
+        --sidebar: #f8f8fb;
+        --sidebar-foreground: #101114;
+        --sidebar-border: #dedee5;
+        --sidebar-accent: #f5f4ff;
+        --sidebar-accent-foreground: #7132f5;
+        --sidebar-ring: #7132f5;
     }
 
     .dark {
-        /* Dark Theme - Deep Space Slate (Chuyên nghiệp & Hiện đại) */
-        --background: #09090b; /* Very deep zinc/slate */
-        --foreground: #f8fafc;
-        
-        --primary: #6366f1; /* Bright Indigo for pop */
+        /* Dark Theme — Kraken-inspired Deep Purple Night */
+        --background: #0e0c14;              /* Near-black with purple tint */
+        --foreground: #ededf0;              /* Off-white */
+
+        --primary: #9b72ff;                 /* Lighter Kraken Purple — readable on dark */
         --primary-foreground: #ffffff;
-        
-        --secondary: #1e293b; /* Slate 800 */
-        --secondary-foreground: #f8fafc;
-        
-        --muted: #0f172a; /* Slate 900 for subdued bg */
-        --muted-foreground: #94a3b8; /* Slate 400 for text */
-        
-        --accent: #1e293b;
-        --accent-foreground: #f8fafc;
-        
-        --switch-background: #334155;
-        --border: #334155; /* Slate 700 */
-        
-        --success: #10b981;
+
+        --secondary: #1c1929;               /* Dark purple-tinted surface */
+        --secondary-foreground: #c4b0ff;    /* Soft lavender */
+
+        --muted: #17151f;                   /* Deeper surface */
+        --muted-foreground: #7b7d99;        /* Muted silver-blue */
+
+        --accent: #1c1929;
+        --accent-foreground: #ededf0;
+
+        --switch-background: #3d3860;
+
+        --border: #2a2740;                  /* Dark purple-tinted border */
+        --input: #2a2740;
+
+        --success: #1acc72;                 /* Brighter Kraken green for dark bg */
         --success-foreground: #ffffff;
-        
+
         --warning: #f59e0b;
         --warning-foreground: #ffffff;
-        
-        --danger: #ef4444;
+
+        --danger: #f05555;
         --danger-foreground: #ffffff;
 
-        --ring: #6366f1;
-        --input: #334155;
+        --ring: #9b72ff;
 
         --chart-1: #fb7185;
-        --chart-2: #6366f1;
-        --chart-3: #34d399;
+        --chart-2: #9b72ff;
+        --chart-3: #1acc72;
         --chart-4: #fbbf24;
-        --chart-5: #818cf8;
+        --chart-5: #c4b0ff;
 
-        --popover: #0f172a;
-        --popover-foreground: #f8fafc;
+        --popover: #17151f;
+        --popover-foreground: #ededf0;
 
-        --sidebar: #0f172a;
-        --sidebar-foreground: #f8fafc;
-        --sidebar-border: #334155;
-        --sidebar-accent: #1e293b;
-        --sidebar-accent-foreground: #818cf8;
-        --sidebar-ring: #6366f1;
+        --sidebar: #0b0a11;
+        --sidebar-foreground: #ededf0;
+        --sidebar-border: #2a2740;
+        --sidebar-accent: #1c1929;
+        --sidebar-accent-foreground: #c4b0ff;
+        --sidebar-ring: #9b72ff;
     }
 }
 
@@ -242,7 +253,7 @@
         padding: 0;
         background-color: var(--background);
         color: var(--foreground);
-        font-family: 'Inter', system-ui, sans-serif;
+        font-family: var(--font-ui);
         overflow: hidden; /* Khóa scroll tổng để dùng nội bộ */
         height: 100%;
         color-scheme: light;
@@ -283,33 +294,33 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        background: #cbd5e1; /* slate-300 */
+        background: #c0c2d1; /* Kraken cool gray */
         border-radius: 10px;
         border: 2px solid transparent;
         background-clip: content-box;
     }
 
     .dark ::-webkit-scrollbar-thumb {
-        background: #334155; /* slate-700 */
+        background: #2a2740;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8; /* slate-400 */
+        background: #9497a9; /* Kraken Silver Blue */
         background-clip: content-box;
     }
 
     .dark ::-webkit-scrollbar-thumb:hover {
-        background: #475569; /* slate-600 */
+        background: #3d3860;
     }
 
     /* Firefox */
     * {
         scrollbar-width: thin;
-        scrollbar-color: #cbd5e1 transparent;
+        scrollbar-color: #c0c2d1 transparent;
     }
 
     .dark * {
-        scrollbar-color: #334155 transparent;
+        scrollbar-color: #2a2740 transparent;
     }
 }
 

@@ -10,7 +10,7 @@ const DatePickerPage = () => {
     const [dt2, setDt2] = React.useState<Date | undefined>();
     const [future, setFuture] = React.useState<Date | undefined>();
     return (
-        <div className="max-w-lg">
+        <div className="max-w-4xl mx-auto">
             <PageHeader title="DatePicker" description="Bộ chọn ngày tháng đầy đủ tính năng." />
 
             <ShowcaseCard title="Single Date">

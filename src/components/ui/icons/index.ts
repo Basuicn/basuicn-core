@@ -1,4 +1,5 @@
 export {
+  User,
   Mail,
   Send,
   Trash,

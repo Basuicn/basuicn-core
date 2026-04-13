@@ -18,7 +18,21 @@
       "Bash(mv:*)",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d['dependencies'].get\\('react-resizable-panels', 'not found'\\)\\)\")",
       "Bash(echo \"exit:$?\")",
-      "Bash(cat D:/code/fe/basuicn-core/src/components/ui/pretty-code/*.tsx)"
+      "Bash(cat D:/code/fe/basuicn-core/src/components/ui/pretty-code/*.tsx)",
+      "Bash(ls -d /d/code/fe/basuicn-core/src/components/ui/*/)",
+      "Bash(echo \"Exit: $?\")",
+      "WebFetch(domain:recharts.org)",
+      "WebFetch(domain:recharts.github.io)",
+      "Bash(npx eslint:*)",
+      "Bash(sed -n '60,70p' src/components/ui/badge/Badge.tsx)",
+      "Bash(sed -n '72,82p' src/components/ui/button/Button.tsx)",
+      "Bash(sed -n '83,92p' src/components/ui/card/Card.tsx)",
+      "Read(//d D:/code/fe/**)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "Bash(./node_modules/.bin/tsc -p tsconfig.app.json --noEmit)",
+      "Bash(npx --yes typescript tsc --noEmit --pretty false)",
+      "Bash(./node_modules/typescript/bin/tsc --noEmit --pretty false)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

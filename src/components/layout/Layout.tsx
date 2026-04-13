@@ -38,7 +38,7 @@ function LayoutBody({ children }: { children?: React.ReactNode }) {
     <SidebarInset>
       <Header />
       <main className="flex-1 overflow-y-auto bg-muted/10">
-        <div className="p-6 h-[calc(100vh-60px)] overflow-auto max-w-7xl mx-auto">
+        <div className="p-6 h-[calc(100vh-66px)] overflow-auto max-w-full mx-auto">
           {children ?? <Outlet />}
         </div>
       </main>

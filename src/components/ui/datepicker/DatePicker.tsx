@@ -316,7 +316,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     const needsTimePicker = isTimeMode || (mode === 'single' && showTime);
 
     return (
-        <div ref={ref} className={`flex flex-col gap-1.5 w-full ${className || ''}`}>
+        <div ref={ref} className={`flex flex-col gap-1.5 ${className || ''}`}>
             {label && (
                 <label className="text-sm font-medium text-foreground leading-none">
                     {label}
@@ -331,7 +331,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                             type="button"
                             disabled={disabled}
                             className={[
-                                'flex h-10 w-full items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm',
+                                'flex h-10 w-full items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm',
                                 'ring-offset-background transition-shadow',
                                 'hover:border-primary focus:border-primary focus:outline-none',
                                 'disabled:cursor-not-allowed disabled:opacity-50',

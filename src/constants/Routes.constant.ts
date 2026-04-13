@@ -2,6 +2,7 @@ export const GENERAL_PREFIX = "/general";
 export const FORM_PREFIX = "/form";
 export const COMPLEX_PREFIX = "/complex";
 export const OVERLAYS_PREFIX = "/overlays";
+export const DEMO_PREFIX = "/demo";
 
 export const ROUTES_CONSTANT = {
     DASHBOARD: "/",
@@ -46,6 +47,7 @@ export const ROUTES_CONSTANT = {
         SIDEBAR: `${COMPLEX_PREFIX}/sidebar`,
         CODE_SANDBOX: `${COMPLEX_PREFIX}/code-sandbox`,
         RESIZABLE: `${COMPLEX_PREFIX}/resizable`,
+        TABLE_CONTENTS: `${COMPLEX_PREFIX}/table-contents`,
     },
     OVERLAYS: {
         DIALOG: `${OVERLAYS_PREFIX}/dialog`,
@@ -59,6 +61,10 @@ export const ROUTES_CONSTANT = {
         PROGRESS: `${OVERLAYS_PREFIX}/progress`,
         MENU_BAR: `${OVERLAYS_PREFIX}/menu-bar`,
     },
+    DEMO: {
+        LOGIN: `${DEMO_PREFIX}/login`,
+        DASHBOARD: `${DEMO_PREFIX}/dashboard`,
+    }
 
 
 

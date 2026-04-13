@@ -2,27 +2,28 @@ import * as React from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
 
 const badgeVariants = tv({
-  base: 'inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 w-fit',
+  // Kraken: 6–8px radius for badges, not pill-shaped
+  base: 'inline-flex items-center justify-center rounded-md border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 w-fit',
   variants: {
     variant: {
-      default: 'border-transparent bg-primary text-primary-foreground shadow-sm',
-      secondary: 'border-transparent bg-secondary text-secondary-foreground shadow-sm',
+      default: 'border-transparent bg-primary text-primary-foreground shadow-[rgba(0,0,0,0.04)_0px_1px_4px]',
+      secondary: 'border-transparent bg-secondary text-secondary-foreground',
       outline: 'border-border text-foreground hover:bg-muted',
-      success: 'border-transparent bg-success text-success-foreground shadow-sm',
-      warning: 'border-transparent bg-warning text-warning-foreground shadow-sm',
-      danger: 'border-transparent bg-danger text-danger-foreground shadow-sm',
+      success: 'border-transparent bg-success text-success-foreground shadow-[rgba(0,0,0,0.04)_0px_1px_4px]',
+      warning: 'border-transparent bg-warning text-warning-foreground shadow-[rgba(0,0,0,0.04)_0px_1px_4px]',
+      danger: 'border-transparent bg-danger text-danger-foreground shadow-[rgba(0,0,0,0.04)_0px_1px_4px]',
 
-      // Soft variants
-      'soft-primary': 'border-transparent bg-primary/10 text-primary',
-      'soft-success': 'border-transparent bg-success/10 text-success',
-      'soft-warning': 'border-transparent bg-warning/10 text-warning',
-      'soft-danger': 'border-transparent bg-danger/10 text-danger',
+      // Soft variants — Kraken-style: 16% opacity background, dark text
+      'soft-primary': 'border-transparent bg-primary/[0.12] text-primary',
+      'soft-success': 'border-transparent bg-success/[0.16] text-success',
+      'soft-warning': 'border-transparent bg-warning/[0.16] text-warning',
+      'soft-danger':  'border-transparent bg-danger/[0.12] text-danger',
 
       // Glass variant
       glass: 'border border-white/20 bg-white/10 text-foreground backdrop-blur-md shadow-sm',
 
       // Gradient variant
-      gradient: 'border-transparent bg-gradient-to-r from-primary to-indigo-500 text-white shadow-sm',
+      gradient: 'border-transparent bg-gradient-to-r from-primary to-violet-500 text-white shadow-sm',
     },
     size: {
       sm: 'text-[10px] px-2 py-0.5 leading-4',
@@ -61,4 +62,4 @@ const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
 );
 Badge.displayName = 'Badge';
 
-export { Badge, badgeVariants };
+export { Badge };

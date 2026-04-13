@@ -4,14 +4,15 @@ import { tv, type VariantProps } from 'tailwind-variants';
 import { cn } from '@/lib/utils/cn';
 
 const alertVariants = tv({
+  // Kraken: rounded-lg (12px), subtle soft backgrounds
   base: 'relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground',
   variants: {
     variant: {
-      default: 'bg-background text-foreground',
-      destructive: 'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive',
-      success: 'border-success/50 text-success dark:border-success [&>svg]:text-success',
-      warning: 'border-warning/50 text-warning dark:border-warning [&>svg]:text-warning',
-      info: 'border-blue-500/50 text-blue-500 dark:border-blue-500 [&>svg]:text-blue-500',
+      default:     'bg-background text-foreground border-border',
+      destructive: 'border-danger/30 bg-danger/[0.06] text-danger [&>svg]:text-danger',
+      success:     'border-success/30 bg-success/[0.06] text-success [&>svg]:text-success',
+      warning:     'border-warning/30 bg-warning/[0.06] text-warning [&>svg]:text-warning',
+      info:        'border-primary/30 bg-primary/[0.06] text-primary [&>svg]:text-primary',
     }
   },
   defaultVariants: {

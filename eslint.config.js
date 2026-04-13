@@ -26,8 +26,5 @@ export default defineConfig([globalIgnores(['dist']), {
     '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/consistent-type-imports': 'error',
   },
-  plugins: {
-    'react-refresh': reactRefresh,
-  },
 
 }, ...storybook.configs["flat/recommended"]])

@@ -4,7 +4,7 @@ import { tv, type VariantProps } from 'tailwind-variants';
 import { cn } from '@/lib/utils/cn';
 
 const textareaVariants = tv({
-  base: 'flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:ring-0  placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 transition-shadow',
+  base: 'flex min-h-[80px] w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:ring-0 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 transition-shadow',
   variants: {
     variant: {
       default: '',
