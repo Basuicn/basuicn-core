@@ -29,22 +29,18 @@ export interface TextareaProps
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, variant, label, error, description, id, ...props }, ref) => {
-    const defaultId = React.useId();
-    const textareaId = id || defaultId;
-
+  ({ className, variant, label, error, description, ...props }, ref) => {
     return (
       <BaseField.Root className="flex flex-col gap-1.5 w-full">
         {label && (
-          <BaseField.Label htmlFor={textareaId} className="text-sm font-medium text-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <BaseField.Label className="text-sm font-medium text-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             {label}
           </BaseField.Label>
         )}
-        
+
         <BaseField.Control render={
           <textarea
             ref={ref}
-            id={textareaId}
             className={cn(
               textareaVariants({ variant }),
               error && 'border-danger focus-visible:ring-danger',
