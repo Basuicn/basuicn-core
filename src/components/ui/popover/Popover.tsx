@@ -21,15 +21,20 @@ const Popover = BasePopover.Root;
 const PopoverTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ComponentPropsWithoutRef<typeof BasePopover.Trigger>
->(({ children, render, ...props }, ref) => (
-  <BasePopover.Trigger
-    ref={ref}
-    render={render ?? (React.isValidElement(children) ? children : undefined)}
-    {...props}
-  >
-    {React.isValidElement(children) ? undefined : children}
-  </BasePopover.Trigger>
-));
+>(({ children, render: renderProp, ...props }, ref) => {
+  // Wrap pattern: <PopoverTrigger><Button /></PopoverTrigger>
+  // → forward the element as `render` so Base UI merges trigger props into it (no nested <button>)
+  const isElement = React.isValidElement(children);
+  return (
+    <BasePopover.Trigger
+      ref={ref}
+      render={renderProp ?? (isElement ? (children as React.ReactElement) : undefined)}
+      {...props}
+    >
+      {isElement ? undefined : children}
+    </BasePopover.Trigger>
+  );
+});
 PopoverTrigger.displayName = 'PopoverTrigger';
 
 export interface PopoverContentProps
@@ -60,4 +65,4 @@ PopoverContent.displayName = 'PopoverContent';
 
 const PopoverClose = BasePopover.Close;
 
-export { Popover, PopoverTrigger, PopoverContent, PopoverClose, popoverVariants };
+export { Popover, PopoverTrigger, PopoverContent, PopoverClose };
