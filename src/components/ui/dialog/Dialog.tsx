@@ -6,9 +6,9 @@ import { tv, type VariantProps } from 'tailwind-variants';
 const dialogVariants = tv({
   slots: {
     overlay:
-      'fixed inset-0! z-50 bg-black/30 backdrop-blur-sm data-open:animate-in data-close:animate-out data-close:fade-out-0 data-open:fade-in-0',
+      'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
     content:
-      'fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-lg duration-200 data-open:animate-in data-close:animate-out data-close:fade-out-0 data-open:fade-in-0 data-close:zoom-out-95 data-open:zoom-in-95',
+      'fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-background p-6 shadow-lg duration-200 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95',
     header: 'flex flex-col space-y-1.5 text-center sm:text-left',
     footer: 'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-auto',
     title: 'text-lg font-semibold leading-none tracking-tight',
@@ -71,7 +71,7 @@ const DialogClose = BaseDialog.Close;
 /* ─── Content (Portal + Backdrop + Popup + default X button) ─── */
 interface DialogContentProps
   extends Omit<React.ComponentPropsWithoutRef<typeof BaseDialog.Popup>, 'className'>,
-    VariantProps<typeof dialogVariants> {
+  VariantProps<typeof dialogVariants> {
   className?: string;
 }
 

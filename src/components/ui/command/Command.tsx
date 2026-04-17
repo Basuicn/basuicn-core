@@ -13,7 +13,7 @@ const commandVariants = tv({
     content: [
       'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
       'w-full max-w-lg rounded-xl border border-border bg-background shadow-2xl',
-      'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-open:slide-in-from-left-1/2 data-open:slide-in-from-top-[48%]',
+      'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 ',
       'data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
       'overflow-hidden flex flex-col max-h-[min(80vh,460px)]',
     ].join(' '),
@@ -236,5 +236,4 @@ export {
   CommandEmpty,
   CommandSeparator,
   CommandShortcut,
-  commandVariants,
 };
