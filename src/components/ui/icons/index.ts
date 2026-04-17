@@ -64,4 +64,8 @@ export {
   GalleryHorizontal,
   KeyRound,
   PackageOpen,
+  Terminal,
+  Upload,
+  GitBranch,
+  FolderTree,
 } from 'lucide-react';

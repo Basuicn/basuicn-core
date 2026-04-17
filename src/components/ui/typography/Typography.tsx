@@ -2,6 +2,7 @@ import * as React from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
 import { cn } from '@/lib/utils/cn';
 import { Copy, Check, ExternalLink } from 'lucide-react';
+import { useCopy } from '@/hooks/useCopy';
 
 // ─── Shared text style variants ───────────────────────────────────────────────
 
@@ -60,20 +61,6 @@ const textVariants = tv({
     color: 'default',
   },
 });
-
-// ─── useCopy hook ─────────────────────────────────────────────────────────────
-
-function useCopy() {
-  const [copied, setCopied] = React.useState(false);
-  const copy = React.useCallback(async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch { /* noop */ }
-  }, []);
-  return { copied, copy };
-}
 
 // ─── Text ─────────────────────────────────────────────────────────────────────
 

@@ -48,6 +48,11 @@ import InputOTPPage from './src/pages/InputOTPPage';
 import CodeSandboxPage from './src/pages/CodeSandboxPage';
 import ResizablePage from './src/pages/ResizablePage';
 import EmptyPage from './src/pages/EmptyPage';
+import TimelinePage from './src/pages/TimelinePage';
+import CommandPage from './src/pages/CommandPage';
+import FileUploadPage from './src/pages/FileUploadPage';
+import NumberInputPage from './src/pages/NumberInputPage';
+import TreeViewPage from './src/pages/TreeViewPage';
 import TableContentsPage from './src/pages/TableContentsPage';
 import LoginPage from './src/pages/form-login/LoginPage';
 import { FORM_PREFIX, GENERAL_PREFIX, ROUTES_CONSTANT } from '@/constants/Routes.constant';
@@ -180,6 +185,13 @@ export const ROUTES: RouteConfig[] = [
         icon: <Icon.PackageOpen className="w-4 h-4" />,
         element: <EmptyPage />,
       },
+      {
+        path: ROUTES_CONSTANT.GENERAL.TIMELINE,
+        label: 'Timeline',
+        icon: <Icon.GitBranch className="w-4 h-4" />,
+        element: <TimelinePage />,
+        badge: 'New',
+      },
     ]
   },
 
@@ -256,7 +268,20 @@ export const ROUTES: RouteConfig[] = [
         icon: <Icon.KeyRound className="w-4 h-4" />,
         element: <InputOTPPage />,
       },
-
+      {
+        path: ROUTES_CONSTANT.FORM.NUMBER_INPUT,
+        label: 'Number Input',
+        icon: <Icon.Hash className="w-4 h-4" />,
+        element: <NumberInputPage />,
+        badge: 'New',
+      },
+      {
+        path: ROUTES_CONSTANT.FORM.FILE_UPLOAD,
+        label: 'File Upload',
+        icon: <Icon.Upload className="w-4 h-4" />,
+        element: <FileUploadPage />,
+        badge: 'New',
+      },
     ]
   },
 
@@ -332,6 +357,22 @@ export const ROUTES: RouteConfig[] = [
     icon: <Icon.ScrollText className="w-4 h-4" />,
     element: <TableContentsPage />,
     category: 'complex',
+  },
+  {
+    path: ROUTES_CONSTANT.COMPLEX.COMMAND,
+    label: 'Command',
+    icon: <Icon.Terminal className="w-4 h-4" />,
+    element: <CommandPage />,
+    category: 'complex',
+    badge: 'New',
+  },
+  {
+    path: ROUTES_CONSTANT.COMPLEX.TREE_VIEW,
+    label: 'Tree View',
+    icon: <Icon.FolderTree className="w-4 h-4" />,
+    element: <TreeViewPage />,
+    category: 'complex',
+    badge: 'New',
   },
 
 

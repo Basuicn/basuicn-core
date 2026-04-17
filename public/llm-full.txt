@@ -1,0 +1,298 @@
+# basuicn — Full Reference
+
+> React component library showcase & CLI tool (v0.2.5). Built on @base-ui/react headless primitives, styled with tailwind-variants. Ships `basuicn add <component>` CLI to copy-install components into consumer projects.
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19.2 + Vite 6 |
+| Language | TypeScript (strict) |
+| Primitives | @base-ui/react 1.3 |
+| Styling | Tailwind CSS v4.2 + tailwind-variants 3.2 + tailwind-merge 3.5 |
+| Routing | react-router-dom 7.13 |
+| Forms | react-hook-form 7.72 + zod 4.3 |
+| Tables | @tanstack/react-table 8.21 + @tanstack/react-virtual 3.13 |
+| Charts | recharts 3.8 |
+| Icons | lucide-react 0.577 |
+| Dates | date-fns 4.1 + react-day-picker 9.14 |
+| Toast | sonner 2.0 |
+| Carousel | keen-slider 6.8 |
+| Code | shiki 4.0 + @codesandbox/sandpack-react 2.20 |
+| Panels | react-resizable-panels 4.8 |
+| Testing | Vitest 4.1 + Testing Library + Storybook 10.3 |
+| Compiler | babel-plugin-react-compiler (auto-memoization) |
+
+## Architecture
+
+### Project Type
+Vite SPA (client-side rendering only). NOT Next.js — no server components, no `"use client"`.
+
+### Path Aliases
+- `@` → `src/`
+- `@components` → `src/components/`
+- `@lib` → `src/lib/`
+- `@pages` → `src/pages/`
+- `@assets` → `src/assets/`
+
+### Routing
+`routes.tsx` is the single source of truth. It exports `ROUTES: RouteConfig[]` consumed by `App.tsx` (renders `<Route>`) and `AppSidebar.tsx` (renders nav items). Route constants live in `src/constants/Routes.constant.ts`.
+
+```
+RouteConfig {
+  path: string
+  label: string
+  icon?: ReactNode
+  element?: ReactNode
+  category?: string    // 'overview' | 'general' | 'forms' | 'complex' | 'overlays' | 'demo'
+  badge?: string       // e.g. 'New'
+  children?: RouteConfig[]
+}
+```
+
+### Component Pattern
+Every UI component follows:
+
+```tsx
+import { tv, type VariantProps } from 'tailwind-variants';
+import { SomePrimitive } from '@base-ui/react';
+import { cn } from '@/lib/utils/cn';
+
+const myVariants = tv({
+  base: '...',
+  variants: { variant: {...}, size: {...} },
+  defaultVariants: { ... }
+});
+
+export const MyComponent = React.forwardRef<HTMLElement, MyProps>(
+  ({ className, variant, size, ...props }, ref) => (
+    <SomePrimitive
+      className={myVariants({ variant, size, className: className || '' })}
+      {...props}
+      ref={ref}
+    />
+  )
+);
+```
+
+Key rules:
+- Always `forwardRef`
+- Always `tailwind-variants` (tv()) for variants
+- Always `@base-ui/react` primitives when available
+- Class merging via `cn()` (clsx + tailwind-merge)
+- No Radix UI, no shadcn/ui
+
+### Showcase Page Pattern
+Pages in `src/pages/` use layout helpers from `src/components/ui/Showcase.tsx`:
+
+```tsx
+import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase';
+
+const MyPage = () => (
+  <div className="max-w-5xl">
+    <PageHeader title="Component Name" description="Description text." />
+    <ShowcaseCard title="Demo Name" description="What this shows.">
+      {/* Component demos here */}
+    </ShowcaseCard>
+  </div>
+);
+export default MyPage;
+```
+
+### Theme System
+Themes defined in `src/lib/theme/themes.ts` as plain JS objects (hex colors). CSS variables auto-generated in `src/styles/index.css` via `npm run theme:sync`. At runtime, `applyTheme()` injects a `<style>` tag. Dark mode uses `.dark` class on `<html>`.
+
+Design tokens (Kraken-inspired):
+- Primary: `#7132f5` (purple), dark: `#5741d8`, deep: `#5b1ecf`
+- Text: `#101114` (near-black)
+- Neutral: `#686b82` (cool gray), `#9497a9` (silver blue)
+- Success: `#149e61`, Warning: amber, Danger: red
+- Border radius: 12px (buttons), 16px (cards)
+- Shadow: `rgba(0,0,0,0.03) 0px 4px 24px` (whisper-level)
+
+### Registry & CLI
+`registry.json` maps component names → source files + dependencies. CLI command `basuicn add <component>` reads this to copy files into consumer projects. Run `npm run registry:build` after adding/modifying components.
+
+### Layout Components
+- `DashboardLayout` — outer shell: AppSidebar + scrollable main via `<Outlet />`
+- `AppSidebar` — reads ROUTES, renders sidebar nav
+- `SidebarNavItem` — collapsible groups or nav links
+
+## Components Reference
+
+### General (17 components)
+
+**Accordion** — `src/components/ui/accordion/Accordion.tsx`
+Collapsible content sections. Built on @base-ui/react Accordion. Exports: Accordion, AccordionItem, AccordionTrigger, AccordionContent. Chevron animation, optional hideChevron.
+
+**Alert** — `src/components/ui/alert/Alert.tsx`
+Status messages with `role="alert"`. Variants: default, destructive, success, warning, info. Exports: Alert, AlertTitle, AlertDescription.
+
+**AspectRatio** — `src/components/ui/aspect-ratio/AspectRatio.tsx`
+CSS padding-bottom trick for aspect ratio. Default ratio: 1 (square).
+
+**Avatar** — `src/components/ui/avatar/Avatar.tsx`
+Profile image. Sizes: sm, md, lg, xl. Image error fallback shows first 2 chars.
+
+**Badge** — `src/components/ui/badge/Badge.tsx`
+Labels. 12 variants: default, secondary, outline, success, warning, danger, soft-primary/success/warning/danger, glass, gradient. Sizes: sm, md, lg. Optional pulse animation.
+
+**Breadcrumb** — `src/components/ui/breadcrumb/Breadcrumb.tsx`
+Navigation trail. Semantic `<nav aria-label="breadcrumb">`. Exports: Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis.
+
+**Button** — `src/components/ui/button/Button.tsx`
+Built on @base-ui/react Button. 12 variants: solid, outline, ghost, secondary, danger, link, glass, glass-white/amber/green/purple/pink. 5 sizes: sm, md, lg, icon, icon-sm. leftIcon/rightIcon, isLoading with Spinner.
+
+**Calendar** — `src/components/ui/calendar/Calendar.tsx`
+Date grid using react-day-picker. Modes: single, range, multiple. Locale support, disable past/future, sizes: sm, md, lg.
+
+**Carousel** — `src/components/ui/carousel/Carousel.tsx`
+keen-slider based. Plugins: AutoPlay, WheelControls, Mutation, 3D, Resize. Exports: Carousel, CarouselSlide, CarouselPrev, CarouselNext, CarouselDots, CarouselProgress, CarouselCounter.
+
+**EmptyState** — `src/components/ui/empty/Empty.tsx`
+13 presets: users, documents, notifications, search, data, inbox, orders, messages, images, folders, stats, offline, general. Sizes: sm, md, lg. Custom icon/title/description/action.
+
+**PreviewCard** — `src/components/ui/preview-card/PreviewCard.tsx`
+Hover preview card with image, title, description.
+
+**Rate** — `src/components/ui/rate/Rate.tsx`
+Star rating. Controlled/uncontrolled, half-star support, custom icon, readonly mode.
+
+**Separator** — `src/components/ui/separator/Separator.tsx`
+Divider. Orientations: horizontal, vertical. Variants: default, muted, primary, dashed. Supports decorative vs semantic (role="separator").
+
+**Skeleton** — `src/components/ui/skeleton/Skeleton.tsx`
+Loading placeholder. Variants: default, muted. Rounded: none, sm, md, lg, full. `aria-hidden="true"`.
+
+**Spinner** — `src/components/ui/spinner/Spinner.tsx`
+Loading indicator. Sizes and color variants.
+
+**Timeline** — `src/components/ui/timeline/Timeline.tsx`
+Event sequence. Data-driven via `items: TimelineItemData[]`. Variants: default, primary, success, warning, danger. Sizes: sm, md, lg. Each item can have icon, title, description, time.
+
+**Toggle** — `src/components/ui/toggle/Toggle.tsx`
+Pressable button. Variants: default, outline, solid, ghost. Sizes: sm, md, lg, icon. ToggleGroup for single/multiple selection. `aria-pressed`.
+
+**Typography** — `src/components/ui/typography/Typography.tsx`
+10 sub-components: Text (with copyable, gradient, mark, truncate, lines, code), Heading (level 1-6), Paragraph, Lead, Blockquote (with cite), Code (inline, copyable), Kbd (keyboard shortcuts), Link (external support), Mark (highlight).
+
+### Forms (13 components)
+
+**Autocomplete** — `src/components/ui/autocomplete/Autocomplete.tsx`
+Search input with filtered suggestions dropdown.
+
+**Checkbox** — `src/components/ui/checkbox/Checkbox.tsx`
+Built on @base-ui/react Checkbox. Sizes: sm, md, lg. Indeterminate state. Optional label, htmlFor association.
+
+**ComboBox** — `src/components/ui/combobox/ComboBox.tsx`
+Searchable select with filtering.
+
+**DatePicker** — `src/components/ui/datepicker/DatePicker.tsx`
+Built on @base-ui/react Popover + react-day-picker. Modes: single, range, time-only. Time formats: HH, HH:mm, HH:mm:ss. Time picker styles: input or select dropdowns. Locale prop (default: vi). Sub-files: TimePicker.tsx, time-helpers.ts.
+
+**FileUpload** — `src/components/ui/file-upload/FileUpload.tsx`
+Drag-and-drop zone. Props: accept, multiple, maxSize, maxFiles. File list with remove. Sizes: sm, md, lg. Custom children for dropzone content. Validation with onError callback.
+
+**Form** — `src/components/ui/form/Form.tsx`
+react-hook-form integration. Exports: Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage. Auto aria-describedby and aria-invalid.
+
+**Input** — `src/components/ui/input/Input.tsx`
+Built on @base-ui/react Input + Field. Variants: default, filled, flushed. Password toggle. Start/end icons. Label, description, error.
+
+**InputOTP** — `src/components/ui/input-otp/InputOtp.tsx`
+OTP input. 4 variants: outline, filled, underline, glass. 3 shapes: square, rounded, circle. 3 sizes: sm, md, lg. Paste support, auto-submit, mask, keyboard navigation. Logic extracted to useInputOTP hook.
+
+**NumberInput** — `src/components/ui/number-input/NumberInput.tsx`
+Built on @base-ui/react NumberField. Stepper +/- buttons. Sizes: sm, md, lg. Props: min, max, step, disabled, label, description, error.
+
+**Radio** — `src/components/ui/radio/Radio.tsx`
+Built on @base-ui/react Radio. Variants: default (circular), card (full-width). Sizes: sm, md, lg.
+
+**Select** — `src/components/ui/select/Select.tsx`
+Built on @base-ui/react Select. Clearable, animated, error state. MultiSelect variant in MultiSelect.tsx with tag display and maxTags.
+
+**Slider** — `src/components/ui/slider/Slider.tsx`
+Built on @base-ui/react Slider. Optional tooltip, multi-thumb, controlled/uncontrolled.
+
+**Switch** — `src/components/ui/switch/Switch.tsx`
+Built on @base-ui/react Switch. Sizes: sm, md. Optional label.
+
+**Textarea** — `src/components/ui/textarea/Textarea.tsx`
+Built on @base-ui/react Field. Variants: default, filled. Label, description, error.
+
+### Complex (12 components)
+
+**Command** — `src/components/ui/command/Command.tsx`
+Command palette (Cmd+K). Built on @base-ui/react Dialog. Exports: Command, CommandInput, CommandList, CommandGroup, CommandItem, CommandEmpty, CommandSeparator, CommandShortcut. Search filtering, keyboard navigation, disabled items.
+
+**DataTable** — `src/components/ui/table/Table.tsx`
+Full-featured via @tanstack/react-table. Features: sorting, client/server pagination, row selection, expanding rows, column resizing, virtualization (@tanstack/react-virtual). Sub-files: TableHeader.tsx, TableBody.tsx, TablePagination.tsx. i18n labels.
+
+**Resizable** — `src/components/ui/resizable/Resizable.tsx`
+Panel dividers via react-resizable-panels. Handle variants: line, bar, handle, ghost. Exports: ResizablePanelGroup, ResizablePanel, ResizableHandle.
+
+**Sidebar** — `src/components/ui/sidebar/`
+Multi-file: Sidebar.tsx, SidebarContext.tsx, SidebarLayout.tsx, SidebarMenu.tsx, SidebarUserMenu.tsx. Collapsible modes: offcanvas, icon, none. Keyboard shortcut Cmd+B. Resizable width 160-480px.
+
+**TreeView** — `src/components/ui/tree-view/TreeView.tsx`
+Hierarchical data. Data-driven via `data: TreeNode[]`. Recursive rendering, expand/collapse, keyboard nav (Arrow keys, Enter, Space). Custom icons per node. `defaultExpanded` prop.
+
+**CodeSandbox** — `src/components/ui/code-sandbox/`
+Live code editor. Built on @codesandbox/sandpack-react. Sub-files: SandboxLayout, SandboxActivityBar, SandboxToolbar, SandboxStatusBar, SearchPanel, DependencyPanel, TerminalPane, FileTree.
+
+### Overlays (10 components)
+
+**Dialog** — `src/components/ui/dialog/Dialog.tsx`
+Built on @base-ui/react Dialog. Centered modal + fullscreen variant. Backdrop blur. Exports: Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose.
+
+**AlertDialog** — `src/components/ui/alert-dialog/AlertDialog.tsx`
+Confirmation modal. Built on @base-ui/react AlertDialog. Same export pattern as Dialog.
+
+**Drawer** — `src/components/ui/drawer/Drawer.tsx`
+Slide-in panel. 4 directions: left, right, top, bottom. 4 sizes: sm, md, lg, full. Backdrop blur.
+
+**Sheet** — `src/components/ui/sheet/Sheet.tsx`
+Wrapper around Drawer, defaults to direction="right" size="lg".
+
+**DropdownMenu** — `src/components/ui/dropdown-menu/DropdownMenu.tsx`
+Built on @base-ui/react Menu. Submenu support, checkbox/radio items, keyboard shortcuts. 14 exported sub-components.
+
+**ContextMenu** — `src/components/ui/context-menu/ContextMenu.tsx`
+Right-click menu. Checkbox/radio items, keyboard navigation, viewport clamping.
+
+**MenuBar** — `src/components/ui/menu-bar/MenuBar.tsx`
+Application menu bar. Built on @base-ui/react Menu. Config-driven API via `MenuBarNav` + `menus` prop. Unlimited submenu depth, active route detection.
+
+**Popover** — `src/components/ui/popover/Popover.tsx`
+Built on @base-ui/react Popover. Optional arrow, configurable positioning.
+
+**Tooltip** — `src/components/ui/tooltip/Tooltip.tsx`
+Built on @base-ui/react Tooltip. `role="tooltip"`, optional arrow, side positioning.
+
+**Progress** — `src/components/ui/progress/Progress.tsx`
+Built on @base-ui/react Progress. Variants: default, success, warning, danger, gradient. Striped + animated. Label positions: inside, outside, none.
+
+## Adding a New Component
+
+1. Create `src/components/ui/<name>/<Name>.tsx` following the component pattern
+2. Add route constant to `src/constants/Routes.constant.ts`
+3. Create showcase page at `src/pages/<Name>Page.tsx`
+4. Add route entry to `routes.tsx` (import page, add to correct category)
+5. Export from `src/components/ui/index.ts`
+6. Add icons to `src/components/ui/icons/index.ts` if needed
+7. Run `npm run registry:build`
+
+## Commands
+
+```bash
+npm run dev              # Dev server :3000
+npm run build            # tsc -b && vite build
+npm run lint             # ESLint
+npm run test             # Vitest (watch)
+npm run test:coverage    # Coverage report
+npm run storybook        # Storybook :6006
+npm run registry:build   # Rebuild registry.json
+npm run theme:sync       # Re-gen CSS vars from themes.ts
+npm run build:cli        # Build CLI (dist/ui-cli.cjs)
+npx vitest run src/path/to/test.tsx  # Single test file
+```

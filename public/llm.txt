@@ -1,0 +1,110 @@
+# basuicn
+
+> React component library showcase & CLI tool. Built on @base-ui/react headless primitives, styled with tailwind-variants. Ships `basuicn add <component>` CLI to copy-install components into consumer projects.
+
+- Version: 0.2.5
+- Stack: React 19 + Vite + TypeScript
+- Styling: Tailwind CSS v4 + tailwind-variants (tv())
+- Primitives: @base-ui/react (NOT Radix/shadcn)
+- Icons: lucide-react
+
+## Docs
+
+- [Architecture](/CLAUDE.md): Routing, component patterns, theme system, CLI, testing setup
+- [Design System](/.claude/DESIGN.md): Kraken-inspired color palette, typography, spacing, component stylings
+- [Rules](/.claude/RULE.md): Coding conventions and constraints
+- [Vite Workflow](/.claude/REACT-VITE-WORKFLOW.md): Tech stack, file structure, state management, security
+- [Frontend Design](/.claude/FE_WORKFLOW.md): Visual design principles and quality gates
+
+## Components (57)
+
+### General
+- [Accordion](/general/accordion): Collapsible content sections
+- [Alert](/general/alert): Status messages — default, destructive, success, warning, info
+- [AspectRatio](/general/aspect-ratio): Maintain width/height ratio
+- [Avatar](/general/avatar): User profile image with fallback
+- [Badge](/general/badge): Labels — solid, soft, outline, glass, gradient variants
+- [Breadcrumb](/general/breadcrumb): Navigation trail with semantic ARIA
+- [Button](/general/button): 12 variants (solid, outline, ghost, glass, etc.), 5 sizes, loading state
+- [Calendar](/general/calendar): Date picker grid — single, range, multiple modes
+- [Carousel](/general/carousel): Slide-based content — keen-slider, autoplay, 3D, dots, progress
+- [EmptyState](/general/empty): 13 presets for no-data states with actions
+- [PreviewCard](/general/preview-card): Hover preview card
+- [Rate](/general/rate): Star rating input
+- [Separator](/general/separator): Visual divider — horizontal, vertical, dashed
+- [Skeleton](/general/skeleton): Loading placeholder animation
+- [Spinner](/general/spinner): Loading indicator
+- [Timeline](/general/timeline): Event sequence display — 5 variants, 3 sizes
+- [Toggle](/general/toggle): Pressable on/off — single and group modes
+- [Typography](/general/typography): Text, Heading, Paragraph, Lead, Blockquote, Code, Kbd, Link, Mark
+
+### Forms
+- [Autocomplete](/form/autocomplete): Searchable input with suggestions
+- [Checkbox](/form/checkbox): Check/uncheck with indeterminate state
+- [ComboBox](/form/combobox): Searchable select dropdown
+- [DatePicker](/form/datepicker): Date/time picker — single, range, time-only modes
+- [FileUpload](/form/file-upload): Drag-and-drop upload with validation
+- [Form](/form): react-hook-form integration with auto error display
+- [Input](/form/input): Text input — default, filled, flushed variants, password toggle
+- [InputOTP](/form/input-otp): One-time-password — 4 variants, 3 shapes, paste support
+- [NumberInput](/form/number-input): Stepper input — @base-ui/react NumberField, 3 sizes
+- [Radio](/form/radio): Radio buttons — default and card variants
+- [Select](/form/select): Single and multi-select dropdowns
+- [Slider](/form/slider): Range input with tooltip
+- [Switch](/form/switch): Toggle switch — 2 sizes
+- [Textarea](/form/textarea): Multi-line text input
+
+### Complex
+- [Accordion](/complex/accordion): Expandable panels
+- [CodeSandbox](/complex/code-sandbox): Live code editor with preview
+- [Collapsible](/complex/collapsible): Show/hide content
+- [Command](/complex/command): Command palette (Cmd+K) — search, groups, shortcuts
+- [DataTable](/complex/table): Full-featured table — sorting, pagination, row selection, virtualization, column resize
+- [Pagination](/complex/pagination): Page navigation controls
+- [Resizable](/complex/resizable): Draggable panel dividers — 4 handle variants
+- [ScrollArea](/complex/scroll-area): Custom scrollbar styling
+- [Sidebar](/complex/sidebar): Collapsible navigation — offcanvas, icon modes, keyboard shortcut
+- [TableOfContents](/complex/table-contents): Document section navigation
+- [Tabs](/complex/tabs): Tabbed interface with animated indicator
+- [TreeView](/complex/tree-view): Hierarchical data display with expand/collapse
+
+### Overlays
+- [AlertDialog](/overlays/alert-dialog): Confirmation modal
+- [ContextMenu](/overlays/context-menu): Right-click menu with checkbox/radio items
+- [Dialog](/overlays/dialog): Modal window — centered and fullscreen
+- [Drawer](/overlays/drawer): Slide-in panel — 4 directions, 4 sizes
+- [DropdownMenu](/overlays/dropdown-menu): Click-triggered menu with submenus
+- [MenuBar](/overlays/menu-bar): Application menu bar — config-driven API
+- [Popover](/overlays/popover): Floating content panel
+- [Progress](/overlays/progress): Progress bar — striped, animated, gradient
+- [Sheet](/overlays/sheet): Side panel (Drawer wrapper)
+- [Tooltip](/overlays/tooltip): Hover information popup
+
+## CLI
+
+```bash
+npx basuicn add <component>   # Copy-install a component into your project
+```
+
+Registry at `registry.json` maps component names to source files and dependencies.
+
+## Theme
+
+Kraken-inspired design system:
+- Primary: `#7132f5` (Kraken Purple)
+- Text: `#101114` (near-black)
+- Radius: 12px buttons, 16px cards
+- Fonts: Kraken-Brand (display) + Kraken-Product (body)
+- Dark mode via `.dark` class on `<html>`
+
+## Dev
+
+```bash
+npm run dev              # Vite dev server :3000
+npm run build            # TypeScript + Vite production build
+npm run lint             # ESLint
+npm run test             # Vitest
+npm run storybook        # Storybook :6006
+npm run registry:build   # Rebuild registry.json
+npm run theme:sync       # Re-generate CSS variables from themes.ts
+```

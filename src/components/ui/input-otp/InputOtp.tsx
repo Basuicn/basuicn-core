@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
 import { cn } from '@/lib/utils/cn';
+import { useInputOTP, getSeparatorPositions } from './useInputOTP';
 
 // ─── Variants ────────────────────────────────────────────────────────────────
 
@@ -78,70 +79,56 @@ type SeparatorType = 'dash' | 'dot' | 'space' | React.ReactNode;
 export interface InputOTPProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'inputMode'>,
     VariantProps<typeof inputOTPVariants> {
-  /** Total number of OTP slots */
   length?: number;
-  /** Current value (controlled) */
   value?: string;
-  /** Default value (uncontrolled) */
   defaultValue?: string;
-  /** Fired on every value change */
   onChange?: (value: string) => void;
-  /** Fired when all slots are filled */
   onComplete?: (value: string) => void;
-  /** What characters are allowed */
   inputMode?: InputMode;
-  /** Custom regex pattern when inputMode='custom' */
   pattern?: RegExp;
-  /** Mask character for entered values (e.g. '*' for password-style) */
   mask?: string | boolean;
-  /** Disable the entire input */
   disabled?: boolean;
-  /** Show error state */
   error?: boolean;
-  /** Error message */
   errorMessage?: string;
-  /** Label */
   label?: string;
-  /** Description */
   description?: string;
-  /** Auto focus on mount */
   autoFocus?: boolean;
-  /** Separator config: insert separator after these indices, or every N slots */
   separatorAfter?: number[] | number;
-  /** Separator visual */
   separator?: SeparatorType;
-  /** Auto-submit on complete */
   autoSubmit?: boolean;
-  /** Slot className override */
   slotClassName?: string;
-  /** Render filled slots with success style */
   successOnComplete?: boolean;
-  /** Placeholder per slot */
   placeholder?: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Separator Renderer ─────────────────────────────────────────────────────
 
-const INPUT_PATTERNS: Record<Exclude<InputMode, 'custom'>, RegExp> = {
-  numeric: /^[0-9]$/,
-  alphanumeric: /^[a-zA-Z0-9]$/,
-  alpha: /^[a-zA-Z]$/,
-};
-
-function getPattern(mode: InputMode, custom?: RegExp): RegExp {
-  if (mode === 'custom' && custom) return custom;
-  return INPUT_PATTERNS[mode as Exclude<InputMode, 'custom'>] ?? INPUT_PATTERNS.numeric;
+function renderSeparatorContent(separator: SeparatorType) {
+  if (separator === 'dash') return <span>&ndash;</span>;
+  if (separator === 'dot') return <span>&bull;</span>;
+  if (separator === 'space') return <span>&nbsp;&nbsp;</span>;
+  return separator;
 }
 
-function getSeparatorPositions(config: number[] | number | undefined, length: number): Set<number> {
-  if (!config) return new Set();
-  if (Array.isArray(config)) return new Set(config);
-  // every N slots
-  const positions = new Set<number>();
-  for (let i = config - 1; i < length - 1; i += config) {
-    positions.add(i);
+// ─── Display Char ───────────────────────────────────────────────────────────
+
+function getDisplayChar(
+  char: string,
+  index: number,
+  mask: string | boolean | undefined,
+  placeholder: string | undefined,
+) {
+  if (char === '') {
+    if (placeholder && placeholder[index]) {
+      return <span className="text-muted-foreground/50 font-normal">{placeholder[index]}</span>;
+    }
+    return null;
   }
-  return positions;
+  if (mask) {
+    const maskChar = typeof mask === 'string' ? mask : '\u2022';
+    return <span>{maskChar}</span>;
+  }
+  return <span>{char}</span>;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -177,170 +164,31 @@ const InputOTP = React.forwardRef<HTMLDivElement, InputOTPProps>(
     },
     ref,
   ) => {
-    const isControlled = controlledValue !== undefined;
-    const [internalValue, setInternalValue] = React.useState(defaultValue);
-    const currentValue = isControlled ? controlledValue : internalValue;
-
-    const [focusedIndex, setFocusedIndex] = React.useState<number | null>(null);
-    const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
     const rootId = React.useId();
-
-    const pat = getPattern(inputMode, customPattern);
-    const separatorPositions = getSeparatorPositions(separatorAfter, length);
     const slots = inputOTPVariants({ variant, size, shape });
+    const separatorPositions = getSeparatorPositions(separatorAfter, length);
 
-    const chars = React.useMemo(() => {
-      const arr = currentValue.split('');
-      while (arr.length < length) arr.push('');
-      return arr.slice(0, length);
-    }, [currentValue, length]);
-
-    const isComplete = chars.every((c) => c !== '');
-
-    // ─── Value helpers ─────────────────────────────────────────────────
-
-    const updateValue = React.useCallback(
-      (newChars: string[]) => {
-        const val = newChars.join('');
-        if (!isControlled) setInternalValue(val);
-        onChange?.(val);
-        if (val.length === length && newChars.every((c) => c !== '')) {
-          onComplete?.(val);
-        }
-      },
-      [isControlled, onChange, onComplete, length],
-    );
-
-    const focusSlot = React.useCallback((index: number) => {
-      const clamped = Math.max(0, Math.min(index, length - 1));
-      inputRefs.current[clamped]?.focus();
-    }, [length]);
-
-    // ─── Handlers ──────────────────────────────────────────────────────
-
-    const handleInput = React.useCallback(
-      (index: number, char: string) => {
-        if (!pat.test(char)) return;
-        const next = [...chars];
-        next[index] = char;
-        updateValue(next);
-        if (index < length - 1) {
-          focusSlot(index + 1);
-        }
-      },
-      [chars, pat, updateValue, length, focusSlot],
-    );
-
-    const handleKeyDown = React.useCallback(
-      (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-        switch (e.key) {
-          case 'Backspace': {
-            e.preventDefault();
-            const next = [...chars];
-            if (chars[index] !== '') {
-              next[index] = '';
-              updateValue(next);
-            } else if (index > 0) {
-              next[index - 1] = '';
-              updateValue(next);
-              focusSlot(index - 1);
-            }
-            break;
-          }
-          case 'Delete': {
-            e.preventDefault();
-            const next = [...chars];
-            next[index] = '';
-            updateValue(next);
-            break;
-          }
-          case 'ArrowLeft':
-            e.preventDefault();
-            if (index > 0) focusSlot(index - 1);
-            break;
-          case 'ArrowRight':
-            e.preventDefault();
-            if (index < length - 1) focusSlot(index + 1);
-            break;
-          case 'Home':
-            e.preventDefault();
-            focusSlot(0);
-            break;
-          case 'End':
-            e.preventDefault();
-            focusSlot(length - 1);
-            break;
-        }
-      },
-      [chars, updateValue, focusSlot, length],
-    );
-
-    const handlePaste = React.useCallback(
-      (e: React.ClipboardEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        const pasted = e.clipboardData.getData('text/plain').trim();
-        const next = [...chars];
-        let cursor = focusedIndex ?? 0;
-        for (const ch of pasted) {
-          if (cursor >= length) break;
-          if (pat.test(ch)) {
-            next[cursor] = ch;
-            cursor++;
-          }
-        }
-        updateValue(next);
-        focusSlot(Math.min(cursor, length - 1));
-      },
-      [chars, focusedIndex, length, pat, updateValue, focusSlot],
-    );
-
-    // ─── Auto focus ────────────────────────────────────────────────────
-
-    React.useEffect(() => {
-      if (autoFocus) {
-        const firstEmpty = chars.findIndex((c) => c === '');
-        focusSlot(firstEmpty === -1 ? 0 : firstEmpty);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    // ─── Auto submit ───────────────────────────────────────────────────
-
-    React.useEffect(() => {
-      if (autoSubmit && isComplete) {
-        const form = inputRefs.current[0]?.closest('form');
-        if (form) {
-          form.requestSubmit();
-        }
-      }
-    }, [autoSubmit, isComplete]);
-
-    // ─── Render separator ──────────────────────────────────────────────
-
-    const renderSeparator = () => {
-      if (separator === 'dash') return <span>&ndash;</span>;
-      if (separator === 'dot') return <span>&bull;</span>;
-      if (separator === 'space') return <span>&nbsp;&nbsp;</span>;
-      return separator;
-    };
-
-    // ─── Render display char ───────────────────────────────────────────
-
-    const getDisplayChar = (char: string, index: number) => {
-      if (char === '') {
-        if (placeholder && placeholder[index]) {
-          return <span className="text-muted-foreground/50 font-normal">{placeholder[index]}</span>;
-        }
-        return null;
-      }
-      if (mask) {
-        const maskChar = typeof mask === 'string' ? mask : '\u2022';
-        return <span>{maskChar}</span>;
-      }
-      return <span>{char}</span>;
-    };
-
-    // ─── Render ────────────────────────────────────────────────────────
+    const {
+      chars,
+      isComplete,
+      focusedIndex,
+      setFocusedIndex,
+      inputRefs,
+      focusSlot,
+      handleInput,
+      handleKeyDown,
+      handlePaste,
+    } = useInputOTP({
+      length,
+      controlledValue,
+      defaultValue,
+      onChange,
+      onComplete,
+      inputMode,
+      pattern: customPattern,
+      autoFocus,
+      autoSubmit,
+    });
 
     return (
       <div ref={ref} className="flex flex-col gap-1.5" {...props}>
@@ -395,14 +243,12 @@ const InputOTP = React.forwardRef<HTMLDivElement, InputOTPProps>(
                     onKeyDown={(e) => handleKeyDown(i, e)}
                     onPaste={handlePaste}
                   />
-                  {/* Display */}
                   <div
                     className="flex items-center justify-center w-full h-full cursor-text"
                     onClick={() => !disabled && focusSlot(i)}
                   >
-                    {getDisplayChar(chars[i], i)}
+                    {getDisplayChar(chars[i], i, mask, placeholder)}
                   </div>
-                  {/* Caret */}
                   {isFocused && !isFilled && !disabled && (
                     <div className={slots.caret()}>
                       <div className={slots.caretBlink()} />
@@ -410,10 +256,9 @@ const InputOTP = React.forwardRef<HTMLDivElement, InputOTPProps>(
                   )}
                 </div>
 
-                {/* Separator */}
                 {separatorPositions.has(i) && (
                   <div className={slots.separator()} aria-hidden="true">
-                    {renderSeparator()}
+                    {renderSeparatorContent(separator)}
                   </div>
                 )}
               </React.Fragment>

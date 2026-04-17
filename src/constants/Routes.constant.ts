@@ -23,6 +23,7 @@ export const ROUTES_CONSTANT = {
         CAROUSEL: "/carousel",
         TYPOGRAPHY: "/typography",
         EMPTY: "/empty",
+        TIMELINE: "/timeline",
     },
     FORM: {
         INPUT: "/input",
@@ -36,6 +37,8 @@ export const ROUTES_CONSTANT = {
         SWITCH: "/switch",
         SLIDER: "/slider",
         INPUT_OTP: "/input-otp",
+        NUMBER_INPUT: "/number-input",
+        FILE_UPLOAD: "/file-upload",
     },
     COMPLEX: {
         PAGINATION: `${COMPLEX_PREFIX}/pagination`,
@@ -48,6 +51,8 @@ export const ROUTES_CONSTANT = {
         CODE_SANDBOX: `${COMPLEX_PREFIX}/code-sandbox`,
         RESIZABLE: `${COMPLEX_PREFIX}/resizable`,
         TABLE_CONTENTS: `${COMPLEX_PREFIX}/table-contents`,
+        COMMAND: `${COMPLEX_PREFIX}/command`,
+        TREE_VIEW: `${COMPLEX_PREFIX}/tree-view`,
     },
     OVERLAYS: {
         DIALOG: `${OVERLAYS_PREFIX}/dialog`,

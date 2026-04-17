@@ -32,7 +32,9 @@
       "Bash(./node_modules/.bin/tsc -p tsconfig.app.json --noEmit)",
       "Bash(npx --yes typescript tsc --noEmit --pretty false)",
       "Bash(./node_modules/typescript/bin/tsc --noEmit --pretty false)",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(xargs -I {} sh -c 'echo -n \"{}: \"; wc -l < \"{}\"')",
+      "Bash(ls -1d \"D:\\\\code\\\\fe\\\\basuicn-core\\\\src\\\\components\\\\ui\"/*/)"
     ]
   }
 }
