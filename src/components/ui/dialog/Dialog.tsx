@@ -70,7 +70,22 @@ DialogTrigger.displayName = 'DialogTrigger';
 
 
 /* ─── Close (re-export for custom close buttons) ─── */
-const DialogClose = BaseDialog.Close;
+const DialogClose = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof BaseDialog.Close>
+>(({ children, render: renderProp, ...props }, ref) => {
+  const isElement = React.isValidElement(children);
+  return (
+    <BaseDialog.Close
+      ref={ref}
+      render={renderProp ?? (isElement ? (children as React.ReactElement) : undefined)}
+      {...props}
+    >
+      {isElement ? undefined : children}
+    </BaseDialog.Close>
+  );
+});
+DialogClose.displayName = 'DialogClose';
 
 /* ─── Content (Portal + Backdrop + Popup + default X button) ─── */
 interface DialogContentProps
