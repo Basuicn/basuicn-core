@@ -53,7 +53,7 @@ const AppSidebar: React.FC = () => {
       </SidebarHeader>
 
       <SidebarContent>
-        {['overview', 'general', 'forms', 'complex', 'overlays', 'demo'].map((cat) => {
+        {['demo', 'overview', 'general', 'forms', 'complex', 'overlays'].map((cat) => {
           const catRoutes = ROUTES.filter(r => r.category === cat);
           if (catRoutes.length === 0) return null;
 

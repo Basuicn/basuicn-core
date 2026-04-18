@@ -20,13 +20,13 @@ declare module '@tanstack/react-table' {
         align?: 'left' | 'center' | 'right';
     }
 }
-import { cn } from '@lib/utils/cn';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Checkbox } from '../checkbox/Checkbox';
 import { Spinner } from '../spinner/Spinner';
 import { TableHeader } from './TableHeader';
 import { TableEmpty, TableNormalRows, TableVirtualRows } from './TableBody';
 import { TablePagination } from './TablePagination';
+import { cn } from '@/lib/utils/cn';
 
 // ─── Pagination Config ───────────────────────────────────────────────────────
 

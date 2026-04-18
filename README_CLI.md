@@ -1,44 +1,46 @@
-# basuicn CLI Documentation
+# basuicn CLI
 
-Bộ công cụ dòng lệnh mạnh mẽ để quản lý các component UI. Tương thích hoàn toàn với dự án React + Vite + TypeScript + Tailwind CSS.
+Công cụ dòng lệnh để thêm, cập nhật và quản lý các component UI trong dự án React.
 
-## 🚀 Cài đặt & Khởi tạo
-
-Để bắt đầu sử dụng `basuicn` trong dự án của bạn, hãy chạy:
+## Cài đặt & Khởi tạo
 
 ```bash
 npx basuicn init
 ```
 
-Lệnh này sẽ chuẩn bị mọi thứ cần thiết: dependencies, path aliases, Tailwind v4 configuration, và `ThemeProvider` để quản lý giao diện sáng/tối.
+Tự động cài packages, cấu hình Vite/Next.js, Tailwind CSS v4, path aliases và ThemeProvider.
 
-## 🛠 Lệnh thông dụng
+## Các lệnh
 
-### Thêm Component
 ```bash
-npx basuicn add <component-name>
-```
-Ví dụ: `npx basuicn add button input`.
-
-### Quản lý phiên bản
--   **So sánh**: `npx basuicn diff <component-name>` để xem các thay đổi bạn đã sửa so với bản gốc.
--   **Cập nhật**: `npx basuicn update <component-name>` để lấy bản mới nhất từ remote registry.
-
-### Kiểm tra lỗi cấu hình
-Nếu component không hiển thị đúng style hoặc lỗi import, hãy dùng:
-```bash
-npx basuicn doctor
+npx basuicn add <name...>       # Thêm component
+npx basuicn update <name...>    # Cập nhật lên phiên bản mới nhất
+npx basuicn diff <name...>      # So sánh với bản gốc trên registry
+npx basuicn remove <name...>    # Xóa component
+npx basuicn list                # Danh sách tất cả component
+npx basuicn doctor              # Kiểm tra cấu hình dự án
 ```
 
-## ⚙️ Cơ chế hoạt động
+### Options
 
-CLI hoạt động dựa trên một file `registry.json` phân phối từ GitHub. Khi bạn thêm một component:
-1.  CLI tải Metadata của component đó.
-2.  Tự động cài đặt các thư viện `npm` tương ứng.
-3.  Kiểm tra và tải các component phụ thuộc nội bộ.
-4.  Copy source code trực tiếp vào thư mục dự án của bạn.
-5.  (Tùy chọn) Thêm code khởi tạo vào `src/main.tsx` nếu component cần (ví dụ: `Toaster`).
+```
+--force     Ghi đè file đã tồn tại
+--local     Dùng registry.json local thay vì fetch từ GitHub
+--help      Hướng dẫn chi tiết (vd: npx basuicn add --help)
+--version   Hiển thị phiên bản
+```
 
-## 🛡 Bảo mật & Tin cậy
--   Không phụ thuộc vào runtime sau khi cài đặt.
--   Mã nguồn mở 100%, bạn có thể thoải mái tùy chỉnh sau khi copy vào dự án.
+## Cơ chế hoạt động
+
+1. Fetch metadata từ `registry.json` trên GitHub
+2. Cài đặt npm packages cần thiết
+3. Tải về các component phụ thuộc nội bộ tự động
+4. Copy source code vào `src/components/ui/<name>/`
+5. Patch `main.tsx` / `layout.tsx` nếu component yêu cầu (vd: `toast`)
+
+## Bảo mật
+
+- Không có runtime dependency sau khi cài đặt — bạn sở hữu hoàn toàn mã nguồn
+- Mã nguồn mở 100%, thoải mái tùy chỉnh
+
+Xem thêm tại [README.md](./README.md).

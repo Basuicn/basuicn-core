@@ -176,4 +176,4 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeViewProps>(
 
 TreeView.displayName = 'TreeView';
 
-export { TreeView, treeViewVariants };
+export { TreeView };

@@ -9,7 +9,7 @@ import { Minus, Plus } from 'lucide-react';
 const numberInputVariants = tv({
   slots: {
     root: 'flex flex-col gap-1.5',
-    group: 'inline-flex items-center border border-border rounded-lg bg-background overflow-hidden transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20',
+    group: 'inline-flex self-start items-center border border-border rounded-lg bg-background overflow-hidden transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20',
     input: [
       'h-full bg-transparent text-center text-sm font-medium text-foreground outline-none',
       'placeholder:text-muted-foreground',
@@ -149,4 +149,4 @@ const NumberInput = React.forwardRef<HTMLDivElement, NumberInputProps>(
 
 NumberInput.displayName = 'NumberInput';
 
-export { NumberInput, numberInputVariants };
+export { NumberInput };

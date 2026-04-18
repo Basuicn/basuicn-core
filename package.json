@@ -13,6 +13,8 @@
     "README_CLI.md"
   ],
   "scripts": {
+    "setup-hooks": "git config core.hooksPath .githooks",
+    "version:set": "node scripts/set-version.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:cli": "node scripts/build-cli.mjs",

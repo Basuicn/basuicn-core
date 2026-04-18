@@ -4,7 +4,7 @@ import {
     type HeaderGroup,
     type RowData,
 } from '@tanstack/react-table';
-import { cn } from '@lib/utils/cn';
+import { cn } from '@/lib/utils/cn';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export interface TableHeaderProps<TData extends RowData> {
@@ -21,11 +21,12 @@ export function TableHeader<TData extends RowData>({
     return (
         <thead className="text-xs text-muted-foreground bg-muted/50 border-b border-border">
             {headerGroups.map(headerGroup => (
-                <tr key={headerGroup.id}>
-                    {headerGroup.headers.map(header => {
+                <tr key={headerGroup.id} className="border-b border-border">
+                    {headerGroup.headers.map((header, index) => {
                         const meta = header.column.columnDef.meta;
                         const align = meta?.align || 'left';
                         const canSort = header.column.getCanSort() && enableSorting && header.column.id !== 'select';
+                        const isLastColumn = index === headerGroup.headers.length - 1;
 
                         return (
                             <th
@@ -46,9 +47,10 @@ export function TableHeader<TData extends RowData>({
                                 }
                                 className={cn(
                                     header.column.id === 'select' || header.column.id === 'expander' ? "px-1" : "px-2",
-                                    "py-3 font-semibold tracking-wide border border-border transition-colors group/header",
+                                    "py-3 font-semibold tracking-wide  transition-colors group/header",
                                     canSort ? "cursor-pointer select-none hover:bg-muted" : "",
-                                    align === 'center' ? "text-center" : align === 'right' ? "text-right" : "text-left"
+                                    align === 'center' ? "text-center" : align === 'right' ? "text-right" : "text-left",
+                                    !isLastColumn && "border-r border-border"
                                 )}
                             >
                                 <div

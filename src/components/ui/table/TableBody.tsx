@@ -6,7 +6,7 @@ import {
     type RowData,
 } from '@tanstack/react-table';
 import { useVirtualizer, type Virtualizer } from '@tanstack/react-virtual';
-import { cn } from '@lib/utils/cn';
+import { cn } from '@/lib/utils/cn';
 
 // ─── Empty State ────────────────────────────────────────────────────────────
 
@@ -17,7 +17,7 @@ interface TableEmptyProps {
 
 export function TableEmpty({ colSpan, text }: TableEmptyProps) {
     return (
-        <tr>
+        <tr className="border-b border-border">
             <td colSpan={colSpan} className="px-4 py-16 text-center text-muted-foreground">
                 <div className="flex flex-col items-center justify-center space-y-2">
                     <span className="text-muted-foreground/50">
@@ -40,19 +40,22 @@ interface TableRowCellsProps<TData extends RowData> {
 }
 
 function TableRowCells<TData extends RowData>({ row, enableColumnResizing }: TableRowCellsProps<TData>) {
+    const visibleCells = row.getVisibleCells();
     return (
         <>
-            {row.getVisibleCells().map(cell => {
+            {visibleCells.map((cell, index) => {
                 const meta = cell.column.columnDef.meta;
                 const align = meta?.align || 'left';
+                const isLastColumn = index === visibleCells.length - 1;
                 return (
                     <td
                         key={cell.id}
                         style={{ width: enableColumnResizing ? cell.column.getSize() : cell.column.columnDef.size }}
                         className={cn(
                             cell.column.id === 'select' || cell.column.id === 'expander' ? "px-1" : "px-2",
-                            "py-3 border border-border align-middle",
-                            align === 'center' ? "text-center" : align === 'right' ? "text-right" : "text-left"
+                            "py-3 align-middle",
+                            align === 'center' ? "text-center" : align === 'right' ? "text-right" : "text-left",
+                            !isLastColumn && "border-r border-border"
                         )}
                     >
                         <div className={cn(
@@ -87,7 +90,7 @@ export function TableNormalRows<TData extends RowData>({
                 <React.Fragment key={row.id}>
                     <tr
                         className={cn(
-                            "hover:bg-muted/50 transition-colors group",
+                            "border-b border-border hover:bg-muted/50 transition-colors group",
                             row.getIsSelected() ? "bg-primary/5 hover:bg-primary/10" : "",
                             row.getIsExpanded() ? "bg-primary/5" : ""
                         )}
@@ -95,8 +98,8 @@ export function TableNormalRows<TData extends RowData>({
                         <TableRowCells row={row} enableColumnResizing={enableColumnResizing} />
                     </tr>
                     {row.getIsExpanded() && renderSubComponent && (
-                        <tr>
-                            <td colSpan={row.getVisibleCells().length} className="p-0 border-b border-border whitespace-normal">
+                        <tr className="border-b border-border">
+                            <td colSpan={row.getVisibleCells().length} className="p-0 whitespace-normal">
                                 <div className="bg-muted/50 px-4 py-5 shadow-inner w-full border-l-4 border-l-primary/40 wrap-break-word">
                                     {renderSubComponent({ row: row.original })}
                                 </div>
@@ -142,7 +145,7 @@ export function TableVirtualRows<TData extends RowData>({
                         data-index={virtualRow.index}
                         ref={rowVirtualizer.measureElement}
                         className={cn(
-                            "hover:bg-muted/50 transition-colors",
+                            "border-b border-border hover:bg-muted/50 transition-colors",
                             row.getIsSelected() ? "bg-primary/5 hover:bg-primary/10" : ""
                         )}
                     >

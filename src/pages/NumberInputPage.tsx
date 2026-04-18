@@ -74,6 +74,7 @@ const NumberInputPage = () => {
             step={10}
             description="Step: 10"
           />
+          
         </div>
       </ShowcaseCard>
 

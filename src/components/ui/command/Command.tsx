@@ -45,6 +45,8 @@ interface CommandContextValue {
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   highlightedIndex: number;
   setHighlightedIndex: React.Dispatch<React.SetStateAction<number>>;
+  visibleItemCount: number;
+  setVisibleItemCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const CommandContext = React.createContext<CommandContextValue | null>(null);
@@ -53,6 +55,18 @@ function useCommand() {
   const ctx = React.useContext(CommandContext);
   if (!ctx) throw new Error('useCommand must be used within <Command>');
   return ctx;
+}
+
+interface GroupContextValue {
+  groupId: string;
+  visibleCount: number;
+  setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const GroupContext = React.createContext<GroupContextValue | null>(null);
+
+function useGroup() {
+  return React.useContext(GroupContext);
 }
 
 // ─── Command (Root) ──────────────────────────────────────────────────────────
@@ -67,16 +81,18 @@ export interface CommandProps {
 const Command: React.FC<CommandProps> = ({ open, onOpenChange, children, className }) => {
   const [search, setSearch] = React.useState('');
   const [highlightedIndex, setHighlightedIndex] = React.useState(0);
+  const [visibleItemCount, setVisibleItemCount] = React.useState(0);
 
   React.useEffect(() => {
     if (open) {
       setSearch('');
       setHighlightedIndex(0);
+      setVisibleItemCount(0);
     }
   }, [open]);
 
   return (
-    <CommandContext.Provider value={{ search, setSearch, highlightedIndex, setHighlightedIndex }}>
+    <CommandContext.Provider value={{ search, setSearch, highlightedIndex, setHighlightedIndex, visibleItemCount, setVisibleItemCount }}>
       <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
         <BaseDialog.Portal>
           <BaseDialog.Backdrop className={styles.overlay()} />
@@ -139,12 +155,19 @@ export interface CommandGroupProps extends React.HTMLAttributes<HTMLDivElement> 
 }
 
 const CommandGroup = React.forwardRef<HTMLDivElement, CommandGroupProps>(
-  ({ className, heading, children, ...props }, ref) => (
-    <div ref={ref} className={cn(styles.group(), className)} role="group" {...props}>
-      {heading && <div className={styles.groupLabel()}>{heading}</div>}
-      {children}
-    </div>
-  ),
+  ({ className, heading, children, ...props }, ref) => {
+    const [groupId] = React.useState(() => Math.random().toString(36));
+    const [visibleCount, setVisibleCount] = React.useState(0);
+
+    return (
+      <GroupContext.Provider value={{ groupId, visibleCount, setVisibleCount }}>
+        <div ref={ref} className={cn(styles.group(), className)} role="group" {...props}>
+          {heading && visibleCount > 0 && <div className={styles.groupLabel()}>{heading}</div>}
+          {children}
+        </div>
+      </GroupContext.Provider>
+    );
+  }
 );
 CommandGroup.displayName = 'CommandGroup';
 
@@ -159,7 +182,7 @@ export interface CommandItemProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const CommandItem = React.forwardRef<HTMLDivElement, CommandItemProps>(
   ({ className, disabled, keywords = [], onSelect, value, children, ...props }, ref) => {
-    const { search, highlightedIndex, setHighlightedIndex } = useCommand();
+    const { search, highlightedIndex, setHighlightedIndex, setVisibleItemCount } = useCommand();
     const [itemIndex] = React.useState(() => Math.random());
 
     // Filter: check value, text content, and keywords
@@ -167,6 +190,17 @@ const CommandItem = React.forwardRef<HTMLDivElement, CommandItemProps>(
       .join(' ')
       .toLowerCase();
     const isVisible = !search || searchable.includes(search.toLowerCase());
+
+    const group = useGroup();
+
+    React.useEffect(() => {
+      setVisibleItemCount((prev) => prev + (isVisible ? 1 : 0));
+      group?.setVisibleCount((prev) => prev + (isVisible ? 1 : 0));
+      return () => {
+        setVisibleItemCount((prev) => prev - (isVisible ? 1 : 0));
+        group?.setVisibleCount((prev) => prev - (isVisible ? 1 : 0));
+      };
+    }, [isVisible, setVisibleItemCount, group]);
 
     if (!isVisible) return null;
 
@@ -201,11 +235,15 @@ CommandItem.displayName = 'CommandItem';
 // ─── CommandEmpty ────────────────────────────────────────────────────────────
 
 const CommandEmpty = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, children = 'No results found.', ...props }, ref) => (
-    <div ref={ref} className={cn(styles.empty(), className)} {...props}>
-      {children}
-    </div>
-  ),
+  ({ className, children = 'No results found.', ...props }, ref) => {
+    const { visibleItemCount } = useCommand();
+    if (visibleItemCount > 0) return null;
+    return (
+      <div ref={ref} className={cn(styles.empty(), className)} {...props}>
+        {children}
+      </div>
+    );
+  },
 );
 CommandEmpty.displayName = 'CommandEmpty';
 

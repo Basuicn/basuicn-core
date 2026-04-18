@@ -65,28 +65,27 @@ const CommandPage = () => {
             <CommandInput placeholder="Gõ lệnh hoặc tìm kiếm..." />
             <CommandList>
               <CommandEmpty>Không tìm thấy kết quả.</CommandEmpty>
-              <CommandGroup heading="Gợi ý">
-                <CommandItem onSelect={() => setOpen1(false)}>
+              <CommandGroup heading="Gợi ý" className='border-b'>
+                <CommandItem value="lịch calendar" onSelect={() => setOpen1(false)}>
                   <Calendar className="mr-2 h-4 w-4" /> Lịch
                 </CommandItem>
-                <CommandItem onSelect={() => setOpen1(false)}>
+                <CommandItem value="emoji tìm tìm emoji" onSelect={() => setOpen1(false)}>
                   <Smile className="mr-2 h-4 w-4" /> Tìm Emoji
                 </CommandItem>
-                <CommandItem onSelect={() => setOpen1(false)}>
+                <CommandItem value="máy tính calculator" onSelect={() => setOpen1(false)}>
                   <Calculator className="mr-2 h-4 w-4" /> Máy tính
                 </CommandItem>
               </CommandGroup>
-              <CommandSeparator />
               <CommandGroup heading="Cài đặt">
-                <CommandItem onSelect={() => setOpen1(false)}>
+                <CommandItem value="hồ sơ profile user" onSelect={() => setOpen1(false)}>
                   <User className="mr-2 h-4 w-4" /> Hồ sơ
                   <CommandShortcut>⌘P</CommandShortcut>
                 </CommandItem>
-                <CommandItem onSelect={() => setOpen1(false)}>
+                <CommandItem value="thanh toán payment billing" onSelect={() => setOpen1(false)}>
                   <CreditCard className="mr-2 h-4 w-4" /> Thanh toán
                   <CommandShortcut>⌘B</CommandShortcut>
                 </CommandItem>
-                <CommandItem onSelect={() => setOpen1(false)}>
+                <CommandItem value="cài đặt settings config" onSelect={() => setOpen1(false)}>
                   <Settings className="mr-2 h-4 w-4" /> Cài đặt
                   <CommandShortcut>⌘S</CommandShortcut>
                 </CommandItem>
@@ -111,25 +110,25 @@ const CommandPage = () => {
             <CommandList>
               <CommandEmpty>Không tìm thấy.</CommandEmpty>
               <CommandGroup heading="Tài liệu">
-                <CommandItem onSelect={() => setOpen2(false)}>
+                <CommandItem value="tạo tài liệu mới new document" onSelect={() => setOpen2(false)}>
                   <FileText className="mr-2 h-4 w-4" /> Tạo tài liệu mới
                 </CommandItem>
-                <CommandItem onSelect={() => setOpen2(false)}>
+                <CommandItem value="mở tài liệu gần đây recent document" onSelect={() => setOpen2(false)}>
                   <FileText className="mr-2 h-4 w-4" /> Mở tài liệu gần đây
                 </CommandItem>
               </CommandGroup>
-              <CommandSeparator />
+              
               <CommandGroup heading="Liên lạc">
-                <CommandItem onSelect={() => setOpen2(false)}>
+                <CommandItem value="soạn email compose mail" onSelect={() => setOpen2(false)}>
                   <Mail className="mr-2 h-4 w-4" /> Soạn email
                 </CommandItem>
-                <CommandItem onSelect={() => setOpen2(false)}>
+                <CommandItem value="nhắn tin message chat" onSelect={() => setOpen2(false)}>
                   <MessageSquare className="mr-2 h-4 w-4" /> Nhắn tin
                 </CommandItem>
               </CommandGroup>
-              <CommandSeparator />
+              
               <CommandGroup heading="Giải trí">
-                <CommandItem onSelect={() => setOpen2(false)}>
+                <CommandItem value="phát nhạc music play" onSelect={() => setOpen2(false)}>
                   <Music className="mr-2 h-4 w-4" /> Phát nhạc
                 </CommandItem>
               </CommandGroup>
@@ -153,19 +152,19 @@ const CommandPage = () => {
             <CommandList>
               <CommandEmpty>Không có cài đặt phù hợp.</CommandEmpty>
               <CommandGroup heading="Tài khoản">
-                <CommandItem onSelect={() => setOpen3(false)}>
+                <CommandItem value="đổi tên hiển thị display name change" onSelect={() => setOpen3(false)}>
                   <User className="mr-2 h-4 w-4" /> Đổi tên hiển thị
                 </CommandItem>
-                <CommandItem onSelect={() => setOpen3(false)}>
+                <CommandItem value="đổi email change email" onSelect={() => setOpen3(false)}>
                   <Mail className="mr-2 h-4 w-4" /> Đổi email
                 </CommandItem>
-                <CommandItem disabled>
+                <CommandItem value="nâng cấp gói upgrade" disabled>
                   <CreditCard className="mr-2 h-4 w-4" /> Nâng cấp gói (đã max)
                 </CommandItem>
               </CommandGroup>
-              <CommandSeparator />
+              
               <CommandGroup heading="Nguy hiểm">
-                <CommandItem onSelect={() => setOpen3(false)}>
+                <CommandItem value="xóa tài khoản delete account danger" onSelect={() => setOpen3(false)}>
                   <Settings className="mr-2 h-4 w-4 text-danger" />
                   <span className="text-danger">Xóa tài khoản</span>
                 </CommandItem>

@@ -5,7 +5,7 @@ export const OVERLAYS_PREFIX = "/overlays";
 export const DEMO_PREFIX = "/demo";
 
 export const ROUTES_CONSTANT = {
-    DASHBOARD: "/",
+    DASHBOARD: `/`,
     GENERAL: {
         BUTTON: "/button",
         ALERT: "/alert",
@@ -68,7 +68,6 @@ export const ROUTES_CONSTANT = {
     },
     DEMO: {
         LOGIN: `${DEMO_PREFIX}/login`,
-        DASHBOARD: `${DEMO_PREFIX}/dashboard`,
     }
 
 
