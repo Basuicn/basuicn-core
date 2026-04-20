@@ -1,9 +1,10 @@
 import React from 'react';
 import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase';
-import { LoginClassic } from './_components/LoginClassic';
-import { LoginMinimal } from './_components/LoginMinimal';
-import { LoginGlass } from './_components/LoginGlass';
-import { LoginSplit } from './_components/LoginSplit';
+import { LoginClassic } from '../../components/ui/login-classic/LoginClassic';
+import { LoginMinimal } from '../../components/ui/login-minimal/LoginMinimal';
+import { LoginGlass } from '../../components/ui/login-glass/LoginGlass';
+import { LoginSplit } from '../../components/ui/login-split/LoginSplit';
+import LoginFullScreen from '../../components/ui/login-fullscreen/LoginFullScreen';
 
 const LoginPage = () => {
   return (
@@ -47,6 +48,14 @@ const LoginPage = () => {
       >
         <div className="w-full">
           <LoginSplit />
+        </div>
+      </ShowcaseCard>
+      <ShowcaseCard
+        title="Full Screen Layout — Toàn màn hình"
+        description="Toàn màn hình: bên trái hiển thị thương hiệu & tính năng nổi bật, bên phải là form — chuẩn SaaS."
+      >
+        <div className="w-full">
+          <LoginFullScreen />
         </div>
       </ShowcaseCard>
     </div>

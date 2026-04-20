@@ -22,7 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-claude.md
 
 *storybook.log
 storybook-static
