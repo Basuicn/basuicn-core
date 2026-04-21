@@ -1093,9 +1093,10 @@ const main = async () => {
                 console.log(`  Run ${c.cyan}npx basuicn update --help${c.reset} for details.`);
                 return;
             }
+            const updateFramework = detectFramework(cwd);
             for (const name of componentNames) {
                 log(`Updating: ${c.bold}${name}${c.reset}...`);
-                addComponent(name, registry, cwd, { force: true });
+                addComponent(name, registry, cwd, { force: true, framework: updateFramework });
             }
             console.log('');
             ok(`${c.bold}Update complete.${c.reset}`);
