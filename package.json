@@ -3,6 +3,11 @@
   "private": false,
   "version": "0.3.4",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Basuicn/basuicn-core.git"
+  },
+  "homepage": "https://github.com/Basuicn/basuicn-core#readme",
   "bin": {
     "basuicn": "./dist/ui-cli.cjs"
   },
