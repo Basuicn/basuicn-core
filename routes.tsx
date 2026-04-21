@@ -53,6 +53,11 @@ import NumberInputPage from "./src/pages/NumberInputPage";
 import TreeViewPage from "./src/pages/TreeViewPage";
 import TableContentsPage from "./src/pages/TableContentsPage";
 import LoginPage from "./src/pages/form-login/LoginPage";
+import LayoutDemoPage from "./src/pages/LayoutDemoPage";
+import LayoutDemo1Preview from "./src/pages/preview/LayoutDemo1Preview";
+import LayoutDemo2Preview from "./src/pages/preview/LayoutDemo2Preview";
+import LayoutDemo3Preview from "./src/pages/preview/LayoutDemo3Preview";
+import LayoutLoginPreview from "./src/pages/preview/LayoutLoginPreview";
 import {
   FORM_PREFIX,
   GENERAL_PREFIX,
@@ -451,7 +456,38 @@ export const ROUTES: RouteConfig[] = [
     category: "demo",
     // standalone: true,
   },
- 
+  {
+    path: ROUTES_CONSTANT.DEMO.LAYOUT_DEMO,
+    label: "Layout Demo",
+    icon: <Icon.PanelLeft className="w-4 h-4" />,
+    element: <LayoutDemoPage />,
+    category: "demo",
+  },
+  // Preview routes (standalone — rendered inside iframes)
+  {
+    path: ROUTES_CONSTANT.PREVIEW.LAYOUT_DEMO_1,
+    label: "Preview Layout Demo 1",
+    element: <LayoutDemo1Preview />,
+    standalone: true,
+  },
+  {
+    path: ROUTES_CONSTANT.PREVIEW.LAYOUT_DEMO_2,
+    label: "Preview Layout Demo 2",
+    element: <LayoutDemo2Preview />,
+    standalone: true,
+  },
+  {
+    path: ROUTES_CONSTANT.PREVIEW.LAYOUT_DEMO_3,
+    label: "Preview Layout Demo 3",
+    element: <LayoutDemo3Preview />,
+    standalone: true,
+  },
+  {
+    path: ROUTES_CONSTANT.PREVIEW.LAYOUT_LOGIN,
+    label: "Preview Layout Login",
+    element: <LayoutLoginPreview />,
+    standalone: true,
+  },
 ];
 
 /**

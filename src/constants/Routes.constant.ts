@@ -68,8 +68,12 @@ export const ROUTES_CONSTANT = {
     },
     DEMO: {
         LOGIN: `${DEMO_PREFIX}/login`,
-    }
-
-
-
+        LAYOUT_DEMO: `${DEMO_PREFIX}/layout-demo`,
+    },
+    PREVIEW: {
+        LAYOUT_DEMO_1: "/preview/layout-demo-1",
+        LAYOUT_DEMO_2: "/preview/layout-demo-2",
+        LAYOUT_DEMO_3: "/preview/layout-demo-3",
+        LAYOUT_LOGIN: "/preview/layout-login",
+    },
 } as const

@@ -34,7 +34,8 @@
       "Bash(./node_modules/typescript/bin/tsc --noEmit --pretty false)",
       "Bash(echo \"exit: $?\")",
       "Bash(xargs -I {} sh -c 'echo -n \"{}: \"; wc -l < \"{}\"')",
-      "Bash(ls -1d \"D:\\\\code\\\\fe\\\\basuicn-core\\\\src\\\\components\\\\ui\"/*/)"
+      "Bash(ls -1d \"D:\\\\code\\\\fe\\\\basuicn-core\\\\src\\\\components\\\\ui\"/*/)",
+      "Bash(xargs cat *)"
     ]
   }
 }
