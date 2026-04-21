@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Input as BaseInput, Field as BaseField } from '@base-ui/react';
 import { tv, type VariantProps } from 'tailwind-variants';
@@ -33,10 +34,11 @@ export interface InputProps extends Omit<React.ComponentPropsWithoutRef<typeof B
   endIcon?: React.ReactNode;
   placeholder?: string;
   className?: string;
+  required?: boolean;
 }
 
 const Input = React.forwardRef<React.ElementRef<typeof BaseInput>, InputProps>(
-  ({ className, variant, label, error, description, icon, endIcon, id, type, ...props }, ref) => {
+  ({ className, variant, label, error, description, icon, endIcon, id, type, required, ...props }, ref) => {
     const defaultId = React.useId();
     const inputId = id || defaultId;
     const [showPassword, setShowPassword] = React.useState(false);
@@ -49,6 +51,7 @@ const Input = React.forwardRef<React.ElementRef<typeof BaseInput>, InputProps>(
         {label && (
           <BaseField.Label htmlFor={inputId} className="text-sm font-medium text-foreground ">
             {label}
+             {required && <span className="ml-0.5 text-destructive">*</span>}
           </BaseField.Label>
         )}
         <div className="relative">

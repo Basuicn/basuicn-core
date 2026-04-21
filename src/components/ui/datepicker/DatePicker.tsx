@@ -1,4 +1,3 @@
-'use client';
 import * as React from 'react';
 import { Popover as BasePopover } from '@base-ui/react';
 import { DayPicker, type DateRange } from 'react-day-picker';
@@ -9,48 +8,205 @@ import * as locales from 'react-day-picker/locale';
 
 import 'react-day-picker/dist/style.css';
 import { Button } from '../button/Button';
-import { TimePicker, type TimePickerStyle } from './TimePicker';
-import {
-    type TimeFormat,
-    type TimeParts,
-    DEFAULT_TIME,
-    parseTimeParts,
-    buildTimeString,
-    applyTimeToDate,
-    dateToTimeParts,
-    formatDateDisplay,
-} from './time-helpers';
 
 // ---------- types ----------
 
-export type { TimeFormat, TimePickerStyle };
+export type TimeFormat = 'HH' | 'HH:mm' | 'HH:mm:ss';
 export type DatePickerMode = 'single' | 'range' | 'time-only';
+export type TimePickerStyle = 'input' | 'select';
 
+interface TimeParts {
+    h: string;
+    m: string;
+    s: string;
+}
+
+/** Props for the DatePicker component */
 export interface DatePickerProps {
+    /** Picker mode: single date, date range, or time-only */
     mode?: DatePickerMode;
+    /** Selected date (Date for single, DateRange for range) */
     date?: Date | DateRange;
+    /** Callback fired when the date changes */
     onDateChange?: (date: Date | DateRange | undefined) => void;
+    /** Alternative callback (alias for onDateChange) */
     onChange?: (date: Date | DateRange | undefined) => void;
+    /** Current time string, only used when mode is 'time-only' */
     timeValue?: string;
+    /** Callback fired when the time value changes (time-only mode) */
     onTimeChange?: (time: string) => void;
+    /** Label text displayed above the picker */
     label?: string;
+    /** Placeholder text when no date is selected */
     placeholder?: string;
+    /** Disable all dates before today */
     disablePastDates?: boolean;
+    /** Show time picker alongside the calendar */
     showTime?: boolean;
+    /** Time format: hours only, hours:minutes, or hours:minutes:seconds */
     timeFormat?: TimeFormat;
+    /** Time picker UI style: native input or dropdown selects */
     timePickerStyle?: TimePickerStyle;
+    /** Disable the entire picker */
     disabled?: boolean;
     className?: string;
+    /** Helper text displayed below the picker */
     description?: string;
+    /** Error message displayed below the picker (replaces description) */
     error?: string;
-    locale?: keyof typeof locales;
+    required?: boolean;
 }
+
+// ---------- helpers ----------
+
+const DEFAULT_TIME: TimeParts = { h: '00', m: '00', s: '00' };
+
+function parseTimeParts(timeStr: string): TimeParts {
+    const [h = '00', m = '00', s = '00'] = timeStr.split(':');
+    return {
+        h: h.padStart(2, '0'),
+        m: m.padStart(2, '0'),
+        s: s.padStart(2, '0'),
+    };
+}
+
+function buildTimeString(parts: TimeParts, fmt: TimeFormat): string {
+    if (fmt === 'HH') return parts.h;
+    if (fmt === 'HH:mm') return `${parts.h}:${parts.m}`;
+    return `${parts.h}:${parts.m}:${parts.s}`;
+}
+
+function applyTimeToDate(base: Date, parts: TimeParts): Date {
+    const d = new Date(base);
+    d.setHours(Number(parts.h), Number(parts.m), Number(parts.s), 0);
+    return d;
+}
+
+function dateToTimeParts(d: Date): TimeParts {
+    return {
+        h: d.getHours().toString().padStart(2, '0'),
+        m: d.getMinutes().toString().padStart(2, '0'),
+        s: d.getSeconds().toString().padStart(2, '0'),
+    };
+}
+
+function formatDateDisplay(d: Date, showTime: boolean, fmt: TimeFormat): string {
+    const datePart = format(d, 'dd/MM/yyyy');
+    if (!showTime) return datePart;
+    if (fmt === 'HH') return `${datePart} ${format(d, 'HH')}h`;
+    if (fmt === 'HH:mm') return `${datePart} ${format(d, 'HH:mm')}`;
+    return `${datePart} ${format(d, 'HH:mm:ss')}`;
+}
+
+function padOptions(count: number) {
+    return Array.from({ length: count }, (_, i) => ({
+        label: i.toString().padStart(2, '0'),
+        value: i.toString().padStart(2, '0'),
+    }));
+}
+
+const hoursOptions = padOptions(24);
+const minutesOptions = padOptions(60);
+const secondsOptions = padOptions(60);
 
 // ---------- styles ----------
 
 const popoverContent = tv({
-    base: 'z-50 rounded-xl border border-border bg-background text-foreground shadow-xl outline-none data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-side-bottom:slide-in-from-top-2 data-side-left:slide-in-from-right-2 data-side-right:slide-in-from-left-2 data-side-top:slide-in-from-bottom-2',
+    base: 'z-50  rounded-xl border border-border bg-background text-foreground shadow-xl outline-none data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-side-bottom:slide-in-from-top-2 data-side-left:slide-in-from-right-2 data-side-right:slide-in-from-left-2 data-side-top:slide-in-from-bottom-2',
 });
+
+// ---------- sub-components ----------
+
+interface NativeSelectProps {
+    value: string;
+    options: { label: string; value: string }[];
+    onChange: (val: string) => void;
+    'aria-label'?: string;
+}
+
+const NativeScrollSelect: React.FC<NativeSelectProps> = ({ value, options, onChange, 'aria-label': ariaLabel }) => (
+    <select
+        aria-label={ariaLabel}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground focus:border-primary focus:outline-none"
+    >
+        {options.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+    </select>
+);
+
+interface TimePickerProps {
+    parts: TimeParts;
+    onChange: (parts: TimeParts) => void;
+    timeFormat: TimeFormat;
+    timePickerStyle: TimePickerStyle;
+}
+
+const TimePicker: React.FC<TimePickerProps> = ({ parts, onChange, timeFormat, timePickerStyle }) => {
+    const showMinutes = timeFormat === 'HH:mm' || timeFormat === 'HH:mm:ss';
+    const showSeconds = timeFormat === 'HH:mm:ss';
+
+    if (timePickerStyle === 'input') {
+        const step = showSeconds ? 1 : 60;
+        const rawValue = showSeconds
+            ? `${parts.h}:${parts.m}:${parts.s}`
+            : `${parts.h}:${parts.m}`;
+
+        return (
+            <input
+                type="time"
+                value={rawValue}
+                step={step}
+                onChange={(e) => {
+                    const [h = '00', m = '00', s = '00'] = e.target.value.split(':');
+                    onChange({ h: h.padStart(2, '0'), m: m.padStart(2, '0'), s: s.padStart(2, '0') });
+                }}
+                className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground focus:border-primary focus:outline-none"
+            />
+        );
+    }
+
+    return (
+        <div className="flex items-center gap-1.5">
+            <div className="flex-1">
+                <NativeScrollSelect
+                    aria-label="Hours"
+                    value={parts.h}
+                    options={hoursOptions}
+                    onChange={(val) => onChange({ ...parts, h: val })}
+                />
+            </div>
+            {showMinutes && (
+                <>
+                    <span className="text-sm font-bold text-muted-foreground">:</span>
+                    <div className="flex-1">
+                        <NativeScrollSelect
+                            aria-label="Minutes"
+                            value={parts.m}
+                            options={minutesOptions}
+                            onChange={(val) => onChange({ ...parts, m: val })}
+                        />
+                    </div>
+                </>
+            )}
+            {showSeconds && (
+                <>
+                    <span className="text-sm font-bold text-muted-foreground">:</span>
+                    <div className="flex-1">
+                        <NativeScrollSelect
+                            aria-label="Seconds"
+                            value={parts.s}
+                            options={secondsOptions}
+                            onChange={(val) => onChange({ ...parts, s: val })}
+                        />
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
 
 // ---------- main component ----------
 
@@ -71,31 +227,18 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     className,
     description,
     error,
-    locale: localeKey = 'vi',
+    required,
 }, ref) => {
     const [open, setOpen] = React.useState(false);
     const triggerRef = React.useRef<HTMLButtonElement>(null);
-    const resolvedLocale = locales[localeKey];
 
-    const initParts = React.useMemo<TimeParts>(() => {
+    const timeParts = React.useMemo<TimeParts>(() => {
         if (mode === 'time-only' && timeValue) return parseTimeParts(timeValue);
         if (date instanceof Date) return dateToTimeParts(date);
         return DEFAULT_TIME;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const [timeParts, setTimeParts] = React.useState<TimeParts>(initParts);
-
-    React.useEffect(() => {
-        if (mode === 'time-only' && timeValue) {
-            setTimeParts(parseTimeParts(timeValue));
-        } else if (date instanceof Date) {
-            setTimeParts(dateToTimeParts(date));
-        }
     }, [date, timeValue, mode]);
 
     const handlePartsChange = (newParts: TimeParts) => {
-        setTimeParts(newParts);
         if (mode === 'time-only') {
             onTimeChange?.(buildTimeString(newParts, timeFormat));
             return;
@@ -118,11 +261,13 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
             onDateChange?.(newDate);
             onChange?.(newDate);
         } else {
+            // Because of our mode checking, we can be confident here
             onDateChange?.(selectedDate as DateRange);
             onChange?.(selectedDate as DateRange);
         }
     };
 
+    // ---------- render trigger label ----------
     const triggerLabel = React.useMemo(() => {
         if (mode === 'time-only') {
             const val = timeValue ?? buildTimeString(timeParts, timeFormat);
@@ -156,10 +301,11 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     const needsTimePicker = isTimeMode || (mode === 'single' && showTime);
 
     return (
-        <div ref={ref} className={`flex flex-col gap-1.5 ${className || ''}`}>
+        <div ref={ref} className={`flex flex-col gap-1.5 w-full ${className || ''}`}>
             {label && (
-                <label className="text-sm font-medium text-foreground ">
+                <label className="text-sm font-medium text-foreground">
                     {label}
+                    {required && <span className="ml-0.5 text-destructive">*</span>}
                 </label>
             )}
 
@@ -191,13 +337,13 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                 />
 
                 <BasePopover.Portal>
-                    <BasePopover.Positioner anchor={triggerRef} sideOffset={6} style={{ zIndex: 9999 }}>
+                    <BasePopover.Positioner anchor={triggerRef} sideOffset={6} className="z-50">
                         <BasePopover.Popup className={popoverContent()}>
                             {!isTimeMode && mode === 'single' && (
                                 <div className="p-2 flex justify-center">
                                     <DayPicker
                                         mode="single"
-                                        locale={resolvedLocale}
+                                        locale={locales.vi}
                                         selected={date as Date | undefined}
                                         onSelect={(d) => handleDateSelect(d)}
                                         disabled={disablePastDates ? [{ before: new Date() }] : undefined}
@@ -209,7 +355,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                 <div className="p-2 flex justify-center">
                                     <DayPicker
                                         mode="range"
-                                        locale={resolvedLocale}
+                                        locale={locales.vi}
                                         selected={date as DateRange | undefined}
                                         onSelect={(d) => handleDateSelect(d)}
                                         disabled={disablePastDates ? [{ before: new Date() }] : undefined}
@@ -218,6 +364,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                 </div>
                             )}
 
+                            {/* Time picker */}
                             {needsTimePicker && (
                                 <div className={`border-t border-border p-3 flex flex-col gap-2 ${isTimeMode ? 'border-t-0' : ''}`}>
                                     <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -235,12 +382,12 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                 </div>
                             )}
 
+                            {/* Footer actions */}
                             <div className="flex items-center justify-between gap-2 p-3 border-t border-border">
                                 <button
                                     type="button"
                                     onClick={() => {
                                         if (mode === 'time-only') {
-                                            setTimeParts(DEFAULT_TIME);
                                             onTimeChange?.('');
                                         } else {
                                             onDateChange?.(undefined);

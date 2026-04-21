@@ -1,4 +1,3 @@
-"use client" 
 import * as React from 'react';
 import { Combobox as BaseCombobox } from '@base-ui/react';
 import { Check, ChevronDown, X, Loader2 } from 'lucide-react';
@@ -41,6 +40,8 @@ export interface ComboBoxProps {
   defaultValue?: string | string[];
   /** Callback fired when the selected value changes */
   onValueChange?: (value: string | string[]) => void;
+  /** Alias for onValueChange — compatible with React Hook Form field.onChange */
+  onChange?: (value: string | string[]) => void;
   /** Enable multi-select mode with chip display */
   multiple?: boolean;
   /** Shows a loading spinner on the dropdown trigger */
@@ -56,10 +57,14 @@ export interface ComboBoxProps {
   clearAllText?: string;
   /** Icon rendered at the start (left side) of the input */
   leftIcon?: React.ReactNode;
+  /** Mark the field as required — renders asterisk next to label */
+  required?: boolean;
+  /** Error message displayed below the combobox */
+  error?: string;
 }
 
 const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
-  ({ options, label, placeholder, value, defaultValue, onValueChange, multiple, isLoading, className, autocomplete = true, emptyText = 'No results found.', selectAllText = 'Select all', clearAllText = 'Clear all', leftIcon }, ref) => {
+  ({ options, label, placeholder, value, defaultValue, onValueChange, onChange, multiple, isLoading, className, autocomplete = true, emptyText = 'No results found.', selectAllText = 'Select all', clearAllText = 'Clear all', leftIcon, required, error }, ref) => {
     const [inputValue, setInputValue] = React.useState('');
     const [internalValue, setInternalValue] = React.useState<string | string[] | null>(defaultValue || (multiple ? [] : null));
     const isSelectingRef = React.useRef(false);
@@ -73,6 +78,7 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
       }
       if (newVal !== null) {
         onValueChange?.(newVal);
+        onChange?.(newVal);
       }
     };
 
@@ -122,9 +128,14 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
         itemToStringLabel={(val: string) => options.find((o) => o.value === val)?.label ?? val}
       >
         <div className={root({ className })}>
-          {label && <label className="text-sm font-medium text-foreground">{label}</label>}
+          {label && (
+            <label className="text-sm font-medium text-foreground">
+              {label}
+              {required && <span className="ml-0.5 text-destructive">*</span>}
+            </label>
+          )}
 
-          <div className="relative w-full group">
+          <div className="relative w-full group" data-invalid={!!error || undefined}>
             <BaseCombobox.InputGroup ref={inputGroupRef} className={cn(inputContainer(), leftIcon && 'pl-9')}>
               {leftIcon && (
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
@@ -238,6 +249,7 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
               </BaseCombobox.Positioner>
             </BaseCombobox.Portal>
           </div>
+          {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
       </BaseCombobox.Root>
     );

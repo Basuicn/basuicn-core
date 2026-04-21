@@ -1,7 +1,9 @@
+'use client';
 import * as React from 'react';
 import { Button as BaseButton } from '@base-ui/react';
 import { tv, type VariantProps } from 'tailwind-variants';
 import { Spinner } from '../spinner/Spinner';
+import { cn } from '@/lib/utils/cn';
 
 const buttonVariants = tv({
   base: 'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-30 disabled:hover:bg-transparent data-open:bg-muted cursor-pointer disabled:cursor-not-allowed',
@@ -65,10 +67,12 @@ const Button = React.forwardRef<React.ElementRef<typeof BaseButton>, ButtonProps
         disabled={isLoading || props.disabled}
         {...props}
       >
-        {isLoading && <Spinner size="xs" className="mr-2" />}
-        {!isLoading && leftIcon && <span className="mr-2">{leftIcon}</span>}
-        {children}
-        {!isLoading && rightIcon && <span className="ml-2">{rightIcon}</span>}
+        {isLoading && <Spinner size="xs" className={cn('mr-2')} />}
+        <div className="flex items-center gap-2">
+          {!isLoading && leftIcon && <span>{leftIcon}</span>}
+          {children}
+          {!isLoading && rightIcon && <span>{rightIcon}</span>}
+        </div>
       </BaseButton>
     );
   }

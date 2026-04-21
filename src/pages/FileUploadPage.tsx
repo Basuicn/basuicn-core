@@ -1,14 +1,18 @@
 import React from 'react';
 import { PageHeader, ShowcaseCard } from '@/components/ui/Showcase';
 import { FileUpload } from '@/components/ui/file-upload/FileUpload';
-import { Upload, ImageIcon } from 'lucide-react';
+import { ImageIcon } from 'lucide-react';
 
 const FileUploadPage = () => {
   const [files1, setFiles1] = React.useState<File[]>([]);
   const [files2, setFiles2] = React.useState<File[]>([]);
   const [files3, setFiles3] = React.useState<File[]>([]);
   const [files4, setFiles4] = React.useState<File[]>([]);
+  const [files5, setFiles5] = React.useState<File[]>([]);
+  const [files6, setFiles6] = React.useState<File[]>([]);
   const [error, setError] = React.useState('');
+  const [previewError, setPreviewError] = React.useState('');
+  const [fillError, setFillError] = React.useState('');
 
   return (
     <div className="max-w-5xl">
@@ -49,6 +53,49 @@ const FileUploadPage = () => {
             maxSize={5 * 1024 * 1024}
             onError={setError}
             error={error}
+          />
+        </div>
+      </ShowcaseCard>
+
+      {/* ── Image preview ───────────────────────────────────────────── */}
+      <ShowcaseCard
+        title="Xem trước hình ảnh"
+        description="Bật showPreview để hiển thị thumbnail cho các file ảnh."
+      >
+        <div className="w-full max-w-md">
+          <FileUpload
+            multiple
+            showPreview
+            maxFiles={5}
+            value={files5}
+            onChange={setFiles5}
+            label="Tải lên hình ảnh"
+            description="PNG, JPG, GIF — tối đa 5 file, 5MB/file"
+            accept="image/*"
+            maxSize={5 * 1024 * 1024}
+            onError={setPreviewError}
+            error={previewError}
+          />
+        </div>
+      </ShowcaseCard>
+
+      {/* ── Fill preview ────────────────────────────────────────────── */}
+      <ShowcaseCard
+        title="Ảnh fill vào khung"
+        description="previewVariant='fill' — ảnh lấp đầy khung dropzone, click để thay đổi."
+      >
+        <div className="w-full max-w-md">
+          <FileUpload
+            showPreview
+            previewVariant="fill"
+            value={files6}
+            onChange={setFiles6}
+            label="Ảnh bìa"
+            description="PNG, JPG — tối đa 5MB"
+            accept="image/*"
+            maxSize={5 * 1024 * 1024}
+            onError={setFillError}
+            error={fillError}
           />
         </div>
       </ShowcaseCard>

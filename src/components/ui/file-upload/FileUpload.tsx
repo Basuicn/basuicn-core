@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
 import { cn } from '@/lib/utils/cn';
-import { Upload, X, FileIcon, ImageIcon, FileText, FileArchive } from 'lucide-react';
+import { Upload, X, FileIcon, ImageIcon, FileText, FileArchive, Pencil } from 'lucide-react';
 
 // ─── Variants ────────────────────────────────────────────────────────────────
 
@@ -12,6 +12,19 @@ const fileUploadVariants = tv({
       'relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed',
       'cursor-pointer transition-all duration-200',
       'hover:border-primary/50 hover:bg-primary/5',
+    ].join(' '),
+    fillPreview: [
+      'relative overflow-hidden rounded-xl border border-border group',
+      'cursor-pointer transition-all duration-200',
+    ].join(' '),
+    fillImage: 'w-full h-full object-cover',
+    fillOverlay: [
+      'absolute inset-0 flex flex-col items-center justify-center gap-1',
+      'bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity',
+    ].join(' '),
+    fillRemoveBtn: [
+      'absolute top-2 right-2 z-10 p-1.5 rounded-md bg-black/60 text-white',
+      'hover:bg-danger transition-colors opacity-0 group-hover:opacity-100',
     ].join(' '),
     fileList: 'flex flex-col gap-2',
     fileItem: [
@@ -26,9 +39,9 @@ const fileUploadVariants = tv({
   },
   variants: {
     size: {
-      sm: { dropzone: 'px-4 py-6 text-xs' },
-      md: { dropzone: 'px-6 py-10 text-sm' },
-      lg: { dropzone: 'px-8 py-14 text-base' },
+      sm: { dropzone: 'px-4 py-6 text-xs', fillPreview: 'h-32 text-xs' },
+      md: { dropzone: 'px-6 py-10 text-sm', fillPreview: 'h-48 text-sm' },
+      lg: { dropzone: 'px-8 py-14 text-base', fillPreview: 'h-64 text-base' },
     },
     isDragActive: {
       true: { dropzone: 'border-primary bg-primary/10 scale-[1.01]' },
@@ -89,6 +102,10 @@ export interface FileUploadProps extends VariantProps<typeof fileUploadVariants>
   label?: string;
   /** Description */
   description?: string;
+  /** Hiển thị preview thumbnail cho file ảnh */
+  showPreview?: boolean;
+  /** Kiểu preview: 'thumbnail' hiển thị trong danh sách, 'fill' lấp đầy khung dropzone (chỉ dùng cho single image) */
+  previewVariant?: 'thumbnail' | 'fill';
   className?: string;
   children?: React.ReactNode;
 }
@@ -109,6 +126,8 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
       error,
       label,
       description,
+      showPreview = false,
+      previewVariant = 'thumbnail',
       size = 'md',
       className,
       children,
@@ -116,8 +135,40 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
     ref,
   ) => {
     const [isDragActive, setIsDragActive] = React.useState(false);
+    const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
     const inputRef = React.useRef<HTMLInputElement>(null);
     const rootId = React.useId();
+
+    React.useEffect(() => {
+      if (!isLightboxOpen) return;
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setIsLightboxOpen(false);
+      };
+      document.addEventListener('keydown', onKey);
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = prevOverflow;
+      };
+    }, [isLightboxOpen]);
+
+    const previews = React.useMemo(() => {
+      if (!showPreview) return new Map<File, string>();
+      const map = new Map<File, string>();
+      for (const file of value) {
+        if (file.type.startsWith('image/')) {
+          map.set(file, URL.createObjectURL(file));
+        }
+      }
+      return map;
+    }, [value, showPreview]);
+
+    React.useEffect(() => {
+      return () => {
+        previews.forEach((url) => URL.revokeObjectURL(url));
+      };
+    }, [previews]);
 
     const styles = fileUploadVariants({
       size,
@@ -195,6 +246,10 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
       [addFiles],
     );
 
+    const isFillMode = showPreview && previewVariant === 'fill';
+    const fillFile = isFillMode ? value.find((f) => f.type.startsWith('image/')) : undefined;
+    const fillUrl = fillFile ? previews.get(fillFile) : undefined;
+
     return (
       <div ref={ref} className={cn(styles.root(), className)}>
         {label && (
@@ -203,54 +258,141 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
           </label>
         )}
 
-        <div
-          className={styles.dropzone()}
-          onClick={() => !disabled && inputRef.current?.click()}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-        >
-          <input
-            ref={inputRef}
-            id={rootId}
-            type="file"
-            accept={accept}
-            multiple={multiple}
-            onChange={handleInputChange}
-            disabled={disabled}
-            className="sr-only"
-          />
+        {isFillMode && fillUrl ? (
+          <div
+            className={styles.fillPreview()}
+            onClick={() => !disabled && setIsLightboxOpen(true)}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+          >
+            <input
+              ref={inputRef}
+              id={rootId}
+              type="file"
+              accept={accept}
+              multiple={multiple}
+              onChange={handleInputChange}
+              disabled={disabled}
+              className="sr-only"
+            />
+            <img src={fillUrl} alt={fillFile?.name} className={styles.fillImage()} />
+            <div className={styles.fillOverlay()}>
+              <ImageIcon className="h-6 w-6" />
+              <p className="text-sm font-medium">Nhấn để xem ảnh</p>
+            </div>
+            <div className="absolute top-2 right-2 z-10 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!disabled) inputRef.current?.click();
+                }}
+                className="p-1.5 rounded-md bg-black/60 text-white hover:bg-primary transition-colors"
+                aria-label="Change image"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (fillFile) removeFile(value.indexOf(fillFile));
+                }}
+                className="p-1.5 rounded-md bg-black/60 text-white hover:bg-danger transition-colors"
+                aria-label={`Remove ${fillFile?.name}`}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div
+            className={styles.dropzone()}
+            onClick={() => !disabled && inputRef.current?.click()}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+          >
+            <input
+              ref={inputRef}
+              id={rootId}
+              type="file"
+              accept={accept}
+              multiple={multiple}
+              onChange={handleInputChange}
+              disabled={disabled}
+              className="sr-only"
+            />
 
-          {children ?? (
-            <>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                <Upload className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div className="text-center">
-                <p className="font-medium text-foreground">
-                  Drop files here or <span className="text-primary">browse</span>
-                </p>
-                {description && (
-                  <p className="mt-1 text-muted-foreground text-xs">{description}</p>
-                )}
-              </div>
-            </>
-          )}
-        </div>
+            {children ?? (
+              <>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                  <Upload className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="text-center">
+                  <p className="font-medium text-foreground">
+                    Drop files here or <span className="text-primary">browse</span>
+                  </p>
+                  {description && (
+                    <p className="mt-1 text-muted-foreground text-xs">{description}</p>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {error && (
           <p className="text-[0.8rem] font-medium text-danger">{error}</p>
         )}
 
-        {value.length > 0 && (
+        {isFillMode && fillUrl && isLightboxOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in"
+            onClick={() => setIsLightboxOpen(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={fillFile?.name}
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsLightboxOpen(false);
+              }}
+              className="absolute top-4 right-4 p-2 rounded-md bg-white/10 text-white hover:bg-white/20 transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <img
+              src={fillUrl}
+              alt={fillFile?.name}
+              className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
+
+        {!isFillMode && value.length > 0 && (
           <div className={styles.fileList()}>
             {value.map((file, i) => {
               const Icon = getFileIcon(file.type);
+              const previewUrl = previews.get(file);
               return (
                 <div key={`${file.name}-${i}`} className={styles.fileItem()}>
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
-                  </div>
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt={file.name}
+                      className="h-10 w-10 shrink-0 rounded-lg object-cover border border-border"
+                    />
+                  ) : (
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Icon className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
                     <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
@@ -278,4 +420,4 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
 
 FileUpload.displayName = 'FileUpload';
 
-export { FileUpload, fileUploadVariants };
+export { FileUpload };
