@@ -6,7 +6,7 @@ import readline from 'readline';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const VERSION = '0.2.11';
+const VERSION = '0.3.0';
 const REGISTRY_LOCAL = './registry.json';
 const REGISTRY_REMOTE = 'https://raw.githubusercontent.com/Basuicn/basuicn-core/main/registry.json';
 
@@ -685,6 +685,62 @@ const patchMainTsxComponent = (cwd: string, componentName: string) => {
     ok(`Added <${tagName}> to ${path.relative(cwd, mainPath)}.`);
 };
 
+// ─── index.ts barrel update ───────────────────────────────────────────────────
+
+const UI_INDEX_PATH = 'src/components/ui/index.ts';
+const UI_INDEX_DIR  = 'src/components/ui';
+
+/** Pick the primary .tsx component file (skip tests, stories, hooks) */
+const pickMainFile = (files: RegistryFile[]): RegistryFile | undefined =>
+    files.find(
+        (f) =>
+            f.path.startsWith(UI_INDEX_DIR + '/') &&
+            f.path.endsWith('.tsx') &&
+            !f.path.includes('.test.') &&
+            !f.path.includes('.stories.'),
+    );
+
+/** Append `export * from './dir/File';` to index.ts if not already present */
+const addToComponentIndex = (componentFiles: RegistryFile[], cwd: string) => {
+    const indexPath = path.join(cwd, UI_INDEX_PATH);
+    if (!fs.existsSync(indexPath)) return;
+
+    const mainFile = pickMainFile(componentFiles);
+    if (!mainFile) return;
+
+    const withoutExt = mainFile.path.replace(/\.tsx$/, '');
+    const relPath = './' + path.relative(UI_INDEX_DIR, withoutExt).replace(/\\/g, '/');
+    const exportLine = `export * from '${relPath}';`;
+
+    const content = fs.readFileSync(indexPath, 'utf-8');
+    if (content.includes(relPath)) return;
+
+    fs.writeFileSync(indexPath, content.trimEnd() + '\n' + exportLine + '\n');
+    ok(`Updated index.ts: added ${c.dim}${relPath}${c.reset}`);
+};
+
+/** Remove the export line from index.ts */
+const removeFromComponentIndex = (componentFiles: RegistryFile[], cwd: string) => {
+    const indexPath = path.join(cwd, UI_INDEX_PATH);
+    if (!fs.existsSync(indexPath)) return;
+
+    const mainFile = pickMainFile(componentFiles);
+    if (!mainFile) return;
+
+    const withoutExt = mainFile.path.replace(/\.tsx$/, '');
+    const relPath = './' + path.relative(UI_INDEX_DIR, withoutExt).replace(/\\/g, '/');
+
+    const content = fs.readFileSync(indexPath, 'utf-8');
+    const filtered = content
+        .split('\n')
+        .filter((line) => !line.includes(relPath))
+        .join('\n');
+
+    if (filtered === content) return;
+    fs.writeFileSync(indexPath, filtered);
+    ok(`Updated index.ts: removed ${c.dim}${relPath}${c.reset}`);
+};
+
 // ─── Component add/remove ─────────────────────────────────────────────────────
 
 const addComponent = (
@@ -738,6 +794,8 @@ const addComponent = (
         fs.writeFileSync(targetPath, content);
         ok(`Created: ${file.path}`);
     }
+
+    addToComponentIndex(component.files, cwd);
 };
 
 const removeComponent = (
@@ -772,6 +830,8 @@ const removeComponent = (
             warn(`Could not remove directory: ${err instanceof Error ? err.message : err}`);
         }
     }
+
+    removeFromComponentIndex(component.files as RegistryFile[], cwd);
 };
 
 // ─── Help texts ───────────────────────────────────────────────────────────────

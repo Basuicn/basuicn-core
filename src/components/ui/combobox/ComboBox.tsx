@@ -10,12 +10,12 @@ const comboboxVariants = tv({
     root: 'flex flex-col gap-1.5 w-full',
     inputContainer: 'flex flex-wrap items-center gap-1.5 min-h-10 w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm focus-within:border-primary disabled:cursor-not-allowed disabled:opacity-50 transition-shadow transition-colors',
     input: 'flex-1 min-w-[120px] bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed',
-    popup: 'z-50 w-[var(--anchor-width,var(--reference-width))] max-w-[var(--available-width)] overflow-hidden rounded-lg border border-border bg-background text-popover-foreground shadow-[rgba(0,0,0,0.08)_0px_4px_16px] animate-in fade-in-0 zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-side-bottom:slide-in-from-top-2 data-side-left:slide-in-from-right-2 data-side-right:slide-in-from-left-2 data-side-top:slide-in-from-bottom-2',
+    popup: 'z-999 w-[var(--anchor-width,var(--reference-width))] max-w-[var(--available-width)] overflow-hidden rounded-lg border border-border bg-background text-popover-foreground shadow-[rgba(0,0,0,0.08)_0px_4px_16px] animate-in fade-in-0 zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-side-bottom:slide-in-from-top-2 data-side-left:slide-in-from-right-2 data-side-right:slide-in-from-left-2 data-side-top:slide-in-from-bottom-2',
     item: 'cursor-pointer relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-highlighted:bg-accent data-highlighted:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50',
     indicator: 'absolute left-2 flex h-3.5 w-3.5 items-center justify-center',
     chip: 'inline-flex items-center gap-1 rounded bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground outline-none focus:ring-1 focus:ring-primary',
     chipRemove: 'hover:bg-primary/20 rounded-full p-0.5 transition-colors cursor-pointer',
-    actionsHeader: 'flex items-center gap-1 p-1 border-b border-border sticky top-0 bg-background z-10',
+    actionsHeader: 'flex items-center gap-1 p-1 border-b border-border sticky top-0 bg-background z-999',
     actionButton: 'flex-1 text-[10px] uppercase tracking-wider font-bold py-1.5 px-2 rounded-sm hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors text-center',
   }
 });
@@ -186,7 +186,7 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
               <BaseCombobox.Positioner
                 anchor={inputGroupRef}
                 sideOffset={4}
-                style={{ width: 'var(--anchor-width)' }}
+                style={{ width: 'var(--anchor-width)', zIndex: 9999 }}
               >
                 <BaseCombobox.Popup className={cn(popup(), 'min-w-0')}>
                   {multiple && options.length > 0 && (

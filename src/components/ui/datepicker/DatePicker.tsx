@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Popover as BasePopover } from '@base-ui/react';
 import { DayPicker, type DateRange } from 'react-day-picker';
@@ -157,7 +158,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     return (
         <div ref={ref} className={`flex flex-col gap-1.5 ${className || ''}`}>
             {label && (
-                <label className="text-sm font-medium text-foreground leading-none">
+                <label className="text-sm font-medium text-foreground ">
                     {label}
                 </label>
             )}
@@ -190,7 +191,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                 />
 
                 <BasePopover.Portal>
-                    <BasePopover.Positioner anchor={triggerRef} sideOffset={6} className="z-50">
+                    <BasePopover.Positioner anchor={triggerRef} sideOffset={6} style={{ zIndex: 9999 }}>
                         <BasePopover.Popup className={popoverContent()}>
                             {!isTimeMode && mode === 'single' && (
                                 <div className="p-2 flex justify-center">

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const COMPONENTS_DIR = './src/components/ui';
+const HOOKS_DIR = './src/hooks';
 const OUTPUT_FILE = './registry.json';
 
 // Directories to exclude from registry (not reusable components)
@@ -110,6 +111,44 @@ const getInternalDeps = (content: string, currentDirName: string): string[] => {
   return [...internalDeps];
 };
 
+/** Collect hook files imported via `@/hooks/xxx` in any of the given source files */
+const collectHookFiles = (sourceFiles: string[]): RegistryFile[] => {
+  const seen = new Set<string>();
+  const hookFiles: RegistryFile[] = [];
+
+  for (const file of sourceFiles) {
+    let content: string;
+    try { content = fs.readFileSync(file, 'utf-8'); } catch { continue; }
+
+    const hookRegex = /from\s+['"]@\/hooks\/([^'"]+)['"]/g;
+    let match;
+    while ((match = hookRegex.exec(content)) !== null) {
+      // Normalise: strip extension if present, then try .ts and .tsx
+      const rawName = match[1].replace(/\.(ts|tsx)$/, '');
+      if (seen.has(rawName)) continue;
+
+      const candidates = [
+        path.join(HOOKS_DIR, `${rawName}.ts`),
+        path.join(HOOKS_DIR, `${rawName}.tsx`),
+        path.join(HOOKS_DIR, rawName, 'index.ts'),
+      ];
+
+      for (const candidate of candidates) {
+        if (fs.existsSync(candidate)) {
+          seen.add(rawName);
+          hookFiles.push({
+            path: candidate.replace(/\\/g, '/').replace(/^\.\//, ''),
+            content: fs.readFileSync(candidate, 'utf-8'),
+          });
+          break;
+        }
+      }
+    }
+  }
+
+  return hookFiles;
+};
+
 const buildRegistry = () => {
   console.log('Building component registry...');
 
@@ -183,21 +222,26 @@ const buildRegistry = () => {
       }
     }
 
+    // Collect any hook files this component imports from @/hooks/
+    const hookFiles = collectHookFiles(files);
+
+    const componentFiles: RegistryFile[] = files.map((f) => {
+      try {
+        return {
+          path: f.replace(/\\/g, '/').replace(/^\.\//, ''),
+          content: fs.readFileSync(f, 'utf-8'),
+        };
+      } catch (err) {
+        console.warn(`Failed to read ${f}: ${err}`);
+        return { path: f.replace(/\\/g, '/').replace(/^\.\//, ''), content: '' };
+      }
+    }).filter(f => f.content !== '');
+
     registry.components[dirName] = {
       name: dirName,
       dependencies: [...allDependencies],
       internalDependencies: [...allInternalDeps],
-      files: files.map((f) => {
-        try {
-          return {
-            path: f.replace(/\\/g, '/').replace(/^\.\//, ''),
-            content: fs.readFileSync(f, 'utf-8'),
-          };
-        } catch (err) {
-          console.warn(`Failed to read ${f}: ${err}`);
-          return { path: f.replace(/\\/g, '/').replace(/^\.\//, ''), content: '' };
-        }
-      }).filter(f => f.content !== ''),
+      files: [...componentFiles, ...hookFiles],
     };
   }
 

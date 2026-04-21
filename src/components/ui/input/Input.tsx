@@ -2,8 +2,8 @@ import * as React from 'react';
 import { Input as BaseInput, Field as BaseField } from '@base-ui/react';
 import { tv, type VariantProps } from 'tailwind-variants';
 import { cn } from '@/lib/utils/cn';
-import * as Icon from "@/components/ui/icons";
 import { Toggle } from '@/components/ui/toggle/Toggle';
+import { Eye, EyeOff } from 'lucide-react';
 
 const inputVariants = tv({
   base: 'flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 transition-shadow',
@@ -47,7 +47,7 @@ const Input = React.forwardRef<React.ElementRef<typeof BaseInput>, InputProps>(
     return (
       <BaseField.Root className="flex flex-col gap-1.5 w-full">
         {label && (
-          <BaseField.Label htmlFor={inputId} className="text-sm font-medium text-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <BaseField.Label htmlFor={inputId} className="text-sm font-medium text-foreground ">
             {label}
           </BaseField.Label>
         )}
@@ -57,10 +57,10 @@ const Input = React.forwardRef<React.ElementRef<typeof BaseInput>, InputProps>(
               {icon}
             </div>
           )}
-          <BaseField.Control render={<BaseInput
+          <BaseInput
             ref={ref}
             id={inputId}
-            type={inputType}
+            type={inputType || 'text'}
             className={cn(
               inputVariants({ variant }),
               icon && 'pl-9',
@@ -69,7 +69,7 @@ const Input = React.forwardRef<React.ElementRef<typeof BaseInput>, InputProps>(
               className
             )}
             {...props}
-          />} />
+          />
           {isPassword ? (
             <Toggle
               type="button"
@@ -80,7 +80,7 @@ const Input = React.forwardRef<React.ElementRef<typeof BaseInput>, InputProps>(
               onPressedChange={setShowPassword}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? <Icon.EyeOff className="h-4 w-4" /> : <Icon.Eye className="h-4 w-4" />}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Toggle>
           ) : endIcon ? (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
