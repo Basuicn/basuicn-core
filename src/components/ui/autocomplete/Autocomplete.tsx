@@ -1,4 +1,3 @@
-"use client"
 import * as React from 'react';
 import { Combobox as BaseCombobox } from '@base-ui/react';
 import { Check, X, Loader2 } from 'lucide-react';
@@ -34,6 +33,8 @@ export interface AutocompleteProps {
   emptyText?: string;
   leftIcon?: React.ReactNode;
   clearOnSelect?: boolean;
+  /** Value emitted when clear button is clicked (default: empty string) */
+  clearValue?: string | null;
 }
 
 const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
@@ -49,6 +50,7 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
     emptyText = 'No results found.',
     leftIcon,
     clearOnSelect = false,
+    clearValue,
   }, ref) => {
     const [inputValue, setInputValue] = React.useState('');
     const [open, setOpen] = React.useState(false);
@@ -58,16 +60,25 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
 
     const activeValue = value !== undefined ? value : internalValue;
 
+    const getClearValue = (): string | null => {
+      return clearValue ?? null;
+    };
+
     const handleValueChange = (newVal: string | null) => {
       isSelectingRef.current = true;
       if (value === undefined) setInternalValue(clearOnSelect ? null : newVal);
-      if (newVal !== null) onValueChange?.(newVal);
+      if (newVal !== null) {
+        onValueChange?.(newVal);
+      } else {
+        const clear = getClearValue();
+        // Emit '' to form if clearValue is null
+        onValueChange?.(clear ?? '');
+      }
     };
 
     const handleInputValueChange = (val: string) => {
       if (isSelectingRef.current) {
         isSelectingRef.current = false;
-        // clearOnSelect: xóa input ngay sau khi chọn, không để label xuất hiện
         if (clearOnSelect) {
           setInputValue('');
           setOpen(false);
@@ -85,7 +96,10 @@ const Autocomplete = React.forwardRef<HTMLInputElement, AutocompleteProps>(
     const handleClear = (e: React.SyntheticEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      handleValueChange(null);
+      const clear = getClearValue();
+      if (value === undefined) setInternalValue(null);
+      // Emit '' to form if clearValue is null
+      onValueChange?.(clear ?? '');
       setInputValue('');
       setOpen(false);
     };

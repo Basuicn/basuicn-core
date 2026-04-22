@@ -61,15 +61,22 @@ export interface ComboBoxProps {
   required?: boolean;
   /** Error message displayed below the combobox */
   error?: string;
+  /** Value emitted when clear button is clicked (default: empty string or empty array) */
+  clearValue?: string | null;
 }
 
 const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
-  ({ options, label, placeholder, value, defaultValue, onValueChange, onChange, multiple, isLoading, className, autocomplete = true, emptyText = 'No results found.', selectAllText = 'Select all', clearAllText = 'Clear all', leftIcon, required, error }, ref) => {
+  ({ options, label, placeholder, value, defaultValue, onValueChange, onChange, multiple, isLoading, className, autocomplete = true, emptyText = 'No results found.', selectAllText = 'Select all', clearAllText = 'Clear all', leftIcon, required, error, clearValue }, ref) => {
     const [inputValue, setInputValue] = React.useState('');
     const [internalValue, setInternalValue] = React.useState<string | string[] | null>(defaultValue || (multiple ? [] : null));
     const isSelectingRef = React.useRef(false);
 
     const activeValue = value !== undefined ? value : internalValue;
+
+    const getClearValue = (): string | string[] | null => {
+      if (clearValue !== undefined) return clearValue;
+      return multiple ? [] : null;
+    };
 
     const handleValueChange = (newVal: string | string[] | null) => {
       isSelectingRef.current = true;
@@ -79,11 +86,21 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
       if (newVal !== null) {
         onValueChange?.(newVal);
         onChange?.(newVal);
+      } else {
+        // Khi clear, dùng clearValue (default: null hoặc [])
+        const clear = getClearValue();
+        if (clear !== null) {
+          onValueChange?.(clear);
+          onChange?.(clear);
+        } else {
+          // Nếu clearValue = null, emit '' để React Hook Form nhận được value
+          onValueChange?.('');
+          onChange?.('');
+        }
       }
     };
 
     const handleInputValueChange = (val: string) => {
-      // Bỏ qua cập nhật inputValue khi đang chọn item để tránh nháy popup
       if (isSelectingRef.current) {
         isSelectingRef.current = false;
         return;
@@ -94,7 +111,17 @@ const ComboBox = React.forwardRef<HTMLInputElement, ComboBoxProps>(
     const handleClear = (e: React.SyntheticEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      handleValueChange(multiple ? [] : null);
+      const clear = getClearValue();
+      if (value === undefined) {
+        setInternalValue(clear);
+      }
+      if (clear !== null) {
+        onValueChange?.(clear);
+        onChange?.(clear);
+      } else {
+        onValueChange?.('');
+        onChange?.('');
+      }
       setInputValue('');
     };
 
