@@ -34,19 +34,26 @@ export interface CheckboxProps
 }
 
 const Checkbox = React.forwardRef<React.ElementRef<typeof BaseCheckbox.Root>, CheckboxProps>(
-  ({ className, size = 'md', label, id, indeterminate, ...props }, ref) => {
+  (allProps, ref) => {
+    const { className, size = 'md', label, id, indeterminate, checked, defaultChecked, ...restProps } = allProps;
     const defaultId = React.useId();
     const checkboxId = id || defaultId;
     const { root, indicator, icon } = checkboxVariants({ size });
 
+    // Nếu checked được truyền tường minh (kể cả undefined), normalize về false
+    // để tránh chuyển từ uncontrolled → controlled trong suốt vòng đời component
+    const normalizedChecked = 'checked' in allProps ? (checked ?? false) : undefined;
+
     return (
-      <div className={cn("flex items-center gap-2", props.disabled && "opacity-50 cursor-not-allowed")}>
+      <div className={cn("flex items-center gap-2", restProps.disabled && "opacity-50 cursor-not-allowed")}>
         <BaseCheckbox.Root
           ref={ref}
           id={checkboxId}
-          className={root({ className: cn(!props.disabled&&'cursor-pointer', className) })}
+          className={root({ className: cn(!restProps.disabled && 'cursor-pointer', className) })}
           indeterminate={indeterminate}
-          {...props}
+          checked={normalizedChecked}
+          defaultChecked={defaultChecked}
+          {...restProps}
         >
           <BaseCheckbox.Indicator className={indicator()}>
             {indeterminate ? (
@@ -59,7 +66,7 @@ const Checkbox = React.forwardRef<React.ElementRef<typeof BaseCheckbox.Root>, Ch
         {label && (
           <label
             htmlFor={checkboxId}
-            className={cn("text-sm font-medium leading-none select-none", props.disabled ? "cursor-not-allowed" : "cursor-pointer")}
+            className={cn("text-sm font-medium leading-none select-none", restProps.disabled ? "cursor-not-allowed" : "cursor-pointer")}
           >
             {label}
           </label>
