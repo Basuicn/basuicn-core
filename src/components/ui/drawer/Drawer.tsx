@@ -5,12 +5,16 @@ import { X } from 'lucide-react';
 
 const drawerVariants = tv({
   slots: {
-    overlay:
-      'fixed inset-0 z-50 bg-black/40 data-starting:animate-in data-ending:animate-out data-ending:fade-out-0 data-starting:fade-in-0',
+    overlay: [
+      'fixed inset-0 z-50 bg-black/40',
+      'transition-opacity duration-200 ease-out',
+      'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
+    ],
     panel: [
       'fixed z-50 bg-background shadow-2xl flex flex-col',
-      'data-starting:animate-in data-ending:animate-out duration-300',
       'outline-none overflow-hidden m-0 p-0 max-w-full max-h-full border-none',
+      'transition duration-300 ease-out',
+      'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
     ],
     header:
       'flex items-center justify-between px-6 py-4 border-b border-border/50 shrink-0',
@@ -24,20 +28,28 @@ const drawerVariants = tv({
   variants: {
     direction: {
       left: {
-        panel:
-          'inset-y-0 left-0 h-full data-[starting-style]:-translate-x-full data-[ending-style]:-translate-x-full transition-transform',
+        panel: [
+          'inset-y-0 left-0 h-full',
+          'data-[starting-style]:-translate-x-full data-[ending-style]:-translate-x-full',
+        ],
       },
       right: {
-        panel:
-          'inset-y-0 right-0 h-full data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full transition-transform',
+        panel: [
+          'inset-y-0 right-0 h-full',
+          'data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full',
+        ],
       },
       top: {
-        panel:
-          'inset-x-0 top-0 w-full data-[starting-style]:-translate-y-full data-[ending-style]:-translate-y-full transition-transform',
+        panel: [
+          'inset-x-0 top-0 w-full',
+          'data-[starting-style]:-translate-y-full data-[ending-style]:-translate-y-full',
+        ],
       },
       bottom: {
-        panel:
-          'inset-x-0 bottom-0 w-full data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full transition-transform',
+        panel: [
+          'inset-x-0 bottom-0 w-full',
+          'data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full',
+        ],
       },
     },
     size: {
