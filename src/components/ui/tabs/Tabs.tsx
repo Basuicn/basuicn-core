@@ -32,7 +32,7 @@ const { rootSlots, list, indicator, panel } = tabsVariants();
 
 type TabsRootProps = React.ComponentPropsWithoutRef<typeof BaseTabs.Root>;
 
-export interface TabsProps extends TabsRootProps {}
+export type TabsProps = TabsRootProps
 
 const Tabs = React.forwardRef<React.ElementRef<typeof BaseTabs.Root>, TabsProps>(
   ({ className, value: valueProp, defaultValue, onValueChange, ...props }, ref) => {
@@ -78,7 +78,7 @@ const TabsList = React.forwardRef<React.ElementRef<typeof BaseTabs.List>, TabsLi
 );
 TabsList.displayName = 'TabsList';
 
-export interface TabsTriggerProps extends React.ComponentPropsWithoutRef<typeof BaseTabs.Tab> {}
+export type TabsTriggerProps = React.ComponentPropsWithoutRef<typeof BaseTabs.Tab>
 
 const TabsTrigger = React.forwardRef<React.ElementRef<typeof BaseTabs.Tab>, TabsTriggerProps>(
   ({ className, ...props }, ref) => {
@@ -91,7 +91,7 @@ const TabsTrigger = React.forwardRef<React.ElementRef<typeof BaseTabs.Tab>, Tabs
 );
 TabsTrigger.displayName = 'TabsTrigger';
 
-export interface TabsContentProps extends React.ComponentPropsWithoutRef<typeof BaseTabs.Panel> {}
+export type TabsContentProps = React.ComponentPropsWithoutRef<typeof BaseTabs.Panel>
 
 const TabsContent = React.forwardRef<React.ElementRef<typeof BaseTabs.Panel>, TabsContentProps>(
   ({ className, ...props }, ref) => (
@@ -100,5 +100,5 @@ const TabsContent = React.forwardRef<React.ElementRef<typeof BaseTabs.Panel>, Ta
 );
 TabsContent.displayName = 'TabsContent';
 
-export { Tabs, TabsList, TabsTrigger, TabsContent, tabsVariants };
+export { Tabs, TabsList, TabsTrigger, TabsContent };
 export type { TabsSize };

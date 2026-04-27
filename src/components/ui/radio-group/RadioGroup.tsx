@@ -37,4 +37,4 @@ const RadioGroup = React.forwardRef<React.ElementRef<typeof BaseRadioGroup>, Rad
 
 RadioGroup.displayName = 'RadioGroup';
 
-export { RadioGroup, radioGroupVariants };
+export { RadioGroup };

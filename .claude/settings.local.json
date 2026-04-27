@@ -37,7 +37,8 @@
       "Bash(ls -1d \"D:\\\\code\\\\fe\\\\basuicn-core\\\\src\\\\components\\\\ui\"/*/)",
       "Bash(xargs cat *)",
       "Bash(xargs ls *)",
-      "Bash(python3 -c \"import json,sys; r=json.load\\(sys.stdin\\); k=list\\(r['components'].keys\\(\\)\\)[:3]; [print\\(k[i], json.dumps\\(r['components'][k[i]]['files'], indent=2\\)\\) for i in range\\(len\\(k\\)\\)]\")"
+      "Bash(python3 -c \"import json,sys; r=json.load\\(sys.stdin\\); k=list\\(r['components'].keys\\(\\)\\)[:3]; [print\\(k[i], json.dumps\\(r['components'][k[i]]['files'], indent=2\\)\\) for i in range\\(len\\(k\\)\\)]\")",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

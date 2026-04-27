@@ -7,15 +7,15 @@ const radioVariants = tv({
   slots: {
     root: 'group flex shrink-0 items-center justify-center rounded-full border border-border bg-background transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[checked]:border-primary data-checked:border-primary',
     indicator: 'flex items-center justify-center',
-    dot: 'rounded-full bg-primary',
+    dot: 'rounded-full bg-primary flex items-center justify-center',
     card: 'group/card relative flex flex-row items-start gap-4 cursor-pointer rounded-xl border border-border bg-card p-4 w-full shadow-sm outline-none transition-all hover:bg-accent/50 hover:text-accent-foreground data-[checked]:border-primary data-[checked]:bg-primary/5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden',
     cardCircle: 'flex shrink-0 items-center justify-center rounded-full border border-border bg-background transition-all group-data-[checked]/card:border-primary group-data-[checked]/card:text-primary mt-0.5',
   },
   variants: {
     size: {
-      sm: { root: 'h-4 w-4', cardCircle: 'h-4 w-4', dot: 'h-1.5 w-1.5' },
-      md: { root: 'h-5 w-5', cardCircle: 'h-5 w-5', dot: 'h-2 w-2' },
-      lg: { root: 'h-6 w-6', cardCircle: 'h-6 w-6', dot: 'h-2.5 w-2.5' },
+      sm: { root: 'h-4 w-4', cardCircle: 'h-4 w-4', dot: 'h-2.5 w-2.5' },
+      md: { root: 'h-5 w-5', cardCircle: 'h-5 w-5', dot: 'h-3 w-3' },
+      lg: { root: 'h-6 w-6', cardCircle: 'h-6 w-6', dot: 'h-3.5 w-3.5' },
     },
   },
   defaultVariants: {

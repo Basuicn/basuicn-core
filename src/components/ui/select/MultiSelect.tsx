@@ -1,4 +1,3 @@
-"use client"
 import * as React from 'react';
 import { Select as BaseSelect } from '@base-ui/react';
 import { tv } from 'tailwind-variants';
@@ -82,7 +81,7 @@ const MultiSelect = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>
         return (
             <div className="flex flex-col gap-1.5 w-full">
                 {label && (
-                    <label className="text-sm font-medium text-foreground leading-none">
+                    <label className="text-sm font-medium text-foreground">
                         {label}
                     </label>
                 )}

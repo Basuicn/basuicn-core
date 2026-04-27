@@ -71,7 +71,7 @@ const Select = React.forwardRef<React.ElementRef<typeof BaseSelect.Trigger>, Sel
         return (
             <div className="flex flex-col gap-1.5">
                 {label && (
-                    <label className="text-sm font-medium text-foreground leading-none">
+                    <label className="text-sm font-medium text-foreground">
                         {label}
                     </label>
                 )}
