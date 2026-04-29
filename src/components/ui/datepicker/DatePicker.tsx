@@ -1,4 +1,3 @@
-'use client';
 import * as React from 'react';
 import { Popover as BasePopover } from '@base-ui/react';
 import { DayPicker, type DateRange } from 'react-day-picker';
@@ -56,6 +55,7 @@ export interface DatePickerProps {
     /** Error message displayed below the picker (replaces description) */
     error?: string;
     required?: boolean;
+    captionLayout?: "label" | "dropdown" | "dropdown-months" | "dropdown-years" | undefined;
 }
 
 // ---------- helpers ----------
@@ -213,7 +213,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ parts, onChange, timeFormat, ti
 
 export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     mode = 'single',
-    date,
+    date: dateProp,
     onDateChange,
     onChange,
     timeValue,
@@ -229,29 +229,31 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     description,
     error,
     required,
+    captionLayout = undefined,
 }, ref) => {
     const [open, setOpen] = React.useState(false);
     const triggerRef = React.useRef<HTMLButtonElement>(null);
+
+    // Internal state — hoạt động cả controlled lẫn uncontrolled
+    const isControlled = dateProp !== undefined;
+    const [internalDate, setInternalDate] = React.useState<Date | DateRange | undefined>(undefined);
+    const date = isControlled ? dateProp : internalDate;
+
+    // Calendar luôn navigate đến tháng của ngày đã chọn khi mở
+    const [calendarMonth, setCalendarMonth] = React.useState<Date>(new Date());
+    const handleOpenChange = (newOpen: boolean) => {
+        if (newOpen) {
+            const selectedDate = date instanceof Date ? date : (date as DateRange)?.from;
+            setCalendarMonth(selectedDate ?? new Date());
+        }
+        setOpen(newOpen);
+    };
 
     const timeParts = React.useMemo<TimeParts>(() => {
         if (mode === 'time-only' && timeValue) return parseTimeParts(timeValue);
         if (date instanceof Date) return dateToTimeParts(date);
         return DEFAULT_TIME;
     }, [date, timeValue, mode]);
-
-    const rangeTimeParts = React.useMemo<{ from: TimeParts; to: TimeParts }>(() => {
-        if (mode !== 'range') return { from: DEFAULT_TIME, to: DEFAULT_TIME };
-        const range = date as DateRange | undefined;
-        return {
-            from: range?.from ? dateToTimeParts(range.from) : DEFAULT_TIME,
-            to: range?.to ? dateToTimeParts(range.to) : DEFAULT_TIME,
-        };
-    }, [date, mode]);
-
-    const emitRange = (newRange: DateRange | undefined) => {
-        onDateChange?.(newRange);
-        onChange?.(newRange);
-    };
 
     const handlePartsChange = (newParts: TimeParts) => {
         if (mode === 'time-only') {
@@ -260,42 +262,31 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
         }
         if (date instanceof Date) {
             const newDate = applyTimeToDate(date, newParts);
+            if (!isControlled) setInternalDate(newDate);
             onDateChange?.(newDate);
             onChange?.(newDate);
         }
     };
 
-    const handleRangePartsChange = (newParts: TimeParts, which: 'from' | 'to') => {
-        const range = date as DateRange | undefined;
-        const target = range?.[which];
-        if (!range || !target) return;
-        emitRange({ ...range, [which]: applyTimeToDate(target, newParts) });
-    };
-
     const handleDateSelect = (selectedDate: Date | DateRange | Date[] | undefined) => {
         if (!selectedDate) {
+            if (!isControlled) setInternalDate(undefined);
             onDateChange?.(undefined);
             onChange?.(undefined);
             return;
         }
         if (mode === 'single' && showTime && selectedDate instanceof Date) {
             const newDate = applyTimeToDate(selectedDate, timeParts);
+            if (!isControlled) setInternalDate(newDate);
             onDateChange?.(newDate);
             onChange?.(newDate);
-            return;
+        } else {
+            if (!isControlled) setInternalDate(selectedDate as Date | DateRange);
+            onDateChange?.(selectedDate as DateRange);
+            onChange?.(selectedDate as DateRange);
+            // Auto-close sau khi chọn date (single mode không có time)
+            if (mode === 'single' && !showTime) setOpen(false);
         }
-        if (mode === 'range' && showTime) {
-            const newRange = selectedDate as DateRange;
-            const preserved: DateRange = {
-                from: newRange.from ? applyTimeToDate(newRange.from, rangeTimeParts.from) : undefined,
-                to: newRange.to ? applyTimeToDate(newRange.to, rangeTimeParts.to) : undefined,
-            };
-            emitRange(preserved);
-            return;
-        }
-        // Because of our mode checking, we can be confident here
-        onDateChange?.(selectedDate as DateRange);
-        onChange?.(selectedDate as DateRange);
     };
 
     // ---------- render trigger label ----------
@@ -315,20 +306,21 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
 
         if (mode === 'range') {
             const range = date as DateRange;
-            const fmtOne = (d: Date) => (showTime ? formatDateDisplay(d, true, timeFormat) : format(d, 'dd/MM/yyyy'));
             if (range.from && range.to) {
-                return <span>{fmtOne(range.from)} – {fmtOne(range.to)}</span>;
+                return (
+                    <span>
+                        {format(range.from, 'dd/MM/yyyy')} – {format(range.to, 'dd/MM/yyyy')}
+                    </span>
+                );
             }
-            if (range.from) return <span>{fmtOne(range.from)} –</span>;
+            if (range.from) return <span>{format(range.from, 'dd/MM/yyyy')} –</span>;
         }
 
         return <span className="text-muted-foreground">{placeholder}</span>;
     }, [date, mode, showTime, timeFormat, timeValue, timeParts, placeholder]);
 
     const isTimeMode = mode === 'time-only';
-    const isRangeWithTime = mode === 'range' && showTime;
     const needsTimePicker = isTimeMode || (mode === 'single' && showTime);
-    const timeLegend = timeFormat === 'HH' ? 'Select hour' : timeFormat === 'HH:mm' ? 'Hour : Minute' : 'Hour : Minute : Second';
 
     return (
         <div ref={ref} className={`flex flex-col gap-1.5 w-full ${className || ''}`}>
@@ -339,7 +331,7 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                 </label>
             )}
 
-            <BasePopover.Root open={open} onOpenChange={disabled ? undefined : setOpen}>
+            <BasePopover.Root open={open} onOpenChange={disabled ? undefined : handleOpenChange}>
                 <BasePopover.Trigger
                     render={
                         <button
@@ -375,7 +367,12 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                         mode="single"
                                         locale={locales.vi}
                                         selected={date as Date | undefined}
+                                        month={calendarMonth}
+                                        onMonthChange={setCalendarMonth}
                                         onSelect={(d) => handleDateSelect(d)}
+                                        captionLayout={captionLayout}
+                                        startMonth={new Date(1900, 0)}
+                                        endMonth={new Date(2100, 11)}
                                         disabled={disablePastDates ? [{ before: new Date() }] : undefined}
                                         className="rdp-custom"
                                     />
@@ -387,19 +384,26 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                         mode="range"
                                         locale={locales.vi}
                                         selected={date as DateRange | undefined}
+                                        month={calendarMonth}
+                                        onMonthChange={setCalendarMonth}
                                         onSelect={(d) => handleDateSelect(d)}
+                                        captionLayout={captionLayout}
+                                        startMonth={new Date(1900, 0)}
+                                        endMonth={new Date(2100, 11)}
                                         disabled={disablePastDates ? [{ before: new Date() }] : undefined}
                                         className="rdp-custom"
                                     />
                                 </div>
                             )}
 
-                            {/* Time picker — single / time-only */}
+                            {/* Time picker */}
                             {needsTimePicker && (
                                 <div className={`border-t border-border p-3 flex flex-col gap-2 ${isTimeMode ? 'border-t-0' : ''}`}>
                                     <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                         <Clock className="w-3.5 h-3.5" />
-                                        <span>{timeLegend}</span>
+                                        <span>
+                                            {timeFormat === 'HH' ? 'Select hour' : timeFormat === 'HH:mm' ? 'Hour : Minute' : 'Hour : Minute : Second'}
+                                        </span>
                                     </div>
                                     <TimePicker
                                         parts={timeParts}
@@ -410,45 +414,6 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                 </div>
                             )}
 
-                            {/* Time picker — range (2 bộ: Từ / Đến) */}
-                            {isRangeWithTime && (() => {
-                                const range = date as DateRange | undefined;
-                                const hasFrom = !!range?.from;
-                                const hasTo = !!range?.to;
-                                return (
-                                    <div className="border-t border-border p-3 flex flex-col gap-3">
-                                        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                                            <Clock className="w-3.5 h-3.5" />
-                                            <span>{timeLegend}</span>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div className="flex flex-col gap-1.5">
-                                                <span className="text-[11px] font-medium text-muted-foreground">Từ</span>
-                                                <div className={!hasFrom ? 'pointer-events-none opacity-50' : ''}>
-                                                    <TimePicker
-                                                        parts={rangeTimeParts.from}
-                                                        onChange={(p) => handleRangePartsChange(p, 'from')}
-                                                        timeFormat={timeFormat}
-                                                        timePickerStyle={timePickerStyle}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col gap-1.5">
-                                                <span className="text-[11px] font-medium text-muted-foreground">Đến</span>
-                                                <div className={!hasTo ? 'pointer-events-none opacity-50' : ''}>
-                                                    <TimePicker
-                                                        parts={rangeTimeParts.to}
-                                                        onChange={(p) => handleRangePartsChange(p, 'to')}
-                                                        timeFormat={timeFormat}
-                                                        timePickerStyle={timePickerStyle}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })()}
-
                             {/* Footer actions */}
                             <div className="flex items-center justify-between gap-2 p-3 border-t border-border">
                                 <button
@@ -457,7 +422,9 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                         if (mode === 'time-only') {
                                             onTimeChange?.('');
                                         } else {
+                                            if (!isControlled) setInternalDate(undefined);
                                             onDateChange?.(undefined);
+                                            onChange?.(undefined);
                                         }
                                     }}
                                     className="text-xs text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
