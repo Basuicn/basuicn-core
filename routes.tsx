@@ -47,6 +47,7 @@ import InputOTPPage from "./src/pages/InputOTPPage";
 import ResizablePage from "./src/pages/ResizablePage";
 import EmptyPage from "./src/pages/EmptyPage";
 import TimelinePage from "./src/pages/TimelinePage";
+import QRCodePage from "./src/pages/QRCodePage";
 import CommandPage from "./src/pages/CommandPage";
 import FileUploadPage from "./src/pages/FileUploadPage";
 import NumberInputPage from "./src/pages/NumberInputPage";
@@ -197,6 +198,13 @@ export const ROUTES: RouteConfig[] = [
         label: "Timeline",
         icon: <Icon.GitBranch className="w-4 h-4" />,
         element: <TimelinePage />,
+        badge: "New",
+      },
+      {
+        path: ROUTES_CONSTANT.GENERAL.QRCODE,
+        label: "QR Code",
+        icon: <Icon.QrCode className="w-4 h-4" />,
+        element: <QRCodePage />,
         badge: "New",
       },
     ],

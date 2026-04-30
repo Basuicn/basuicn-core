@@ -26,10 +26,8 @@ export interface DatePickerProps {
     /** Picker mode: single date, date range, or time-only */
     mode?: DatePickerMode;
     /** Selected date (Date for single, DateRange for range) */
-    date?: Date | DateRange;
+    value?: Date | DateRange | string;
     /** Callback fired when the date changes */
-    onDateChange?: (date: Date | DateRange | undefined) => void;
-    /** Alternative callback (alias for onDateChange) */
     onChange?: (date: Date | DateRange | undefined) => void;
     /** Current time string, only used when mode is 'time-only' */
     timeValue?: string;
@@ -213,8 +211,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ parts, onChange, timeFormat, ti
 
 export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     mode = 'single',
-    date: dateProp,
-    onDateChange,
+    value,
     onChange,
     timeValue,
     onTimeChange,
@@ -234,12 +231,11 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     const [open, setOpen] = React.useState(false);
     const triggerRef = React.useRef<HTMLButtonElement>(null);
 
-    // Internal state — hoạt động cả controlled lẫn uncontrolled
-    const isControlled = dateProp !== undefined;
+    // Controlled nếu có onChange — value prop được trust kể cả khi undefined
+    const isControlled = onChange !== undefined;
     const [internalDate, setInternalDate] = React.useState<Date | DateRange | undefined>(undefined);
-    const date = isControlled ? dateProp : internalDate;
+    const date = isControlled ? value : internalDate;
 
-    // Calendar luôn navigate đến tháng của ngày đã chọn khi mở
     const [calendarMonth, setCalendarMonth] = React.useState<Date>(new Date());
     const handleOpenChange = (newOpen: boolean) => {
         if (newOpen) {
@@ -263,7 +259,6 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
         if (date instanceof Date) {
             const newDate = applyTimeToDate(date, newParts);
             if (!isControlled) setInternalDate(newDate);
-            onDateChange?.(newDate);
             onChange?.(newDate);
         }
     };
@@ -271,25 +266,20 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
     const handleDateSelect = (selectedDate: Date | DateRange | Date[] | undefined) => {
         if (!selectedDate) {
             if (!isControlled) setInternalDate(undefined);
-            onDateChange?.(undefined);
             onChange?.(undefined);
             return;
         }
         if (mode === 'single' && showTime && selectedDate instanceof Date) {
             const newDate = applyTimeToDate(selectedDate, timeParts);
             if (!isControlled) setInternalDate(newDate);
-            onDateChange?.(newDate);
             onChange?.(newDate);
         } else {
             if (!isControlled) setInternalDate(selectedDate as Date | DateRange);
-            onDateChange?.(selectedDate as DateRange);
             onChange?.(selectedDate as DateRange);
-            // Auto-close sau khi chọn date (single mode không có time)
             if (mode === 'single' && !showTime) setOpen(false);
         }
     };
 
-    // ---------- render trigger label ----------
     const triggerLabel = React.useMemo(() => {
         if (mode === 'time-only') {
             const val = timeValue ?? buildTimeString(timeParts, timeFormat);
@@ -396,7 +386,6 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                 </div>
                             )}
 
-                            {/* Time picker */}
                             {needsTimePicker && (
                                 <div className={`border-t border-border p-3 flex flex-col gap-2 ${isTimeMode ? 'border-t-0' : ''}`}>
                                     <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -414,7 +403,6 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                 </div>
                             )}
 
-                            {/* Footer actions */}
                             <div className="flex items-center justify-between gap-2 p-3 border-t border-border">
                                 <button
                                     type="button"
@@ -423,7 +411,6 @@ export const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(({
                                             onTimeChange?.('');
                                         } else {
                                             if (!isControlled) setInternalDate(undefined);
-                                            onDateChange?.(undefined);
                                             onChange?.(undefined);
                                         }
                                     }}

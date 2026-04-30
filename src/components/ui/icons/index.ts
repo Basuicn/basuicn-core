@@ -68,4 +68,5 @@ export {
   Upload,
   GitBranch,
   FolderTree,
+  QrCode,
 } from 'lucide-react';
