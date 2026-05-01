@@ -189,8 +189,8 @@ export const FormShowcase = () => {
                         label="Ngày sinh"
                         placeholder="Lựa chọn ngày"
                         error={fieldState.error?.message}
-                        onDateChange={field.onChange}
-                        date={field.value as Date | undefined}
+                        onChange={field.onChange}
+                        value={field.value as Date | undefined}
                         disablePastDates={false}
                       />
                     )}
