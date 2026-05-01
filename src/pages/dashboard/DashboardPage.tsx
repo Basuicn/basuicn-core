@@ -34,7 +34,7 @@ const DashboardPage = () => {
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-         <DatePicker  mode="range"  date={range} onDateChange={(d) => setRange(d as DateRange | undefined)} />
+         <DatePicker  mode="range"  value={range} onChange={(d) => setRange(d as DateRange | undefined)} />
           <Select
           className='w-34'
             options={PERIOD_OPTIONS}

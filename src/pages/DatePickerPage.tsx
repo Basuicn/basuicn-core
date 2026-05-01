@@ -14,23 +14,23 @@ const DatePickerPage = () => {
             <PageHeader title="DatePicker" description="Bộ chọn ngày tháng đầy đủ tính năng." />
 
             <ShowcaseCard title="Single Date">
-                <DatePicker label="Ngày sinh" date={single} onDateChange={(d) => setSingle(d as Date | undefined)} placeholder="Chọn ngày..." />
+                <DatePicker label="Ngày sinh" value={single} onChange={(d) => setSingle(d as Date | undefined)} placeholder="Chọn ngày..." />
             </ShowcaseCard>
 
             <ShowcaseCard title="Date Range">
-                <DatePicker mode="range" label="Khoảng thời gian" date={range} onDateChange={(d) => setRange(d as DateRange | undefined)} placeholder="Từ — Đến" />
+                <DatePicker mode="range" label="Khoảng thời gian" value={range} onChange={(d) => setRange(d as DateRange | undefined)} placeholder="Từ — Đến" />
             </ShowcaseCard>
 
             <ShowcaseCard title="Chặn Ngày Quá Khứ">
-                <DatePicker label="Lịch hẹn" date={future} onDateChange={(d) => setFuture(d as Date | undefined)} disablePastDates placeholder="Chỉ ngày tương lai..." />
+                <DatePicker label="Lịch hẹn" value={future} onChange={(d) => setFuture(d as Date | undefined)} disablePastDates placeholder="Chỉ ngày tương lai..." />
             </ShowcaseCard>
 
             <ShowcaseCard title="DateTime — Nhập giờ (Input)">
-                <DatePicker label="Ngày & Giờ" showTime timePickerStyle="input" date={dt1} onDateChange={(d) => setDt1(d as Date | undefined)} placeholder="Chọn ngày giờ..." />
+                <DatePicker label="Ngày & Giờ" showTime timePickerStyle="input" value={dt1} onChange={(d) => setDt1(d as Date | undefined)} placeholder="Chọn ngày giờ..." />
             </ShowcaseCard>
 
             <ShowcaseCard title="DateTime — Chọn giờ (Select)">
-                <DatePicker label="Ngày & Giờ" showTime timePickerStyle="select" date={dt2} onDateChange={(d) => setDt2(d as Date | undefined)} placeholder="Chọn ngày giờ..." />
+                <DatePicker label="Ngày & Giờ" showTime timePickerStyle="select" value={dt2} onChange={(d) => setDt2(d as Date | undefined)} placeholder="Chọn ngày giờ..." />
             </ShowcaseCard>
         </div>
     );
