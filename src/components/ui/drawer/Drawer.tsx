@@ -92,7 +92,22 @@ const drawerVariants = tv({
 const Drawer = BaseDialog.Root;
 
 /* ─── Trigger ─── */
-const DrawerTrigger = BaseDialog.Trigger;
+const DrawerTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof BaseDialog.Trigger>
+>(({ children, render: renderProp, ...props }, ref) => {
+  const isElement = React.isValidElement(children);
+  return (
+    <BaseDialog.Trigger
+      ref={ref}
+      render={renderProp ?? (isElement ? (children as React.ReactElement) : undefined)}
+      {...props}
+    >
+      {isElement ? undefined : children}
+    </BaseDialog.Trigger>
+  );
+});
+DrawerTrigger.displayName = 'DrawerTrigger';
 
 /* ─── Close (re-export for custom close buttons) ─── */
 const DrawerClose = BaseDialog.Close;
