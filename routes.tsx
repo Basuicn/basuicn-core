@@ -53,6 +53,7 @@ import FileUploadPage from "./src/pages/FileUploadPage";
 import NumberInputPage from "./src/pages/NumberInputPage";
 import TreeViewPage from "./src/pages/TreeViewPage";
 import TableContentsPage from "./src/pages/TableContentsPage";
+import WatermarkPage from "./src/pages/WatermarkPage";
 import LoginPage from "./src/pages/form-login/LoginPage";
 import LayoutDemoPage from "./src/pages/LayoutDemoPage";
 import LayoutDemo1Preview from "./src/pages/preview/LayoutDemo1Preview";
@@ -205,6 +206,13 @@ export const ROUTES: RouteConfig[] = [
         label: "QR Code",
         icon: <Icon.QrCode className="w-4 h-4" />,
         element: <QRCodePage />,
+        badge: "New",
+      },
+      {
+        path: ROUTES_CONSTANT.GENERAL.WATERMARK,
+        label: "Watermark",
+        icon: <Icon.Layers3 className="w-4 h-4" />,
+        element: <WatermarkPage />,
         badge: "New",
       },
     ],

@@ -54,3 +54,4 @@ export * from './file-upload/FileUpload';
 export * from './number-input/NumberInput';
 export * from './timeline/Timeline';
 export * from './tree-view/TreeView';
+export * from './watermark/Watermark';

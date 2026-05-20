@@ -25,6 +25,7 @@ export const ROUTES_CONSTANT = {
         EMPTY: "/empty",
         TIMELINE: "/timeline",
         QRCODE: "/qrcode",
+        WATERMARK: "/watermark",
     },
     FORM: {
         INPUT: "/input",

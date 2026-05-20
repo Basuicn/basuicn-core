@@ -20,7 +20,7 @@ const PaginationDemo = () => {
       for (let i = 1; i <= total; i++) pages.push(i);
     } else {
       pages.push(1);
-      if (page > 3) pages.push('ellipsis');
+    if (page > 3) pages.push('ellipsis');
       for (let i = Math.max(2, page - 1); i <= Math.min(total - 1, page + 1); i++) pages.push(i);
       if (page < total - 2) pages.push('ellipsis');
       pages.push(total);
