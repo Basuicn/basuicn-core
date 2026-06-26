@@ -26,6 +26,8 @@ export const ROUTES_CONSTANT = {
         TIMELINE: "/timeline",
         QRCODE: "/qrcode",
         WATERMARK: "/watermark",
+        DOCK: "/dock",
+        ANIMATED_BEAM: "/animated-beam",
     },
     FORM: {
         INPUT: "/input",

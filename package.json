@@ -1,7 +1,7 @@
 {
   "name": "basuicn",
   "private": false,
-  "version": "0.3.17",
+  "version": "0.3.18",
   "type": "module",
   "repository": {
     "type": "git",
@@ -61,9 +61,9 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/browser-playwright": "^4.1.2",
-    "@vitest/coverage-v8": "^4.1.2",
-    "@vitest/ui": "^4.1.2",
+    "@vitest/browser-playwright": "^4.1.9",
+    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/ui": "^4.1.9",
     "autoprefixer": "^10.4.27",
     "babel-plugin-react-compiler": "^1.0.0",
     "clsx": "^2.1.1",
@@ -100,14 +100,19 @@
     "typescript-eslint": "^8.57.0",
     "unified": "^11.0.5",
     "vite": "^8.0.1",
-    "vitest": "^4.1.2",
+    "vitest": "^4.1.9",
     "zod": "^4.3.6"
   },
   "dependencies": {
     "@recharts/devtools": "^0.0.11",
     "keen-slider": "^6.8.6",
+    "motion": "^12.42.0",
     "qrcode.react": "^4.2.0",
     "recharts": "^3.8.1",
     "zustand": "^5.0.12"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1",
+    "dompurify": "^3.4.11"
   }
 }

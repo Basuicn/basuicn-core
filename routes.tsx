@@ -54,6 +54,8 @@ import NumberInputPage from "./src/pages/NumberInputPage";
 import TreeViewPage from "./src/pages/TreeViewPage";
 import TableContentsPage from "./src/pages/TableContentsPage";
 import WatermarkPage from "./src/pages/WatermarkPage";
+import DockPage from "./src/pages/DockPage";
+import AnimatedBeamPage from "./src/pages/AnimatedBeamPage";
 import LoginPage from "./src/pages/form-login/LoginPage";
 import LayoutDemoPage from "./src/pages/LayoutDemoPage";
 import LayoutDemo1Preview from "./src/pages/preview/LayoutDemo1Preview";
@@ -213,6 +215,20 @@ export const ROUTES: RouteConfig[] = [
         label: "Watermark",
         icon: <Icon.Layers3 className="w-4 h-4" />,
         element: <WatermarkPage />,
+        badge: "New",
+      },
+      {
+        path: ROUTES_CONSTANT.GENERAL.DOCK,
+        label: "Dock",
+        icon: <Icon.LayoutDashboard className="w-4 h-4" />,
+        element: <DockPage />,
+        badge: "New",
+      },
+      {
+        path: ROUTES_CONSTANT.GENERAL.ANIMATED_BEAM,
+        label: "Animated Beam",
+        icon: <Icon.Navigation className="w-4 h-4" />,
+        element: <AnimatedBeamPage />,
         badge: "New",
       },
     ],

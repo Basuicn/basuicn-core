@@ -55,3 +55,5 @@ export * from './number-input/NumberInput';
 export * from './timeline/Timeline';
 export * from './tree-view/TreeView';
 export * from './watermark/Watermark';
+export * from './dock/Dock';
+export * from './animated-beam/AnimatedBeam';
